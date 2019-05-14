@@ -1,0 +1,1 @@
+/usr/bin/c++    -Wall -Werror -std=c++11 -O3 -DNDEBUG  -Wl,--copy-dt-needed-entries CMakeFiles/GameboyEmulator.dir/src/Main.cpp.o  -o GameboyEmulator /usr/lib/x86_64-linux-gnu/libsfml-graphics.so /usr/lib/x86_64-linux-gnu/libsfml-audio.so 
