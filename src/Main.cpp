@@ -1,10 +1,14 @@
 #include "ram.h"
 #include <SFML/Graphics.hpp>
 
+#define SCREEN_WIDTH 144
+#define SCREEN_HEIGHT 160
+#define APP_NAME "GameBoy Emulator"
+
 int main()
 {
     // create the window
-    sf::RenderWindow window(sf::VideoMode(800, 600), "My window");
+    sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH), APP_NAME);
 
     RAM ram_inst = RAM();
 
