@@ -12,6 +12,7 @@ int main()
 
     RAM ram_inst = RAM();
     ram_inst.initialise();
+    CPU cpu = CPU();
 
     // run the program as long as the window is open
     while (window.isOpen())
@@ -30,6 +31,8 @@ int main()
 
         // draw everything here...
         // window.draw(...);
+
+
 
         // end the current frame
         window.display();
