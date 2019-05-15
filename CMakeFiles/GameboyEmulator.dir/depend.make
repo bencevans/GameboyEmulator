@@ -3,4 +3,12 @@
 
 CMakeFiles/GameboyEmulator.dir/src/Main.cpp.o: src/Main.cpp
 CMakeFiles/GameboyEmulator.dir/src/Main.cpp.o: src/ram.h
+CMakeFiles/GameboyEmulator.dir/src/Main.cpp.o: src/ram_subset.h
+
+CMakeFiles/GameboyEmulator.dir/src/ram.cpp.o: src/ram.cpp
+CMakeFiles/GameboyEmulator.dir/src/ram.cpp.o: src/ram.h
+CMakeFiles/GameboyEmulator.dir/src/ram.cpp.o: src/ram_subset.h
+
+CMakeFiles/GameboyEmulator.dir/src/ram_subset.cpp.o: src/ram_subset.cpp
+CMakeFiles/GameboyEmulator.dir/src/ram_subset.cpp.o: src/ram_subset.h
 

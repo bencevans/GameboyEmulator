@@ -11,6 +11,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH), APP_NAME);
 
     RAM ram_inst = RAM();
+    ram_inst.initialise();
 
     // run the program as long as the window is open
     while (window.isOpen())

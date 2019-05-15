@@ -150,6 +150,60 @@ src/Main.cpp.s:
 	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/Main.cpp.s
 .PHONY : src/Main.cpp.s
 
+src/ram.o: src/ram.cpp.o
+
+.PHONY : src/ram.o
+
+# target to build an object file
+src/ram.cpp.o:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/ram.cpp.o
+.PHONY : src/ram.cpp.o
+
+src/ram.i: src/ram.cpp.i
+
+.PHONY : src/ram.i
+
+# target to preprocess a source file
+src/ram.cpp.i:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/ram.cpp.i
+.PHONY : src/ram.cpp.i
+
+src/ram.s: src/ram.cpp.s
+
+.PHONY : src/ram.s
+
+# target to generate assembly for a file
+src/ram.cpp.s:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/ram.cpp.s
+.PHONY : src/ram.cpp.s
+
+src/ram_subset.o: src/ram_subset.cpp.o
+
+.PHONY : src/ram_subset.o
+
+# target to build an object file
+src/ram_subset.cpp.o:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/ram_subset.cpp.o
+.PHONY : src/ram_subset.cpp.o
+
+src/ram_subset.i: src/ram_subset.cpp.i
+
+.PHONY : src/ram_subset.i
+
+# target to preprocess a source file
+src/ram_subset.cpp.i:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/ram_subset.cpp.i
+.PHONY : src/ram_subset.cpp.i
+
+src/ram_subset.s: src/ram_subset.cpp.s
+
+.PHONY : src/ram_subset.s
+
+# target to generate assembly for a file
+src/ram_subset.cpp.s:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/ram_subset.cpp.s
+.PHONY : src/ram_subset.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,6 +216,12 @@ help:
 	@echo "... src/Main.o"
 	@echo "... src/Main.i"
 	@echo "... src/Main.s"
+	@echo "... src/ram.o"
+	@echo "... src/ram.i"
+	@echo "... src/ram.s"
+	@echo "... src/ram_subset.o"
+	@echo "... src/ram_subset.i"
+	@echo "... src/ram_subset.s"
 .PHONY : help
 
 

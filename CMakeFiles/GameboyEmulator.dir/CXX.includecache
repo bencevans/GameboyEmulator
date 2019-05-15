@@ -12,9 +12,23 @@ ram.h
 SFML/Graphics.hpp
 -
 
+/home/matthew/w/g/gameboy-emulator/src/ram.cpp
+ram.h
 /home/matthew/w/g/gameboy-emulator/src/ram.h
-vector
+
+/home/matthew/w/g/gameboy-emulator/src/ram.h
+memory
 -
+ram_subset.h
+/home/matthew/w/g/gameboy-emulator/src/ram_subset.h
+
+/home/matthew/w/g/gameboy-emulator/src/ram_subset.cpp
+ram_subset.h
+/home/matthew/w/g/gameboy-emulator/src/ram_subset.h
+memory
+-
+
+/home/matthew/w/g/gameboy-emulator/src/ram_subset.h
 memory
 -
 
