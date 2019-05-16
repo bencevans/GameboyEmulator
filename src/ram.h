@@ -3,9 +3,13 @@
 #include <memory>
 #include "ram_subset.h"
 
+// 0x10000
+#define MAX_MEM_SIZE 65535
+
 class RAM {
 public:
-    void initialise();
+    RAM();
+    uint8_t get();
     RamSubset get_character_ram();
     RamSubset get_bg_map_1();
     RamSubset get_bg_map_2();
@@ -17,5 +21,6 @@ public:
 private:
     // @TODO Reduce this to exclude mappings to other
     // periferals.
-    uint8_t memory[0x10000] = {};
+    uint8_t memory[MAX_MEM_SIZE] = {};
+    uint16_t memory_max = MAX_MEM_SIZE;
 };

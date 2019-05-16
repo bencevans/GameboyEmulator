@@ -3,8 +3,10 @@
 #include <memory>
 #include "ram.h"
 
-class Cpu {
-    void Cpu(RAM ram);
+class CPU {
+public:
+    CPU(RAM ram);
+    void tick();
 private:
     // Registers
     //  Accumulator
@@ -23,4 +25,6 @@ private:
     uint16_t r_sp;
     // Program counter
     uint16_t r_pc;
+    
+    RAM ram;
 };

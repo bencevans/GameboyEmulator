@@ -150,6 +150,33 @@ src/Main.cpp.s:
 	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/Main.cpp.s
 .PHONY : src/Main.cpp.s
 
+src/cpu.o: src/cpu.cpp.o
+
+.PHONY : src/cpu.o
+
+# target to build an object file
+src/cpu.cpp.o:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o
+.PHONY : src/cpu.cpp.o
+
+src/cpu.i: src/cpu.cpp.i
+
+.PHONY : src/cpu.i
+
+# target to preprocess a source file
+src/cpu.cpp.i:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.i
+.PHONY : src/cpu.cpp.i
+
+src/cpu.s: src/cpu.cpp.s
+
+.PHONY : src/cpu.s
+
+# target to generate assembly for a file
+src/cpu.cpp.s:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.s
+.PHONY : src/cpu.cpp.s
+
 src/ram.o: src/ram.cpp.o
 
 .PHONY : src/ram.o
@@ -216,6 +243,9 @@ help:
 	@echo "... src/Main.o"
 	@echo "... src/Main.i"
 	@echo "... src/Main.s"
+	@echo "... src/cpu.o"
+	@echo "... src/cpu.i"
+	@echo "... src/cpu.s"
 	@echo "... src/ram.o"
 	@echo "... src/ram.i"
 	@echo "... src/ram.s"

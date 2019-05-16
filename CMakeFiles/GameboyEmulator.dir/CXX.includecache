@@ -9,8 +9,22 @@
 /home/matthew/w/g/gameboy-emulator/src/Main.cpp
 ram.h
 /home/matthew/w/g/gameboy-emulator/src/ram.h
+cpu.h
+/home/matthew/w/g/gameboy-emulator/src/cpu.h
 SFML/Graphics.hpp
 -
+
+/home/matthew/w/g/gameboy-emulator/src/cpu.cpp
+cpu.h
+/home/matthew/w/g/gameboy-emulator/src/cpu.h
+iostream
+-
+
+/home/matthew/w/g/gameboy-emulator/src/cpu.h
+memory
+-
+ram.h
+/home/matthew/w/g/gameboy-emulator/src/ram.h
 
 /home/matthew/w/g/gameboy-emulator/src/ram.cpp
 ram.h

@@ -1,4 +1,5 @@
 #include "ram.h"
+#include "cpu.h"
 #include <SFML/Graphics.hpp>
 
 #define SCREEN_WIDTH 144
@@ -11,8 +12,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH), APP_NAME);
 
     RAM ram_inst = RAM();
-    ram_inst.initialise();
-    CPU cpu = CPU();
+    CPU cpu_inst = CPU(ram_inst);
 
     // run the program as long as the window is open
     while (window.isOpen())
@@ -32,7 +32,7 @@ int main()
         // draw everything here...
         // window.draw(...);
 
-
+        cpu_inst.tick();
 
         // end the current frame
         window.display();
