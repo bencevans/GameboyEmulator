@@ -23,6 +23,8 @@ cpu.h
 /home/matthew/w/g/gameboy-emulator/src/cpu.h
 iostream
 -
+string.h
+-
 
 /home/matthew/w/g/gameboy-emulator/src/cpu.h
 memory
