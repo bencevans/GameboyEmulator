@@ -37,6 +37,7 @@ private:
     };
     INTERUPT_STATE di_state;
     bool halt_state;
+    bool cb_state;
 
     // Registers
     //  Accumulator
@@ -59,6 +60,9 @@ private:
     uint8_t get_inc_pc_val8();
     uint16_t get_inc_pc_val16();
     uint16_t get_register_value16(reg8 dest_l, reg8 dest_u);
+    
+    void execute_op_code(int op_val);
+    void execute_cb_code(int op_val);
     
     void set_zero_flag(uint8_t is_it);
 

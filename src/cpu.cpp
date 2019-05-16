@@ -22,6 +22,8 @@ CPU::CPU(RAM ram) {
     this->r_l = gen_reg();
     this->r_l.value = 0;
     
+    this->cb_state = false;
+    
     this->di_state = this->INTERUPT_STATE::DEACTIVE;
     this->halt_state = false;
     
@@ -53,7 +55,16 @@ void CPU::tick() {
     // after the operation is executed, i.e if we perform an operation with
     // the PC, this will matter.
     this->r_pc.value ++;
-    
+
+    if (this->cb_state) {
+        this->execute_cb_code(op_val);
+        this->cb_state = false;
+    } else {
+        this->execute_op_code(op_val);
+    }
+}
+
+void CPU::execute_op_code(int op_val) {
     switch(op_val) {
         case 0x0:
             // STOP
@@ -85,13 +96,26 @@ void CPU::tick() {
             // X-OR A with A into A
             this->op_XOR(this->r_a);
             break;
+        case 0xcb:
+            // Set flag for CB
+            this->cb_state = true;
         default:
             std::cout << "Unknown op code: ";
             std::cout << std::hex << op_val;
             std::cout << std::endl;
+            break;
     }
 }
 
+void CPU::execute_cb_code(int op_val) {
+    switch(op_val) {
+        default:
+            std::cout << "Unknown CB op code: ";
+            std::cout << std::hex << op_val;
+            std::cout << std::endl;
+            break;
+    }
+}
 
 uint16_t CPU::get_register_value16(reg8 dest_l, reg8 dest_u) {
     union {
