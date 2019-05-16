@@ -107,6 +107,12 @@ uint16_t CPU::get_register_value16(reg8 dest_l, reg8 dest_u) {
 void CPU::op_XOR(reg8 comp) {
     uint8_t res = this->r_a.value ^ comp.value;
     this->r_a.value = res;
+    this->r_f.value = 0;
+    this->set_zero_flag(res);
+}
+
+void CPU::set_zero_flag(uint8_t is_it) {
+    this->r_f.value ^= (((is_it == 0) ? 1UL : 0UL) << 7);
 }
 
 // Get value from memory at PC and increment PC

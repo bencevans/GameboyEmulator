@@ -60,6 +60,7 @@ private:
     uint16_t get_inc_pc_val16();
     uint16_t get_register_value16(reg8 dest_l, reg8 dest_u);
     
+    void set_zero_flag(uint8_t is_it);
 
     void op_Load(reg8 dest);
     void op_Load(reg16 dest);
