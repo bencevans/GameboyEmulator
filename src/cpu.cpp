@@ -117,7 +117,9 @@ void CPU::set_zero_flag(uint8_t is_it) {
 
 // Get value from memory at PC and increment PC
 uint8_t CPU::get_inc_pc_val8() {
-    uint8_t val = this->ram.get(this->r_pc.value);
+    uint8_t ori_val = this->ram.get(this->r_pc.value);
+    uint8_t val;
+    memcpy(&val, &ori_val, 1);
     this->r_pc.value ++;
     return val;
 }
