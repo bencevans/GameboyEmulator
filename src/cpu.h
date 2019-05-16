@@ -58,9 +58,13 @@ private:
 
     uint8_t get_inc_pc_val8();
     uint16_t get_inc_pc_val16();
+    uint16_t get_register_value16(reg8 dest_l, reg8 dest_u);
+    
 
     void op_Load(reg8 dest);
     void op_Load(reg16 dest);
+    void op_XOR(reg8 comp);
+    void op_Get_dec_set(reg8 source, reg8 dest_l, reg8 dest_h);
     void op_DI();
     void op_Halt();
     

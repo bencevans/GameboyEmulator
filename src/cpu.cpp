@@ -61,12 +61,28 @@ void CPU::tick() {
             break;
         case 0x10:
             //this->op_Stop();
+            // @TODO: This is TEMPORARY
+            this->running = false;
+            break;
+        case 0x21:
+            // First byte into H
+            this->op_Load(this->r_h);
+            // Second into L
+            this->op_Load(this->r_l);
             break;
         case 0x31:
+            // Load 2-bytes into SP
             this->op_Load(this->r_sp);
             break;
+        case 0x32:
+            // Get HL, dec and set
+            this->op_Get_dec_set(this->r_a, this->r_h, this->r_l);
         case 0x76:
             this->op_Halt();
+            break;
+        case 0xaf:
+            // X-OR A with A into A
+            this->op_XOR(this->r_a);
             break;
         default:
             std::cout << "Unknown op code: ";
@@ -75,11 +91,33 @@ void CPU::tick() {
     }
 }
 
+
+uint16_t CPU::get_register_value16(reg8 dest_l, reg8 dest_u) {
+    union {
+        uint8_t bit8[2];
+        uint16_t bit16[1];
+    } data_conv;
+    data_conv.bit8[0] = dest_l.value;
+    data_conv.bit8[1] = dest_l.value;
+    return data_conv.bit16[0];
+}
+
+// Perform XOR of registry against A and then store
+// result in A
+void CPU::op_XOR(reg8 comp) {
+    uint8_t res = this->r_a.value ^ comp.value;
+    this->r_a.value = res;
+}
+
+// Get value from memory at PC and increment PC
 uint8_t CPU::get_inc_pc_val8() {
     uint8_t val = this->ram.get(this->r_pc.value);
     this->r_pc.value ++;
     return val;
 }
+
+// Get 2-byte value from memory address at PC,
+// incrementing the PC past this value
 uint16_t CPU::get_inc_pc_val16() {
     union {
         uint8_t bit8[2];
@@ -93,6 +131,14 @@ uint16_t CPU::get_inc_pc_val16() {
     //memcpy(&data_conv.bit8[0], this->get_inc_pc_val8());
     //memcpy(&data_conv.bit8[1], this->get_inc_pc_val8());
     return data_conv.bit16[0];
+}
+
+// Get value from specified register, decrement and store
+// in memory (using address of two registers)
+void CPU::op_Get_dec_set(reg8 source, reg8 dest_l, reg8 dest_h) {
+    uint8_t value;
+    memcpy(&value, &source.value, 1);
+    this->ram.set(this->get_register_value16(dest_l, dest_h), value);
 }
 
 
