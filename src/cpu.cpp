@@ -62,7 +62,7 @@ void CPU::tick() {
         case 0x10:
             //this->op_Stop();
             // @TODO: This is TEMPORARY
-            this->running = false;
+            //this->running = false;
             break;
         case 0x21:
             // First byte into H
@@ -77,6 +77,7 @@ void CPU::tick() {
         case 0x32:
             // Get HL, dec and set
             this->op_Get_dec_set(this->r_a, this->r_h, this->r_l);
+            break;
         case 0x76:
             this->op_Halt();
             break;
@@ -99,6 +100,7 @@ uint16_t CPU::get_register_value16(reg8 dest_l, reg8 dest_u) {
     } data_conv;
     data_conv.bit8[0] = dest_l.value;
     data_conv.bit8[1] = dest_u.value;
+
     return data_conv.bit16[0];
 }
 
