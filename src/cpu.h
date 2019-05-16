@@ -7,6 +7,7 @@ class CPU {
 public:
     CPU(RAM ram);
     void tick();
+    bool is_running();
 private:
     // Registers
     //  Accumulator
@@ -27,4 +28,5 @@ private:
     uint16_t r_pc;
     
     RAM ram;
+    bool running;
 };

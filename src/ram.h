@@ -9,7 +9,8 @@
 class RAM {
 public:
     RAM();
-    uint8_t get();
+    uint8_t get(uint16_t address);
+    uint8_t get(int address);
     RamSubset get_character_ram();
     RamSubset get_bg_map_1();
     RamSubset get_bg_map_2();

@@ -12,6 +12,13 @@ RAM::RAM() {
         this->memory[me] = 0;
 }
 
+uint8_t RAM::get(int address) {
+    return this->memory[address];
+}
+uint8_t RAM::get(uint16_t address) {
+    return this->get((int)address);
+}
+
 void RAM::load_bios(char *bios_path) {
     // Open file
     std::ifstream infile(bios_path);

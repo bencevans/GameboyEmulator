@@ -46,7 +46,7 @@ int main(int argc, char* args[])
     CPU cpu_inst = CPU(ram_inst);
 
     // run the program as long as the window is open
-    while (window.isOpen())
+    while (window.isOpen() && cpu_inst.is_running())
     {
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
