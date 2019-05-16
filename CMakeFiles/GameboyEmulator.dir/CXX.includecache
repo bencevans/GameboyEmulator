@@ -7,6 +7,10 @@
 #IncludeRegexTransform: 
 
 /home/matthew/w/g/gameboy-emulator/src/Main.cpp
+iostream
+-
+string
+-
 ram.h
 /home/matthew/w/g/gameboy-emulator/src/ram.h
 cpu.h
@@ -27,6 +31,12 @@ ram.h
 /home/matthew/w/g/gameboy-emulator/src/ram.h
 
 /home/matthew/w/g/gameboy-emulator/src/ram.cpp
+iostream
+-
+fstream
+-
+cstring
+-
 ram.h
 /home/matthew/w/g/gameboy-emulator/src/ram.h
 

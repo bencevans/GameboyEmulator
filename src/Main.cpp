@@ -1,3 +1,5 @@
+#include <iostream>
+#include <string>
 #include "ram.h"
 #include "cpu.h"
 #include <SFML/Graphics.hpp>
@@ -6,12 +8,41 @@
 #define SCREEN_HEIGHT 160
 #define APP_NAME "GameBoy Emulator"
 
-int main()
+struct arguments_t {
+    char *bios_path;
+    char *rom_path;
+    bool valid;
+};
+
+arguments_t get_arguments(int argc, char* args[]) {
+    arguments_t arguments;
+    if (argc != 3) {
+        std::cout << "Usage: GameboyEmulator <BIOS path> <ROM path>" << std::endl;
+        arguments.valid = false;
+    } else {
+        arguments.valid = true;
+        arguments.bios_path = args[1];
+        arguments.rom_path = args[2];
+        std::cout << "Using BIOS path: " << arguments.bios_path << std::endl;
+        std::cout << "Using ROM path: " << arguments.rom_path << std::endl;
+    }
+    return arguments;
+}
+
+int main(int argc, char* args[])
 {
+    arguments_t arguments = get_arguments(argc, args);
+    if (arguments.valid == false) {
+        return 1;
+    }
+    
     // create the window
     sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH), APP_NAME);
 
     RAM ram_inst = RAM();
+    ram_inst.load_bios(arguments.bios_path);
+    ram_inst.load_rom(arguments.rom_path);
+
     CPU cpu_inst = CPU(ram_inst);
 
     // run the program as long as the window is open

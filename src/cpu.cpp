@@ -21,5 +21,5 @@ CPU::CPU(RAM ram) {
 }
 
 void CPU::tick() {
-    std::cout << "tick";
+    //std::cout << "tick";
 }
