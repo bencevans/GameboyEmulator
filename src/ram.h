@@ -17,6 +17,7 @@ public:
     RamSubset get_internal_work_ram();
     RamSubset get_echo_ram();
     RamSubset get_oam();
+    RamSubset get_io_registers();
     RamSubset get_high_ram();
     void load_bios(char *bios_path);
     void load_rom(char *rom_path);

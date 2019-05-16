@@ -19,6 +19,14 @@ uint8_t RAM::get(uint16_t address) {
     return this->get((int)address);
 }
 
+RamSubset RAM::get_io_registers() {
+    return RamSubset(this->memory + 0xff00, 0x80);
+}
+
+RamSubset RAM::get_high_ram() {
+    return RamSubset(this->memory + 0xff80, 0x80);
+}
+
 void RAM::load_bios(char *bios_path) {
     // Open file
     std::ifstream infile(bios_path);
@@ -36,6 +44,7 @@ void RAM::load_bios(char *bios_path) {
     }
     infile.close();
 }
+
 void RAM::load_rom(char *rom_path) {
     
 }
