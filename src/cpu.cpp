@@ -98,7 +98,7 @@ uint16_t CPU::get_register_value16(reg8 dest_l, reg8 dest_u) {
         uint16_t bit16[1];
     } data_conv;
     data_conv.bit8[0] = dest_l.value;
-    data_conv.bit8[1] = dest_l.value;
+    data_conv.bit8[1] = dest_u.value;
     return data_conv.bit16[0];
 }
 
