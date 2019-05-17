@@ -81,9 +81,10 @@ private:
 
     void op_Load(reg8 dest);
     void op_Load(reg16 dest);
-    void op_Load(reg8 source, reg8 dest);
+    void op_Load(reg8 dest, reg8 source);
+    void op_Load(int dest_addr, reg8 source);
     void op_XOR(reg8 comp);
-    void op_Get_dec_set(reg8 source, reg8 dest_l, reg8 dest_h);
+    void op_Get_dec_set(reg8 dest_l, reg8 dest_h, reg8 source);
     void op_Bit(reg8 comp, int bit);
     void op_EI();
     void op_DI();
