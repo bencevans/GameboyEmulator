@@ -91,6 +91,10 @@ void CPU::execute_op_code(int op_val) {
             // STOP
             //this->op_Noop();
             break;
+        case 0x0e:
+            // Load byte into C
+            this->op_Load(this->r_c);
+            break;
         case 0x10:
             //this->op_Stop();
             // @TODO: This is TEMPORARY
@@ -109,6 +113,9 @@ void CPU::execute_op_code(int op_val) {
         case 0x32:
             // Get HL, dec and set
             this->op_Get_dec_set(this->r_a, this->r_h, this->r_l);
+            break;
+        case 0x3e:
+            this->op_Load(this->r_a);
             break;
         case 0x76:
             this->op_Halt();
