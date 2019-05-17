@@ -14,6 +14,8 @@ public:
     uint8_t* get_ref(uint16_t a);
     void set(uint16_t address, uint8_t val);
     void set(int address, uint8_t val);
+    void dec(uint16_t address);
+    void dec(int address);
 
     RamSubset get_character_ram();
     RamSubset get_bg_map_1();

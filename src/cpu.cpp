@@ -235,7 +235,9 @@ uint16_t CPU::get_inc_pc_val16() {
 void CPU::op_Get_dec_set(reg8 source, reg8 dest_l, reg8 dest_h) {
     uint8_t value;
     memcpy(&value, &source.value, 1);
-    this->ram.set(this->get_register_value16(dest_l, dest_h), value);
+    uint16_t register_value16 = this->get_register_value16(dest_l, dest_h);
+    this->ram.set(register_value16, value);
+    this->ram.dec(register_value16);
 }
 
 

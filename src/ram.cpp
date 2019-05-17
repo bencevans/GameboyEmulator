@@ -34,6 +34,13 @@ void RAM::set(int address, uint8_t val) {
 void RAM::set(uint16_t address, uint8_t val) {
     this->set((int)address, val);
 }
+void RAM::dec(int address) {
+    this->memory[address] --;
+}
+void RAM::dec(uint16_t address) {
+    this->dec((int)address);
+}
+
 
 RamSubset RAM::get_io_registers() {
     return RamSubset(this->memory + 0xff00, 0x80);
