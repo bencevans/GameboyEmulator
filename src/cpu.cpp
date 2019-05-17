@@ -1,5 +1,8 @@
 #include "cpu.h"
 
+// Used for printing hex
+#include  <iomanip>
+
 #include <iostream>
 #include <string.h>
 
@@ -127,8 +130,8 @@ void CPU::execute_op_code(int op_val) {
             this->op_EI();
             break;
         default:
-            std::cout << "Unknown op code: ";
-            std::cout << std::hex << op_val;
+            std::cout << "Unknown op code: 0x";
+            std::cout << std::setfill('0') << std::setw(2) << std::hex << op_val;
             std::cout << std::endl;
             break;
     }

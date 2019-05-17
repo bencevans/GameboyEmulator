@@ -21,6 +21,8 @@ SFML/Graphics.hpp
 /home/matthew/w/g/gameboy-emulator/src/cpu.cpp
 cpu.h
 /home/matthew/w/g/gameboy-emulator/src/cpu.h
+iomanip
+-
 iostream
 -
 string.h
