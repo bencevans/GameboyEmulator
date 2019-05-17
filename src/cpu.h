@@ -38,6 +38,12 @@ private:
     INTERUPT_STATE di_state;
     bool halt_state;
     bool cb_state;
+    
+    // Bits for flag register
+    const int CARRY_FLAG_BIT = 4;
+    const int HALF_CARRY_FLAG_BIT = 5;
+    const int SUBTRACT_FLAG_BIT = 6;
+    const int ZERO_FLAG_BIT = 7;
 
     // Registers
     //  Accumulator
@@ -60,6 +66,8 @@ private:
     uint8_t get_inc_pc_val8();
     uint16_t get_inc_pc_val16();
     uint16_t get_register_value16(reg8 dest_l, reg8 dest_u);
+    void set_register_bit(reg8 source, uint8_t bit_shift, unsigned char val);
+    unsigned char get_register_bit(reg8 source, uint8_t bit_shift);
     
     void execute_op_code(int op_val);
     void execute_cb_code(int op_val);
@@ -70,6 +78,7 @@ private:
     void op_Load(reg16 dest);
     void op_XOR(reg8 comp);
     void op_Get_dec_set(reg8 source, reg8 dest_l, reg8 dest_h);
+    void op_Bit(reg8 comp, int bit);
     void op_DI();
     void op_Halt();
     

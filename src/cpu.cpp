@@ -99,6 +99,7 @@ void CPU::execute_op_code(int op_val) {
         case 0xcb:
             // Set flag for CB
             this->cb_state = true;
+            break;
         default:
             std::cout << "Unknown op code: ";
             std::cout << std::hex << op_val;
@@ -109,6 +110,9 @@ void CPU::execute_op_code(int op_val) {
 
 void CPU::execute_cb_code(int op_val) {
     switch(op_val) {
+        case 0x7c:
+            this->op_Bit(this->r_h, 7);
+            break;
         default:
             std::cout << "Unknown CB op code: ";
             std::cout << std::hex << op_val;
@@ -137,8 +141,25 @@ void CPU::op_XOR(reg8 comp) {
     this->set_zero_flag(res);
 }
 
+void CPU::set_register_bit(reg8 source, uint8_t bit_shift, unsigned char val) {
+    if (val == 1) {
+        source.value |= (1UL << bit_shift);
+    } else {
+        // Create 0 mask
+        //unsigned char mask = 0;
+        // Flip all bits
+        //mask ^= 1UL;
+        //mask &= 0 << bit_shift;
+        //source.value &= mask;
+        source.value ^= (1UL << bit_shift);
+    }
+}
+unsigned char CPU::get_register_bit(reg8 source, uint8_t bit_shift) {
+    return (source.value & (1U  << bit_shift));
+}
+
 void CPU::set_zero_flag(uint8_t is_it) {
-    this->r_f.value ^= (((is_it == 0) ? 1UL : 0UL) << 7);
+    this->r_f.value ^= (((is_it == 0) ? 1UL : 0UL) << ZERO_FLAG_BIT);
 }
 
 // Get value from memory at PC and increment PC
@@ -175,6 +196,13 @@ void CPU::op_Get_dec_set(reg8 source, reg8 dest_l, reg8 dest_h) {
     this->ram.set(this->get_register_value16(dest_l, dest_h), value);
 }
 
+
+void CPU::op_Bit(reg8 comp, int bit) {
+    // Set flags accordinly before operation
+    //this->r_f.value |= (1UL << )
+    this->set_register_bit(this->r_f, this->ZERO_FLAG_BIT,
+                           this->get_register_bit(comp, bit));
+}
 
 // Op code
 // @TODO: Move these
