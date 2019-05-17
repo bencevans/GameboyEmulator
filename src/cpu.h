@@ -24,6 +24,13 @@ struct stack_pointer : reg16 { };
 // Program counter
 struct program_counter : reg16 { };
 
+class combined_reg {
+public:
+    reg8 lower;
+    reg8 upper;
+    uint16_t value() { return (lower.value << 8) | (upper.value & 0xff);};
+};
+
 class CPU {
 
 public:
@@ -61,6 +68,10 @@ private:
     gen_reg r_h;
     gen_reg r_l;
     
+    combined_reg r_bc;
+    combined_reg r_de;
+    combined_reg r_hl;
+    
     // Stack pointer
     stack_pointer r_sp;
     // Program counter
@@ -68,7 +79,7 @@ private:
 
     uint8_t get_inc_pc_val8();
     uint16_t get_inc_pc_val16();
-    uint16_t get_register_value16(reg8 dest_l, reg8 dest_u);
+    uint16_t get_register_value16(combined_reg dest);
     void set_register_bit(reg8 source, uint8_t bit_shift, unsigned char val);
     unsigned char get_register_bit(reg8 source, uint8_t bit_shift);
     
@@ -84,7 +95,7 @@ private:
     void op_Load(reg8 dest, reg8 source);
     void op_Load(int dest_addr, reg8 source);
     void op_XOR(reg8 comp);
-    void op_Get_dec_set(reg8 dest_l, reg8 dest_h, reg8 source);
+    void op_Get_dec_set(combined_reg dest, reg8 source);
     void op_Bit(reg8 comp, int bit);
     void op_EI();
     void op_DI();

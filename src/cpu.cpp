@@ -25,6 +25,13 @@ CPU::CPU(RAM ram) {
     this->r_l = gen_reg();
     this->r_l.value = 0;
     
+    this->r_bc.lower = this->r_b;
+    this->r_bc.upper = this->r_c;
+    this->r_de.lower = this->r_d;
+    this->r_de.upper = this->r_e;
+    this->r_hl.lower = this->r_h;
+    this->r_hl.upper = this->r_l;
+    
     this->cb_state = false;
     
     this->interupt_state = this->INTERUPT_STATE::DISABLED;
@@ -112,7 +119,7 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x32:
             // Get HL, dec and set
-            this->op_Get_dec_set(this->r_h, this->r_l, this->r_a);
+            this->op_Get_dec_set(this->r_hl, this->r_a);
             break;
         case 0x3e:
             this->op_Load(this->r_a);
@@ -124,7 +131,7 @@ void CPU::execute_op_code(int op_val) {
             this->op_Halt();
             break;
         case 0x77:
-            this->op_Load(0xff00 + (this->get_register_value16(this->r_h, this->r_l)), this->r_a);
+            this->op_Load(0xff00 + (this->get_register_value16(this->r_hl)), this->r_a);
             break;
         case 0xaf:
             // X-OR A with A into A
@@ -169,13 +176,13 @@ void CPU::execute_cb_code(int op_val) {
     }
 }
 
-uint16_t CPU::get_register_value16(reg8 dest_l, reg8 dest_u) {
+uint16_t CPU::get_register_value16(combined_reg dest) {
     union {
         uint8_t bit8[2];
         uint16_t bit16[1];
     } data_conv;
-    data_conv.bit8[0] = dest_l.value;
-    data_conv.bit8[1] = dest_u.value;
+    data_conv.bit8[0] = dest.lower.value;
+    data_conv.bit8[1] = dest.upper.value;
 
     return data_conv.bit16[0];
 }
@@ -238,10 +245,10 @@ uint16_t CPU::get_inc_pc_val16() {
 
 // Get value from specified register, decrement and store
 // in memory (using address of two registers)
-void CPU::op_Get_dec_set(reg8 dest_l, reg8 dest_h, reg8 source) {
+void CPU::op_Get_dec_set(combined_reg dest, reg8 source) {
     uint8_t value;
     memcpy(&value, &source.value, 1);
-    uint16_t register_value16 = this->get_register_value16(dest_l, dest_h);
+    uint16_t register_value16 = this->get_register_value16(dest);
     this->ram.set(register_value16, value);
     this->ram.dec(register_value16);
 }
@@ -262,9 +269,11 @@ void CPU::op_Load(reg8 dest) {
 void CPU::op_Load(reg16 dest) {
     dest.value = this->get_inc_pc_val16();
 }
+// Copy 1 byte between registers
 void CPU::op_Load(reg8 dest, reg8 source) {
     mempcpy(&dest.value, &source.value, 1);
 }
+// Copy register value into destination address of memory
 void CPU::op_Load(int dest_addr, reg8 source) {
     uint16_t dest_addr_chr = dest_addr;
     this->ram.set(dest_addr_chr, source.value);
