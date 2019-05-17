@@ -123,6 +123,9 @@ void CPU::execute_op_code(int op_val) {
         case 0x76:
             this->op_Halt();
             break;
+        case 0x77:
+            this->op_Load(0xff00 + (this->get_register_value16(this->r_h, this->r_l)), this->r_a);
+            break;
         case 0xaf:
             // X-OR A with A into A
             this->op_XOR(this->r_a);
@@ -130,6 +133,9 @@ void CPU::execute_op_code(int op_val) {
         case 0xcb:
             // Set flag for CB
             this->cb_state = true;
+            break;
+        case 0xe0:
+            this->op_Load(0xff00 + this->get_inc_pc_val8(), this->r_a);
             break;
         case 0xe2:
             this->op_Load(0xff00 + this->r_c.value, this->r_a);
