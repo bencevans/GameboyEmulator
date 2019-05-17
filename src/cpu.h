@@ -25,10 +25,12 @@ struct stack_pointer : reg16 { };
 struct program_counter : reg16 { };
 
 class CPU {
+
 public:
     CPU(RAM ram);
     void tick();
     bool is_running();
+
 private:
     enum INTERUPT_STATE {
         DISABLED,
@@ -79,6 +81,7 @@ private:
 
     void op_Load(reg8 dest);
     void op_Load(reg16 dest);
+    void op_Load(reg8 source, reg8 dest);
     void op_XOR(reg8 comp);
     void op_Get_dec_set(reg8 source, reg8 dest_l, reg8 dest_h);
     void op_Bit(reg8 comp, int bit);

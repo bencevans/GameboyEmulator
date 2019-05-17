@@ -12,11 +12,20 @@ RAM::RAM() {
         this->memory[me] = 0;
 }
 
-uint8_t RAM::get(int address) {
-    return this->memory[address];
+uint8_t RAM::get_val(int address) {
+    uint8_t val;
+    memcpy(&val, &this->memory[address], 1);
+    return val;
 }
-uint8_t RAM::get(uint16_t address) {
-    return this->get((int)address);
+uint8_t RAM::get_val(uint16_t address) {
+    return this->get_val((int)address);
+}
+
+uint8_t* RAM::get_ref(uint16_t address) {
+    int addr = (int)address;
+    uint8_t *mem_ptr = this->memory;
+    //memcpy(&addr, &address, 1);
+    return mem_ptr + addr;
 }
 
 void RAM::set(int address, uint8_t val) {

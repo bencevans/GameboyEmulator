@@ -6,7 +6,8 @@ class RamSubset {
 
 public:
     // Memory getter and setters
-    uint8_t get(uint16_t a);
+    uint8_t get_val(uint16_t a);
+    uint8_t* get_ref(uint16_t a);
     bool set(uint16_t a, uint8_t value);
 
     // Constructor

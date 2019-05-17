@@ -11,7 +11,7 @@ bool RamSubset::validate_address(uint16_t address) {
     return (address <= this->size);
 }
 
-uint8_t RamSubset::get(uint16_t a) {
+uint8_t RamSubset::get_val(uint16_t a) {
     if (! this->validate_address(a)) {
         return 0;
     }

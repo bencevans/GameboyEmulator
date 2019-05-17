@@ -65,7 +65,7 @@ void CPU::tick() {
         return;
 
     // Read value from memory
-    int op_val = (int)this->ram.get(this->r_pc.value);
+    int op_val = (int)this->ram.get_val(this->r_pc.value);
     
     // Increment program counter
     // @TODO: Verify if this needs to be moved.. does it need to happen
@@ -117,6 +117,9 @@ void CPU::execute_op_code(int op_val) {
         case 0x3e:
             this->op_Load(this->r_a);
             break;
+        case 0x4f:
+            this->op_Load(this->r_a, this->r_c);
+            break;
         case 0x76:
             this->op_Halt();
             break;
@@ -127,6 +130,9 @@ void CPU::execute_op_code(int op_val) {
         case 0xcb:
             // Set flag for CB
             this->cb_state = true;
+            break;
+        case 0xe2:
+            this->op_Load(this->r_a, this->r_c);
             break;
         case 0xf3:
             // Disable interupts
@@ -200,7 +206,7 @@ void CPU::set_zero_flag(uint8_t is_it) {
 
 // Get value from memory at PC and increment PC
 uint8_t CPU::get_inc_pc_val8() {
-    uint8_t ori_val = this->ram.get(this->r_pc.value);
+    uint8_t ori_val = this->ram.get_val(this->r_pc.value);
     uint8_t val;
     memcpy(&val, &ori_val, 1);
     this->r_pc.value ++;
@@ -247,6 +253,9 @@ void CPU::op_Load(reg8 dest) {
 }
 void CPU::op_Load(reg16 dest) {
     dest.value = this->get_inc_pc_val16();
+}
+void CPU::op_Load(reg8 source, reg8 dest) {
+    mempcpy(&dest.value, &source.value, 1);
 }
 
 void CPU::op_Halt() {

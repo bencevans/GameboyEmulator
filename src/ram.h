@@ -9,8 +9,9 @@
 class RAM {
 public:
     RAM();
-    uint8_t get(uint16_t address);
-    uint8_t get(int address);
+    uint8_t get_val(uint16_t address);
+    uint8_t get_val(int address);
+    uint8_t* get_ref(uint16_t a);
     void set(uint16_t address, uint8_t val);
     void set(int address, uint8_t val);
 
