@@ -31,11 +31,12 @@ public:
     bool is_running();
 private:
     enum INTERUPT_STATE {
-        DEACTIVE,
-        PENDING,
-        ACTIVE
+        DISABLED,
+        PENDING_DISABLE,
+        PENDING_ENABLE,
+        ENABLED
     };
-    INTERUPT_STATE di_state;
+    INTERUPT_STATE interupt_state;
     bool halt_state;
     bool cb_state;
     
@@ -72,6 +73,8 @@ private:
     void execute_op_code(int op_val);
     void execute_cb_code(int op_val);
     
+    void check_interupts();
+    
     void set_zero_flag(uint8_t is_it);
 
     void op_Load(reg8 dest);
@@ -79,6 +82,7 @@ private:
     void op_XOR(reg8 comp);
     void op_Get_dec_set(reg8 source, reg8 dest_l, reg8 dest_h);
     void op_Bit(reg8 comp, int bit);
+    void op_EI();
     void op_DI();
     void op_Halt();
     

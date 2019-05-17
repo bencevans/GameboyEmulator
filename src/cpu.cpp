@@ -24,7 +24,7 @@ CPU::CPU(RAM ram) {
     
     this->cb_state = false;
     
-    this->di_state = this->INTERUPT_STATE::DEACTIVE;
+    this->interupt_state = this->INTERUPT_STATE::DISABLED;
     this->halt_state = false;
     
     // Stack pointer
@@ -44,6 +44,20 @@ bool CPU::is_running() {
 }
 
 void CPU::tick() {
+
+    // If interupt state is either enabled or pending disable,
+    // check interupts
+    if (this->interupt_state == this->INTERUPT_STATE::ENABLED ||
+        this->interupt_state == this->INTERUPT_STATE::PENDING_DISABLE)
+        this->check_interupts();
+    
+    // Check if interupt state is in a pending state
+    // and move to actual state, since a clock cycle has been waited
+    if (this->interupt_state == this->INTERUPT_STATE::PENDING_DISABLE)
+        this->interupt_state = this->INTERUPT_STATE::DISABLED;
+    if (this->interupt_state == this->INTERUPT_STATE::PENDING_ENABLE)
+        this->interupt_state = this->INTERUPT_STATE::ENABLED;
+
     if (this->halt_state)
         return;
 
@@ -62,6 +76,10 @@ void CPU::tick() {
     } else {
         this->execute_op_code(op_val);
     }
+}
+
+void CPU::check_interupts() {
+    
 }
 
 void CPU::execute_op_code(int op_val) {
@@ -99,6 +117,14 @@ void CPU::execute_op_code(int op_val) {
         case 0xcb:
             // Set flag for CB
             this->cb_state = true;
+            break;
+        case 0xf3:
+            // Disable interupts
+            this->op_DI();
+            break;
+        case 0xfb:
+            // Enable interupts
+            this->op_EI();
             break;
         default:
             std::cout << "Unknown op code: ";
@@ -219,8 +245,13 @@ void CPU::op_Halt() {
     this->halt_state = true;
 }
 
+void CPU::op_EI() {
+    // Set DI state to pending, e.g.
+    // perform one more command before halting
+    this->interupt_state = this->INTERUPT_STATE::PENDING_ENABLE;
+}
 void CPU::op_DI() {
     // Set DI state to pending, e.g.
     // perform one more command before halting
-    this->di_state = INTERUPT_STATE::PENDING;
+    this->interupt_state = this->INTERUPT_STATE::PENDING_DISABLE;
 }
