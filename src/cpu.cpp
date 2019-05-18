@@ -87,6 +87,13 @@ void CPU::tick() {
     } else {
         this->execute_op_code(op_val);
     }
+    
+    // Stop runnign when we hit the start of the ROM
+    int current_pc = (int)this->r_pc.value;
+    if (current_pc == 0x0100 || current_pc == 0x0101) {
+        this->running = false;
+        std::cout << "HIT the start of the ROM!" << std::endl;
+    }
 }
 
 void CPU::check_interupts() {
