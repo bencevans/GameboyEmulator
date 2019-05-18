@@ -105,6 +105,12 @@ void CPU::execute_op_code(int op_val) {
             // STOP
             //this->op_Noop();
             break;
+        case 0x03:
+            this->op_Inc(this->r_bc);
+            break;
+        case 0x04:
+            this->op_Inc(this->r_b);
+            break;
         case 0x0a:
             this->op_Load(this->r_a, this->get_register_value16(this->r_bc));
             break;
@@ -120,11 +126,20 @@ void CPU::execute_op_code(int op_val) {
         case 0x11:
             this->op_Load(this->r_de);
             break;
+        case 0x13:
+            this->op_Inc(this->r_de);
+            break;
         case 0x1a:
             this->op_Load(this->r_a, this->get_register_value16(this->r_de));
             break;
         case 0x21:
             this->op_Load(this->r_hl);
+            break;
+        case 0x23:
+            this->op_Inc(this->r_hl);
+            break;
+        case 0x26:
+            this->op_Load(this->r_h);
             break;
         case 0x31:
             // Load 2-bytes into SP
@@ -136,6 +151,9 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x3e:
             this->op_Load(this->r_a);
+            break;
+        case 0x47:
+            this->op_Load(this->r_b, this->r_a);
             break;
         case 0x4f:
             this->op_Load(this->r_c, this->r_a);
@@ -200,6 +218,24 @@ void CPU::execute_cb_code(int op_val) {
         case 0xcd:
             this->op_Set(1, this->r_l);
             break;
+        case 0xf8:
+            this->op_Set(7, this->r_b);
+            break;
+        case 0xf9:
+            this->op_Set(7, this->r_c);
+            break;
+        case 0xfa:
+            this->op_Set(7, this->r_d);
+            break;
+        case 0xfb:
+            this->op_Set(7, this->r_e);
+            break;
+        case 0xfc:
+            this->op_Set(7, this->r_h);
+            break;
+        case 0xfd:
+            this->op_Set(7, this->r_l);
+            break;
         default:
             std::cout << "Unknown CB op code: ";
             std::cout << std::hex << op_val;
@@ -247,6 +283,10 @@ unsigned char CPU::get_register_bit(reg8 source, uint8_t bit_shift) {
 
 void CPU::set_zero_flag(uint8_t is_it) {
     this->r_f.value ^= (((is_it == (uint8_t)0x0) ? 1UL : 0UL) << ZERO_FLAG_BIT);
+}
+
+void CPU::set_half_carry(uint8_t input) {
+    this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, (0x10 & input) >> 4);
 }
 
 // Get value from memory at PC and increment PC
@@ -325,8 +365,7 @@ void CPU::op_Adc() {
     this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
 
     // Determine half carry flag based on 5th bit of first byte
-    uint8_t h_carry_flag = (0x10 & data_conv.bit8[0]) >> 4;
-    this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, h_carry_flag);
+    this->set_half_carry(data_conv.bit8[0]);
 }
 
 // Op code
@@ -352,6 +391,40 @@ void CPU::op_Load(int dest_addr, reg8 source) {
 // Copy data from source memory address to destination
 void CPU::op_Load(reg8 dest, int source_addr) {
     dest.value = this->ram.get_val(source_addr);
+}
+
+void CPU::op_Inc(reg8 dest) {
+    union {
+        uint8_t bit8[2];
+        uint16_t bit16[1];
+    } data_conv;
+
+    data_conv.bit8[0] = dest.value;
+    data_conv.bit16[0] = (uint16_t)((int)(data_conv.bit16[0]) + 1);
+    dest.value = data_conv.bit8[0];
+
+    // Set zero flag
+    this->set_zero_flag(dest.value);
+
+    // Set subtract flag to 0
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+
+    // Determine half carry flag based on 5th bit of first byte
+    this->set_half_carry(data_conv.bit8[0]);
+}
+
+void CPU::op_Inc(combined_reg dest) {
+    union {
+        uint8_t bit8[4];
+        uint16_t bit16[2];
+        uint32_t bit32[1];
+    } data_conv;
+
+    data_conv.bit16[0] = dest.lower.value;
+    data_conv.bit16[1] = dest.upper.value;
+    data_conv.bit32[0] = (uint32_t)((int)(data_conv.bit32[0]) + 1);
+    dest.lower.value = data_conv.bit8[0];
+    dest.upper.value = data_conv.bit8[1];
 }
 
 void CPU::op_Call() {
