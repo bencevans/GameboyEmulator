@@ -8,6 +8,8 @@
 #define SCREEN_HEIGHT 160
 #define APP_NAME "GameBoy Emulator"
 
+#define DEBUG 0
+
 struct arguments_t {
     char *bios_path;
     char *rom_path;
@@ -32,15 +34,16 @@ arguments_t get_arguments(int argc, char* args[]) {
 int main(int argc, char* args[])
 {
     arguments_t arguments = get_arguments(argc, args);
-    if (arguments.valid == false) {
-        return 1;
-    }
+    //if (arguments.valid == false) {
+    //    return 1;
+    //}
     
     // create the window
     sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH), APP_NAME);
 
     RAM ram_inst = RAM();
-    ram_inst.load_bios(arguments.bios_path);
+    char bios_path[] = "./copyright/[BIOS] Nintendo Game Boy Boot ROM (World).gb";
+    ram_inst.load_bios(bios_path);
     ram_inst.load_rom(arguments.rom_path);
 
     CPU cpu_inst = CPU(ram_inst);
@@ -68,6 +71,8 @@ int main(int argc, char* args[])
         // end the current frame
         window.display();
     }
+    
+    std::cin.get();
 
     return 0;
 }

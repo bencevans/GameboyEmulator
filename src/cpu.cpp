@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string.h>
 
+#define DEBUG 0
+
 CPU::CPU(RAM ram) {
     
     this->r_a = accumulator();
@@ -54,7 +56,10 @@ bool CPU::is_running() {
 }
 
 void CPU::tick() {
-
+    this->temp_counter ++;
+    if (this->temp_counter >= 150)
+        this->running = false;
+    
     // If interupt state is either enabled or pending disable,
     // check interupts
     if (this->interupt_state == this->INTERUPT_STATE::ENABLED ||
@@ -72,8 +77,9 @@ void CPU::tick() {
         return;
 
     // Read value from memory
-    int op_val = (int)this->ram.get_val(this->r_pc.value);
-    std::cout << this->r_pc.value << std::endl;
+    int op_val = (int)this->get_inc_pc_val8();
+    if (DEBUG)
+        std::cout << std::hex << this->r_pc.value << " - " << this->r_sp.value << std::endl;
     
     // Increment program counter
     // @TODO: Verify if this needs to be moved.. does it need to happen
@@ -100,7 +106,7 @@ void CPU::execute_op_code(int op_val) {
             //this->op_Noop();
             break;
         case 0x0a:
-            this->op_Load(this->r_a, 0xff00 + (this->get_register_value16(this->r_bc)));
+            this->op_Load(this->r_a, this->get_register_value16(this->r_bc));
             break;
         case 0x0e:
             // Load byte into C
@@ -149,6 +155,10 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0xc9:
             this->op_Return();
+            break;
+        case 0xcc:
+            if (this->get_register_bit(this->r_f, this->ZERO_FLAG_BIT))
+                this->op_Call();
             break;
         case 0xcb:
             // Set flag for CB
@@ -242,6 +252,8 @@ void CPU::set_zero_flag(uint8_t is_it) {
 // Get value from memory at PC and increment PC
 uint8_t CPU::get_inc_pc_val8() {
     uint8_t ori_val = this->ram.get_val(this->r_pc.value);
+    if (DEBUG)
+        std::cout << "Got Value from RAM: " << std::hex << (int)ori_val << " at " << (int)this->r_pc.value << std::endl;
     uint8_t val;
     memcpy(&val, &ori_val, 1);
     this->r_pc.value ++;
@@ -256,12 +268,14 @@ uint16_t CPU::get_inc_pc_val16() {
         uint16_t bit16[1];
     } data_conv;
     uint16_t tmp;
-    for (int itx = 0; itx <= 1; itx ++) {
-        tmp = this->get_inc_pc_val8();
-        memcpy(&data_conv.bit8[itx], &tmp, 1);
-    }
-    //memcpy(&data_conv.bit8[0], this->get_inc_pc_val8());
-    //memcpy(&data_conv.bit8[1], this->get_inc_pc_val8());
+    //for (int itx = 0; itx <= 1; itx ++) {
+    //    tmp = this->get_inc_pc_val8();
+    //    memcpy(&data_conv.bit8[itx], &tmp, 1);
+    //}
+    tmp = this->get_inc_pc_val8();
+    memcpy(&data_conv.bit8[1], &tmp, 1);
+    tmp = this->get_inc_pc_val8();    
+    memcpy(&data_conv.bit8[0], &tmp, 1);
     return data_conv.bit16[0];
 }
 
@@ -343,7 +357,8 @@ void CPU::op_Load(reg8 dest, int source_addr) {
 void CPU::op_Call() {
     // Get jump address
     uint16_t jmp_dest_addr = this->get_inc_pc_val16();
-
+    if (DEBUG)
+        std::cout << "Jumping from: " << std::hex << this->r_pc.value << " to " << (int)jmp_dest_addr << std::endl;
     // Push PC (which has already been incremented) to stack
     this->ram.stack_push(this->r_sp.value, this->r_pc.value);
     

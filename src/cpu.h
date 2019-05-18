@@ -52,6 +52,8 @@ private:
     bool halt_state;
     bool cb_state;
     
+    int temp_counter = 0;
+    
     // Bits for flag register
     // C flag
     const int CARRY_FLAG_BIT = 4;
