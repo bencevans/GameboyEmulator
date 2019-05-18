@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 CPU::CPU(RAM ram) {
     
@@ -57,7 +57,7 @@ bool CPU::is_running() {
 
 void CPU::tick() {
     this->temp_counter ++;
-    if (this->temp_counter >= 800)
+    if (this->temp_counter >= 200)
         this->running = false;
     
     // If interupt state is either enabled or pending disable,
@@ -216,6 +216,30 @@ void CPU::execute_op_code(int op_val) {
         case 0x77:
             this->op_Load(this->get_register_value16(this->r_hl), this->r_a);
             break;
+        case 0x78:
+            this->op_Load(this->r_a, this->r_b);
+            break;
+        case 0x79:
+            this->op_Load(this->r_a, this->r_c);
+            break;
+        case 0x7a:
+            this->op_Load(this->r_a, this->r_d);
+            break;
+        case 0x7b:
+            this->op_Load(this->r_a, this->r_e);
+            break;
+        case 0x7c:
+            this->op_Load(this->r_a, this->r_h);
+            break;
+        case 0x7d:
+            this->op_Load(this->r_a, this->r_l);
+            break;
+        case 0x7e:
+            this->op_Load(this->r_a, this->r_hl.value());
+            break;
+        case 0x7f:
+            this->op_Load(this->r_a, this->r_a);
+            break;
         case 0x86:
             this->op_Add(this->r_a, this->get_register_value16(this->r_hl));
             break;
@@ -225,6 +249,9 @@ void CPU::execute_op_code(int op_val) {
         case 0xaf:
             // X-OR A with A into A
             this->op_XOR(this->r_a);
+            break;
+        case 0xb9:
+            this->op_CP(this->r_c);
             break;
         case 0xc9:
             this->op_Return();
@@ -242,6 +269,10 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0xce:
             this->op_Adc();
+            break;
+        case 0xd4:
+            if (! this->get_carry_flag())
+                this->op_Call();
             break;
         case 0xe0:
             this->op_Load(0xff00 + this->get_inc_pc_val8(), this->r_a);
@@ -372,6 +403,10 @@ void CPU::set_zero_flag(const uint8_t is_it) {
 
 uint8_t CPU::get_zero_flag() {
     return this->get_register_bit(this->r_f, this->ZERO_FLAG_BIT);
+}
+
+uint8_t CPU::get_carry_flag() {
+    return this->get_register_bit(this->r_f, this->CARRY_FLAG_BIT);
 }
 
 void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
@@ -568,7 +603,12 @@ void CPU::op_Dec(reg8 dest) {
 }
 
 void CPU::op_CP() {
-    uint8_t in = this->get_inc_pc_val8();
+    this->op_CP(this->get_inc_pc_val8());
+}
+void CPU::op_CP(reg8 in) {
+    this->op_CP(in.value);
+}
+void CPU::op_CP(uint8_t in) {
     int res = (int)this->r_a.value - (int)in;
 
     // Set zero flag based on the result
@@ -613,10 +653,15 @@ void CPU::op_Return() {
 // Jump forward N number instructions
 void CPU::op_JR() {
     // Default to obtaining value from next byte
-    uint8_t jump_by = this->get_inc_pc_val8();
+    uint16_t jump_by = this->get_inc_pc_val8();
+    if (DEBUG)
+        std::cout << "Jump from " << std::hex << (int)this->r_pc.value << " by " << (int)jump_by;
     // @TODO Verify that this jumps by the value AFTER the pc increment
     // for this instruction.
     this->r_pc.value += jump_by;
+    //this->r_pc.value --;
+    if (DEBUG)
+        std::cout << " to " << std::hex << (int)this->r_pc.value << std::endl;
 }
 
 void CPU::op_Halt() {

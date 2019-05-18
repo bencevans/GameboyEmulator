@@ -3,7 +3,7 @@
 #include <cstring>
 
 #include "ram.h"
-#define DEBUG 0
+#define DEBUG 1
 
 RAM::RAM() {
     // Initialise memory to 0.
@@ -56,6 +56,7 @@ void RAM::stack_push(uint16_t &sp_val, uint16_t pc_val) {
 void RAM::stack_pop(uint16_t &sp_val, uint8_t &dest) {
     // Obtain value from stack and decrease SP value,
     dest = this->get_val(sp_val);
+    std::cout << "got: " << std::hex << (int)dest << " from " << sp_val << std::endl;
     sp_val ++;
 }
 void RAM::stack_pop(uint16_t &sp_val, uint16_t &dest) {
@@ -63,8 +64,8 @@ void RAM::stack_pop(uint16_t &sp_val, uint16_t &dest) {
         uint8_t bit8[2];
         uint16_t bit16[1];
     } data_conv;
-    this->stack_pop(sp_val, data_conv.bit8[1]);
     this->stack_pop(sp_val, data_conv.bit8[0]);
+    this->stack_pop(sp_val, data_conv.bit8[1]);
     if (DEBUG)
         std::cout << "Returning to: " << std::hex << (int)data_conv.bit16[0] << std::endl;
     dest = data_conv.bit16[0];

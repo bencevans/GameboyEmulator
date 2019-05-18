@@ -112,6 +112,7 @@ private:
     void set_zero_flag(const uint8_t is_it);
     uint8_t get_zero_flag();
     void set_half_carry(uint8_t original_val, uint8_t input);
+    uint8_t get_carry_flag();
 
     void op_Load(reg8 dest);
     void op_Load(reg16 dest);
@@ -127,7 +128,9 @@ private:
     void op_Dec(reg8 dest);
 
     void op_CP();
-    
+    void op_CP(reg8 in);
+    void op_CP(uint8_t in);
+
     void op_SCF();
     void op_Swap(reg8 dest);
 
