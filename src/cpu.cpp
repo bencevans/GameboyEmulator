@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 CPU::CPU(RAM ram) {
     
