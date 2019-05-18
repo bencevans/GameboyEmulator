@@ -111,5 +111,20 @@ void RAM::load_bios(char *bios_path) {
 }
 
 void RAM::load_rom(char *rom_path) {
-    
+    // Open file
+    std::ifstream infile(rom_path);
+
+    // Get length of file
+    infile.seekg(0, infile.end);
+    size_t length = infile.tellg();
+    infile.seekg(0, infile.beg);
+
+    // Iterate through bytes in file and store in memory
+    size_t rom_buffer = 0x0150;
+    size_t itx = rom_buffer;
+    while (itx < (length + rom_buffer)) {
+        infile >> this->memory[itx];
+        itx ++;
+    }
+    infile.close();
 }

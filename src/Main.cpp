@@ -33,7 +33,7 @@ arguments_t get_arguments(int argc, char* args[]) {
 
 int main(int argc, char* args[])
 {
-    arguments_t arguments = get_arguments(argc, args);
+    //arguments_t arguments = get_arguments(argc, args);
     //if (arguments.valid == false) {
     //    return 1;
     //}
@@ -43,8 +43,9 @@ int main(int argc, char* args[])
 
     RAM ram_inst = RAM();
     char bios_path[] = "./copyright/[BIOS] Nintendo Game Boy Boot ROM (World).gb";
+    char rom_path[] = "./copyright/Tetris (JUE) (V1.1) [!].gb";
     ram_inst.load_bios(bios_path);
-    ram_inst.load_rom(arguments.rom_path);
+    ram_inst.load_rom(rom_path);
 
     CPU cpu_inst = CPU(ram_inst);
 
