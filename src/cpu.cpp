@@ -115,7 +115,7 @@ void CPU::execute_op_code(int op_val) {
             this->op_Load(this->r_de);
             break;
         case 0x1a:
-            this->op_Load(this->r_a, 0xff00 + (this->get_register_value16(this->r_de)));
+            this->op_Load(this->r_a, this->get_register_value16(this->r_de));
             break;
         case 0x21:
             this->op_Load(this->r_hl);
@@ -134,11 +134,14 @@ void CPU::execute_op_code(int op_val) {
         case 0x4f:
             this->op_Load(this->r_c, this->r_a);
             break;
+        case 0x66:
+            this->op_Load(this->r_h, this->get_register_value16(this->r_hl));
+            break;
         case 0x76:
             this->op_Halt();
             break;
         case 0x77:
-            this->op_Load(0xff00 + (this->get_register_value16(this->r_hl)), this->r_a);
+            this->op_Load(this->get_register_value16(this->r_hl), this->r_a);
             break;
         case 0xaf:
             // X-OR A with A into A
