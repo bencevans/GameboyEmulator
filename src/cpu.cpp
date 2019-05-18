@@ -57,7 +57,7 @@ bool CPU::is_running() {
 
 void CPU::tick() {
     this->temp_counter ++;
-    if (this->temp_counter >= 150)
+    if (this->temp_counter >= 400)
         this->running = false;
     
     // If interupt state is either enabled or pending disable,
@@ -104,6 +104,8 @@ void CPU::execute_op_code(int op_val) {
         case 0x0:
             // STOP
             //this->op_Noop();
+            if (DEBUG)
+                std::cout << "Noop: " << std::hex << this->r_pc.value << std::endl;
             break;
         case 0x03:
             this->op_Inc(this->r_bc);
@@ -111,12 +113,18 @@ void CPU::execute_op_code(int op_val) {
         case 0x04:
             this->op_Inc(this->r_b);
             break;
+        case 0x05:
+            this->op_Dec(this->r_b);
+            break;
         case 0x06:
             // Load byte into C
             this->op_Load(this->r_b);
             break;
         case 0x0a:
             this->op_Load(this->r_a, this->get_register_value16(this->r_bc));
+            break;
+        case 0x0d:
+            this->op_Dec(this->r_c);
             break;
         case 0x0e:
             // Load byte into C
@@ -133,6 +141,9 @@ void CPU::execute_op_code(int op_val) {
         case 0x13:
             this->op_Inc(this->r_de);
             break;
+        case 0x15:
+            this->op_Dec(this->r_d);
+            break;
         case 0x16:
             // Load byte into C
             this->op_Load(this->r_d);
@@ -140,14 +151,23 @@ void CPU::execute_op_code(int op_val) {
         case 0x1a:
             this->op_Load(this->r_a, this->get_register_value16(this->r_de));
             break;
+        case 0x1d:
+            this->op_Dec(this->r_e);
+            break;
         case 0x21:
             this->op_Load(this->r_hl);
             break;
         case 0x23:
             this->op_Inc(this->r_hl);
             break;
+        case 0x25:
+            this->op_Dec(this->r_h);
+            break;
         case 0x26:
             this->op_Load(this->r_h);
+            break;
+        case 0x2d:
+            this->op_Dec(this->r_l);
             break;
         case 0x31:
             // Load 2-bytes into SP
@@ -156,6 +176,9 @@ void CPU::execute_op_code(int op_val) {
         case 0x32:
             // Get HL, dec and set
             this->op_Get_dec_set(this->r_hl, this->r_a);
+            break;
+        case 0x3d:
+            this->op_Dec(this->r_a);
             break;
         case 0x3e:
             this->op_Load(this->r_a);
@@ -166,6 +189,9 @@ void CPU::execute_op_code(int op_val) {
         case 0x4f:
             this->op_Load(this->r_c, this->r_a);
             break;
+        case 0x50:
+            this->op_Load(this->r_d, this->r_b);
+            break;
         case 0x66:
             this->op_Load(this->r_h, this->get_register_value16(this->r_hl));
             break;
@@ -174,6 +200,9 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x77:
             this->op_Load(this->get_register_value16(this->r_hl), this->r_a);
+            break;
+        case 0x86:
+            this->op_Add(this->r_a, this->get_register_value16(this->r_hl));
             break;
         case 0xaf:
             // X-OR A with A into A
@@ -413,6 +442,26 @@ void CPU::op_Load(reg8 dest, int source_addr) {
     dest.value = this->ram.get_val(source_addr);
 }
 
+void CPU::op_Add(reg8 dest, int source_addr) {
+    uint8_t original_val = dest.value;
+
+    this->data_conv.bit8[0] = dest.value;
+    this->data_conv.bit8[1] = 0;
+
+    this->data_conv.bit16[0] += (uint16_t)this->ram.get_val(source_addr);
+
+    dest.value = this->data_conv.bit8[0];
+    
+    this->set_zero_flag(dest.value);
+    this->set_half_carry(original_val, dest.value);
+    // Set subtract flag to 0, since this is add
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(
+        this->r_f, this->CARRY_FLAG_BIT,
+        (0x01 & this->data_conv.bit8[1]) >> 0);
+
+}
+
 void CPU::op_Inc(reg8 dest) {
     union {
         uint8_t bit8[2];
@@ -445,6 +494,23 @@ void CPU::op_Inc(combined_reg dest) {
     data_conv.bit32[0] = (uint32_t)((int)(data_conv.bit32[0]) + 1);
     dest.lower.value = data_conv.bit8[0];
     dest.upper.value = data_conv.bit8[1];
+}
+
+void CPU::op_Dec(reg8 dest) {
+    uint8_t original_val = dest.value;
+    this->data_conv.bit8[0] = dest.value;
+    this->data_conv.bit8[1] = 0;
+    this->data_conv.bit16[0] = (uint16_t)((int)(this->data_conv.bit16[0]) - 1);
+    dest.value = this->data_conv.bit8[0];
+
+    // Set zero flag
+    this->set_zero_flag(dest.value);
+
+    // Set subtract flag to 1
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 1L);
+
+    // Determine half carry flag based on 5th bit of first byte
+    this->set_half_carry(original_val, this->data_conv.bit8[0]);
 }
 
 void CPU::op_CP() {

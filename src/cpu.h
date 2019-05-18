@@ -52,6 +52,18 @@ private:
     bool halt_state;
     bool cb_state;
     
+    
+    union {
+        uint8_t bit8[2];
+        uint16_t bit16[1];
+    } data_conv;
+    
+    union {
+        uint8_t bit8[4];
+        uint16_t bit16[2];
+        uint32_t bit32[1];
+    } data_conv32;
+    
     int temp_counter = 0;
     
     // Bits for flag register
@@ -106,16 +118,27 @@ private:
     void op_Load(combined_reg dest);
     void op_Load(int dest_addr, reg8 source);
     void op_Load(reg8 dest, int source_addr);
+
+    void op_Add(reg8 dest, int source_addr);
+    
     void op_Inc(reg8 dest);
     void op_Inc(combined_reg dest);
+    void op_Dec(reg8 dest);
+
     void op_CP();
+
     void op_Call();
     void op_Return();
+
     void op_XOR(reg8 comp);
+
     void op_Get_dec_set(combined_reg dest, reg8 source);
+
     void op_Bit(reg8 comp, int bit);
     void op_Set(uint8_t bit, reg8 dest);
+
     void op_Adc();
+
     void op_EI();
     void op_DI();
     void op_Halt();
