@@ -80,12 +80,6 @@ void CPU::tick() {
     int op_val = (int)this->get_inc_pc_val8();
     if (DEBUG)
         std::cout << std::hex << this->r_pc.value << " - " << this->r_sp.value << std::endl;
-    
-    // Increment program counter
-    // @TODO: Verify if this needs to be moved.. does it need to happen
-    // after the operation is executed, i.e if we perform an operation with
-    // the PC, this will matter.
-    this->r_pc.value ++;
 
     if (this->cb_state) {
         this->execute_cb_code(op_val);
