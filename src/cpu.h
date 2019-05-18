@@ -97,8 +97,8 @@ private:
     
     void check_interupts();
     
-    void set_zero_flag(uint8_t is_it);
-    void set_half_carry(uint8_t input);
+    void set_zero_flag(const uint8_t is_it);
+    void set_half_carry(uint8_t original_val, uint8_t input);
 
     void op_Load(reg8 dest);
     void op_Load(reg16 dest);
@@ -108,6 +108,7 @@ private:
     void op_Load(reg8 dest, int source_addr);
     void op_Inc(reg8 dest);
     void op_Inc(combined_reg dest);
+    void op_CP();
     void op_Call();
     void op_Return();
     void op_XOR(reg8 comp);

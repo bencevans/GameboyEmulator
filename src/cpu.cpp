@@ -111,6 +111,10 @@ void CPU::execute_op_code(int op_val) {
         case 0x04:
             this->op_Inc(this->r_b);
             break;
+        case 0x06:
+            // Load byte into C
+            this->op_Load(this->r_b);
+            break;
         case 0x0a:
             this->op_Load(this->r_a, this->get_register_value16(this->r_bc));
             break;
@@ -128,6 +132,10 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x13:
             this->op_Inc(this->r_de);
+            break;
+        case 0x16:
+            // Load byte into C
+            this->op_Load(this->r_d);
             break;
         case 0x1a:
             this->op_Load(this->r_a, this->get_register_value16(this->r_de));
@@ -202,6 +210,10 @@ void CPU::execute_op_code(int op_val) {
             // Enable interupts
             this->op_EI();
             break;
+        case 0xfe:
+            this->op_CP();
+            break;
+
         default:
             std::cout << "Unknown op code: 0x";
             std::cout << std::setfill('0') << std::setw(2) << std::hex << op_val;
@@ -281,12 +293,19 @@ unsigned char CPU::get_register_bit(reg8 source, uint8_t bit_shift) {
     return (source.value & (1U  << bit_shift)) >> bit_shift;
 }
 
-void CPU::set_zero_flag(uint8_t is_it) {
+void CPU::set_zero_flag(const uint8_t is_it) {
+    // @TODO Tidy this
     this->r_f.value ^= (((is_it == (uint8_t)0x0) ? 1UL : 0UL) << ZERO_FLAG_BIT);
 }
 
-void CPU::set_half_carry(uint8_t input) {
-    this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, (0x10 & input) >> 4);
+void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
+    // @TODO Check this implimentation
+    this->set_register_bit(
+        this->r_f,
+        this->HALF_CARRY_FLAG_BIT,
+        // XOR the original and new values' 5th BIT.
+        // This means it will result in half carry if the value has changed.
+        ((0x10 & original_val) >> 4) ^ ((0x10 & input) >> 4));
 }
 
 // Get value from memory at PC and increment PC
@@ -350,7 +369,8 @@ void CPU::op_Adc() {
     } data_conv;
 
     // Always work with r_a
-    data_conv.bit8[0] = this->get_inc_pc_val8();
+    uint8_t original_val = this->get_inc_pc_val8();
+    data_conv.bit8[0] = original_val;
     data_conv.bit16[0] += this->r_a.value;
     this->r_a.value = data_conv.bit8[0];
 
@@ -365,7 +385,7 @@ void CPU::op_Adc() {
     this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
 
     // Determine half carry flag based on 5th bit of first byte
-    this->set_half_carry(data_conv.bit8[0]);
+    this->set_half_carry(original_val, data_conv.bit8[0]);
 }
 
 // Op code
@@ -399,6 +419,7 @@ void CPU::op_Inc(reg8 dest) {
         uint16_t bit16[1];
     } data_conv;
 
+    uint8_t original_val = dest.value;
     data_conv.bit8[0] = dest.value;
     data_conv.bit16[0] = (uint16_t)((int)(data_conv.bit16[0]) + 1);
     dest.value = data_conv.bit8[0];
@@ -410,9 +431,8 @@ void CPU::op_Inc(reg8 dest) {
     this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
 
     // Determine half carry flag based on 5th bit of first byte
-    this->set_half_carry(data_conv.bit8[0]);
+    this->set_half_carry(original_val, data_conv.bit8[0]);
 }
-
 void CPU::op_Inc(combined_reg dest) {
     union {
         uint8_t bit8[4];
@@ -425,6 +445,18 @@ void CPU::op_Inc(combined_reg dest) {
     data_conv.bit32[0] = (uint32_t)((int)(data_conv.bit32[0]) + 1);
     dest.lower.value = data_conv.bit8[0];
     dest.upper.value = data_conv.bit8[1];
+}
+
+void CPU::op_CP() {
+    uint8_t in = this->get_inc_pc_val8();
+    int res = (int)this->r_a.value - (int)in;
+
+    // Set zero flag based on the result
+    this->set_zero_flag(res);
+    // Always sert subtract flag (since that is what we're doing!)
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 1L);
+    this->set_half_carry(this->r_a.value, res);
+    this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, (res > 0) ? 1L : 0L);
 }
 
 void CPU::op_Call() {
