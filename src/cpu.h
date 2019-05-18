@@ -126,11 +126,18 @@ private:
     void op_Dec(reg8 dest);
 
     void op_CP();
+    
+    void op_SCF();
+    void op_Swap(reg8 dest);
 
     void op_Call();
     void op_Return();
 
     void op_XOR(reg8 comp);
+
+    void op_AND();    
+    void op_AND(reg8 comp);
+    void op_AND(uint8_t comp);
 
     void op_Get_dec_set(combined_reg dest, reg8 source);
 

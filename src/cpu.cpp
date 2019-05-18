@@ -178,6 +178,9 @@ void CPU::execute_op_code(int op_val) {
             // Get HL, dec and set
             this->op_Get_dec_set(this->r_hl, this->r_a);
             break;
+        case 0x37:
+            this->op_SCF();
+            break;
         case 0x3d:
             this->op_Dec(this->r_a);
             break;
@@ -232,6 +235,9 @@ void CPU::execute_op_code(int op_val) {
         case 0xe2:
             this->op_Load(0xff00 + this->r_c.value, this->r_a);
             break;
+        case 0xe6:
+            this->op_AND();
+            break;
         case 0xf3:
             // Disable interupts
             this->op_DI();
@@ -254,6 +260,9 @@ void CPU::execute_op_code(int op_val) {
 
 void CPU::execute_cb_code(int op_val) {
     switch(op_val) {
+        case 0x37:
+            this->op_Swap(this->r_a);
+            break;
         case 0x7c:
             this->op_Bit(this->r_h, 7);
             break;
@@ -302,8 +311,26 @@ uint16_t CPU::get_register_value16(combined_reg dest) {
 void CPU::op_XOR(reg8 comp) {
     uint8_t res = this->r_a.value ^ comp.value;
     this->r_a.value = res;
-    this->r_f.value = 0;
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, 0L);
+    this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, 0L);
     this->set_zero_flag(res);
+}
+
+void CPU::op_AND() {
+    uint8_t comp = this->get_inc_pc_val8();
+    this->op_AND(comp);
+}
+void CPU::op_AND(reg8 comp) {
+    this->op_AND(comp.value);
+}
+void CPU::op_AND(uint8_t comp) {
+    uint8_t res = this->r_a.value & comp;
+    this->r_a.value = res;
+    this->set_zero_flag(res);
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, 1L);
+    this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, 0L);
 }
 
 void CPU::set_register_bit(reg8 source, uint8_t bit_shift, unsigned char val) {
@@ -517,6 +544,12 @@ void CPU::op_CP() {
     this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, (res > 0) ? 1L : 0L);
 }
 
+void CPU::op_SCF() {
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, 0L);
+    this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, 1L);
+}
+
 void CPU::op_Call() {
     // Get jump address
     uint16_t jmp_dest_addr = this->get_inc_pc_val16();
@@ -528,6 +561,14 @@ void CPU::op_Call() {
     
     // Set PC to jump destination address
     this->r_pc.value = jmp_dest_addr;
+}
+
+void CPU::op_Swap(reg8 dest) {
+    dest.value = ((dest.value & 0x0F) << 4) | ((dest.value & 0xF0) >> 4);
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, 0L);
+    this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, 0L);
+    this->set_zero_flag(dest.value);
 }
 
 void CPU::op_Return() {
