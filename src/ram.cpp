@@ -82,6 +82,12 @@ void RAM::dec(int address) {
 void RAM::dec(uint16_t address) {
     this->dec((int)address);
 }
+void RAM::inc(int address) {
+    this->memory[address] ++;
+}
+void RAM::inc(uint16_t address) {
+    this->inc((int)address);
+}
 
 
 RamSubset RAM::get_io_registers() {

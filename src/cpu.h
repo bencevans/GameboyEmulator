@@ -110,6 +110,7 @@ private:
     void check_interupts();
     
     void set_zero_flag(const uint8_t is_it);
+    uint8_t get_zero_flag();
     void set_half_carry(uint8_t original_val, uint8_t input);
 
     void op_Load(reg8 dest);
@@ -132,6 +133,7 @@ private:
 
     void op_Call();
     void op_Return();
+    void op_JR();
 
     void op_XOR(reg8 comp);
 
@@ -140,6 +142,7 @@ private:
     void op_AND(uint8_t comp);
 
     void op_Get_dec_set(combined_reg dest, reg8 source);
+    void op_Get_inc_set(combined_reg dest, reg8 source);
 
     void op_Bit(reg8 comp, int bit);
     void op_Set(uint8_t bit, reg8 dest);
