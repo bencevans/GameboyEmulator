@@ -53,9 +53,13 @@ private:
     bool cb_state;
     
     // Bits for flag register
+    // C flag
     const int CARRY_FLAG_BIT = 4;
+    // H flag
     const int HALF_CARRY_FLAG_BIT = 5;
+    // N Flag
     const int SUBTRACT_FLAG_BIT = 6;
+    // Z flag
     const int ZERO_FLAG_BIT = 7;
 
     // Registers
@@ -104,6 +108,8 @@ private:
     void op_XOR(reg8 comp);
     void op_Get_dec_set(combined_reg dest, reg8 source);
     void op_Bit(reg8 comp, int bit);
+    void op_Set(uint8_t bit, reg8 dest);
+    void op_Adc();
     void op_EI();
     void op_DI();
     void op_Halt();

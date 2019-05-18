@@ -154,6 +154,9 @@ void CPU::execute_op_code(int op_val) {
         case 0xcd:
             this->op_Call();
             break;
+        case 0xce:
+            this->op_Adc();
+            break;
         case 0xe0:
             this->op_Load(0xff00 + this->get_inc_pc_val8(), this->r_a);
             break;
@@ -180,6 +183,9 @@ void CPU::execute_cb_code(int op_val) {
     switch(op_val) {
         case 0x7c:
             this->op_Bit(this->r_h, 7);
+            break;
+        case 0xcd:
+            this->op_Set(1, this->r_l);
             break;
         default:
             std::cout << "Unknown CB op code: ";
@@ -223,11 +229,11 @@ void CPU::set_register_bit(reg8 source, uint8_t bit_shift, unsigned char val) {
     }
 }
 unsigned char CPU::get_register_bit(reg8 source, uint8_t bit_shift) {
-    return (source.value & (1U  << bit_shift));
+    return (source.value & (1U  << bit_shift)) >> bit_shift;
 }
 
 void CPU::set_zero_flag(uint8_t is_it) {
-    this->r_f.value ^= (((is_it == 0) ? 1UL : 0UL) << ZERO_FLAG_BIT);
+    this->r_f.value ^= (((is_it == (uint8_t)0x0) ? 1UL : 0UL) << ZERO_FLAG_BIT);
 }
 
 // Get value from memory at PC and increment PC
@@ -272,6 +278,38 @@ void CPU::op_Bit(reg8 comp, int bit) {
     //this->r_f.value |= (1UL << )
     this->set_register_bit(this->r_f, this->ZERO_FLAG_BIT,
                            this->get_register_bit(comp, bit));
+}
+
+// Set single bit in a given register
+void CPU::op_Set(uint8_t bit, reg8 dest) {
+    this->set_register_bit(dest, bit, 1);
+}
+
+// Add 8bit PC value and carry flag to A.
+void CPU::op_Adc() {
+    union {
+        uint8_t bit8[2];
+        uint16_t bit16[1];
+    } data_conv;
+
+    // Always work with r_a
+    data_conv.bit8[0] = this->get_inc_pc_val8();
+    data_conv.bit16[0] += this->r_a.value;
+    this->r_a.value = data_conv.bit8[0];
+
+    // Set carry flag, based on 1st bit of second byte
+    uint8_t carry_flag = (0x01 & data_conv.bit8[1]) >> 0;
+    this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, carry_flag);
+
+    // Set zero flag
+    this->set_zero_flag(this->r_a.value);
+
+    // Set subtract flag to 0
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+
+    // Determine half carry flag based on 5th bit of first byte
+    uint8_t h_carry_flag = (0x10 & data_conv.bit8[0]) >> 4;
+    this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, h_carry_flag);
 }
 
 // Op code
