@@ -144,9 +144,15 @@ void CPU::execute_op_code(int op_val) {
             // X-OR A with A into A
             this->op_XOR(this->r_a);
             break;
+        case 0xc9:
+            this->op_Return();
+            break;
         case 0xcb:
             // Set flag for CB
             this->cb_state = true;
+            break;
+        case 0xcd:
+            this->op_Call();
             break;
         case 0xe0:
             this->op_Load(0xff00 + this->get_inc_pc_val8(), this->r_a);
@@ -293,7 +299,7 @@ void CPU::op_Load(reg8 dest, int source_addr) {
     dest.value = this->ram.get_val(source_addr);
 }
 
-void CPU::call() {
+void CPU::op_Call() {
     // Get jump address
     uint16_t jmp_dest_addr = this->get_inc_pc_val16();
 
@@ -302,6 +308,10 @@ void CPU::call() {
     
     // Set PC to jump destination address
     this->r_pc.value = jmp_dest_addr;
+}
+
+void CPU::op_Return() {
+    this->ram.stack_pop(this->r_sp.value, this->r_pc.value);
 }
 
 void CPU::op_Halt() {

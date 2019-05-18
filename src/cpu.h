@@ -99,7 +99,8 @@ private:
     void op_Load(combined_reg dest);
     void op_Load(int dest_addr, reg8 source);
     void op_Load(reg8 dest, int source_addr);
-    void call();
+    void op_Call();
+    void op_Return();
     void op_XOR(reg8 comp);
     void op_Get_dec_set(combined_reg dest, reg8 source);
     void op_Bit(reg8 comp, int bit);

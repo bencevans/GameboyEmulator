@@ -50,6 +50,20 @@ void RAM::stack_push(uint16_t &sp_val, uint16_t pc_val) {
     this->stack_push(sp_val, data_conv.bit8[1]);
     this->stack_push(sp_val, data_conv.bit8[0]);    
 }
+void RAM::stack_pop(uint16_t &sp_val, uint8_t &dest) {
+    // Obtain value from stack and decrease SP value,
+    dest = this->get_val(sp_val);
+    sp_val ++;
+}
+void RAM::stack_pop(uint16_t &sp_val, uint16_t &dest) {
+    union {
+        uint8_t bit8[2];
+        uint16_t bit16[1];
+    } data_conv;
+    this->stack_pop(sp_val, data_conv.bit8[0]);
+    this->stack_pop(sp_val, data_conv.bit8[1]);
+    dest = data_conv.bit16[0];
+}
 
 void RAM::set(int address, uint8_t val) {
     this->memory[address] = val;
