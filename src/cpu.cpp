@@ -300,17 +300,10 @@ void CPU::op_XOR(reg8 comp) {
 }
 
 void CPU::set_register_bit(reg8 source, uint8_t bit_shift, unsigned char val) {
-    if (val == 1) {
+    if (val == 1)
         source.value |= (1UL << bit_shift);
-    } else {
-        // Create 0 mask
-        //unsigned char mask = 0;
-        // Flip all bits
-        //mask ^= 1UL;
-        //mask &= 0 << bit_shift;
-        //source.value &= mask;
+    else
         source.value ^= (1UL << bit_shift);
-    }
 }
 unsigned char CPU::get_register_bit(reg8 source, uint8_t bit_shift) {
     return (source.value & (1U  << bit_shift)) >> bit_shift;
@@ -350,10 +343,8 @@ uint16_t CPU::get_inc_pc_val16() {
         uint16_t bit16[1];
     } data_conv;
     uint16_t tmp;
-    //for (int itx = 0; itx <= 1; itx ++) {
-    //    tmp = this->get_inc_pc_val8();
-    //    memcpy(&data_conv.bit8[itx], &tmp, 1);
-    //}
+
+    // @TODO: Why is this Not little endian?!
     tmp = this->get_inc_pc_val8();
     memcpy(&data_conv.bit8[0], &tmp, 1);
     tmp = this->get_inc_pc_val8();    
@@ -374,7 +365,6 @@ void CPU::op_Get_dec_set(combined_reg dest, reg8 source) {
 
 void CPU::op_Bit(reg8 comp, int bit) {
     // Set flags accordinly before operation
-    //this->r_f.value |= (1UL << )
     this->set_register_bit(this->r_f, this->ZERO_FLAG_BIT,
                            this->get_register_bit(comp, bit));
 }
@@ -448,6 +438,7 @@ void CPU::op_Add(reg8 dest, int source_addr) {
     
     this->set_zero_flag(dest.value);
     this->set_half_carry(original_val, dest.value);
+
     // Set subtract flag to 0, since this is add
     this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
     this->set_register_bit(
@@ -524,6 +515,7 @@ void CPU::op_Call() {
     uint16_t jmp_dest_addr = this->get_inc_pc_val16();
     if (DEBUG)
         std::cout << "Jumping from: " << std::hex << this->r_pc.value << " to " << (int)jmp_dest_addr << std::endl;
+
     // Push PC (which has already been incremented) to stack
     this->ram.stack_push(this->r_sp.value, this->r_pc.value);
     
