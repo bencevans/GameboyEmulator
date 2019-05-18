@@ -25,6 +25,9 @@ struct stack_pointer : reg16 { };
 struct program_counter : reg16 { };
 
 class combined_reg {
+    // The z80 is little endian because if you were to store HL to memory,
+    // L would be written a byte before H.
+    // If you were to read, L would be read from the address before H.
 public:
     reg8 lower;
     reg8 upper;
@@ -93,7 +96,10 @@ private:
     void op_Load(reg8 dest);
     void op_Load(reg16 dest);
     void op_Load(reg8 dest, reg8 source);
+    void op_Load(combined_reg dest);
     void op_Load(int dest_addr, reg8 source);
+    void op_Load(reg8 dest, int source_addr);
+    void call();
     void op_XOR(reg8 comp);
     void op_Get_dec_set(combined_reg dest, reg8 source);
     void op_Bit(reg8 comp, int bit);

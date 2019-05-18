@@ -16,6 +16,8 @@ public:
     void set(int address, uint8_t val);
     void dec(uint16_t address);
     void dec(int address);
+    void stack_push(uint16_t &sp_val, uint8_t pc_val);
+    void stack_push(uint16_t &sp_val, uint16_t pc_val);
 
     RamSubset get_character_ram();
     RamSubset get_bg_map_1();

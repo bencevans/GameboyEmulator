@@ -39,7 +39,7 @@ CPU::CPU(RAM ram) {
     
     // Stack pointer
     this->r_sp = stack_pointer();
-    this->r_sp.value = 0;
+    this->r_sp.value = 0xfffe;
     // Program counter
     this->r_pc = program_counter();
     this->r_pc.value = 0;
@@ -73,6 +73,7 @@ void CPU::tick() {
 
     // Read value from memory
     int op_val = (int)this->ram.get_val(this->r_pc.value);
+    std::cout << this->r_pc.value << std::endl;
     
     // Increment program counter
     // @TODO: Verify if this needs to be moved.. does it need to happen
@@ -98,6 +99,9 @@ void CPU::execute_op_code(int op_val) {
             // STOP
             //this->op_Noop();
             break;
+        case 0x0a:
+            this->op_Load(this->r_a, 0xff00 + (this->get_register_value16(this->r_bc)));
+            break;
         case 0x0e:
             // Load byte into C
             this->op_Load(this->r_c);
@@ -107,11 +111,14 @@ void CPU::execute_op_code(int op_val) {
             // @TODO: This is TEMPORARY
             //this->running = false;
             break;
+        case 0x11:
+            this->op_Load(this->r_de);
+            break;
+        case 0x1a:
+            this->op_Load(this->r_a, 0xff00 + (this->get_register_value16(this->r_de)));
+            break;
         case 0x21:
-            // First byte into H
-            this->op_Load(this->r_h);
-            // Second into L
-            this->op_Load(this->r_l);
+            this->op_Load(this->r_hl);
             break;
         case 0x31:
             // Load 2-bytes into SP
@@ -266,6 +273,10 @@ void CPU::op_Bit(reg8 comp, int bit) {
 void CPU::op_Load(reg8 dest) {
     dest.value = this->get_inc_pc_val8();
 }
+void CPU::op_Load(combined_reg dest) {
+    dest.lower.value = this->get_inc_pc_val8();
+    dest.upper.value = this->get_inc_pc_val8();
+}
 void CPU::op_Load(reg16 dest) {
     dest.value = this->get_inc_pc_val16();
 }
@@ -275,8 +286,22 @@ void CPU::op_Load(reg8 dest, reg8 source) {
 }
 // Copy register value into destination address of memory
 void CPU::op_Load(int dest_addr, reg8 source) {
-    uint16_t dest_addr_chr = dest_addr;
-    this->ram.set(dest_addr_chr, source.value);
+    this->ram.set(dest_addr, source.value);
+}
+// Copy data from source memory address to destination
+void CPU::op_Load(reg8 dest, int source_addr) {
+    dest.value = this->ram.get_val(source_addr);
+}
+
+void CPU::call() {
+    // Get jump address
+    uint16_t jmp_dest_addr = this->get_inc_pc_val16();
+
+    // Push PC (which has already been incremented) to stack
+    this->ram.stack_push(this->r_sp.value, this->r_pc.value);
+    
+    // Set PC to jump destination address
+    this->r_pc.value = jmp_dest_addr;
 }
 
 void CPU::op_Halt() {

@@ -27,6 +27,29 @@ uint8_t* RAM::get_ref(uint16_t address) {
     //memcpy(&addr, &address, 1);
     return mem_ptr + addr;
 }
+void RAM::stack_push(uint16_t &sp_val, uint8_t pc_val) {
+    // Decrease SP value, then store pc_val into the memory location
+    // of sp
+    sp_val --;
+    this->set(sp_val, pc_val);
+}
+void RAM::stack_push(uint16_t &sp_val, uint16_t pc_val) {
+    union {
+        uint8_t bit8[2];
+        uint16_t bit16[1];
+    } data_conv;
+    data_conv.bit16[0] = pc_val;
+
+    // Write backwards due to little endian, but due to the writing of
+    // the stack working backwards, it will write it backwards again,
+    // so if read, it would be fowards
+    // e.g.
+    // |      |
+    // |     H|
+    // |    LH|
+    this->stack_push(sp_val, data_conv.bit8[1]);
+    this->stack_push(sp_val, data_conv.bit8[0]);    
+}
 
 void RAM::set(int address, uint8_t val) {
     this->memory[address] = val;
