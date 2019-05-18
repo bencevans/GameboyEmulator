@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 CPU::CPU(RAM ram) {
     
@@ -57,7 +57,7 @@ bool CPU::is_running() {
 
 void CPU::tick() {
     this->temp_counter ++;
-    if (this->temp_counter >= 400)
+    if (this->temp_counter >= 800)
         this->running = false;
     
     // If interupt state is either enabled or pending disable,
@@ -355,9 +355,9 @@ uint16_t CPU::get_inc_pc_val16() {
     //    memcpy(&data_conv.bit8[itx], &tmp, 1);
     //}
     tmp = this->get_inc_pc_val8();
-    memcpy(&data_conv.bit8[1], &tmp, 1);
-    tmp = this->get_inc_pc_val8();    
     memcpy(&data_conv.bit8[0], &tmp, 1);
+    tmp = this->get_inc_pc_val8();    
+    memcpy(&data_conv.bit8[1], &tmp, 1);
     return data_conv.bit16[0];
 }
 

@@ -3,7 +3,7 @@
 #include <cstring>
 
 #include "ram.h"
-#define DEBUG 0
+#define DEBUG 1
 
 RAM::RAM() {
     // Initialise memory to 0.
@@ -120,7 +120,7 @@ void RAM::load_rom(char *rom_path) {
     infile.seekg(0, infile.beg);
 
     // Iterate through bytes in file and store in memory
-    size_t rom_buffer = 0x0150;
+    size_t rom_buffer = 0x0100;
     size_t itx = rom_buffer;
     while (itx < (length + rom_buffer)) {
         infile >> this->memory[itx];
