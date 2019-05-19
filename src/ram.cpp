@@ -109,9 +109,9 @@ void RAM::load_bios(char *bios_path) {
     infile.seekg(0, infile.beg);
 
     // Iterate through bytes in file and store in memory
-    size_t itx = 0;
+    unsigned long itx = 0;
     while (itx < length) {
-        infile >> this->memory[itx];
+        infile >> std::noskipws >> this->memory[itx];
         itx ++;
     }
     infile.close();
@@ -130,7 +130,7 @@ void RAM::load_rom(char *rom_path) {
     size_t rom_buffer = 0x0100;
     size_t itx = rom_buffer;
     while (itx < (length + rom_buffer)) {
-        infile >> this->memory[itx];
+        infile >> std::noskipws >> this->memory[itx];
         itx ++;
     }
     infile.close();
