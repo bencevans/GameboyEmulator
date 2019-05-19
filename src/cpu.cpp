@@ -6,7 +6,8 @@
 #include <iostream>
 #include <string.h>
 
-#define DEBUG 0
+#define DEBUG 1
+#define STEPIN 1
 
 CPU::CPU(RAM *ram, VPU *vpu_inst) {
     
@@ -27,14 +28,14 @@ CPU::CPU(RAM *ram, VPU *vpu_inst) {
     this->r_l = gen_reg();
     this->r_l.value = 0;
     
-    this->r_bc.lower = this->r_b;
-    this->r_bc.upper = this->r_c;
-    this->r_de.lower = this->r_d;
-    this->r_de.upper = this->r_e;
-    this->r_hl.lower = this->r_h;
-    this->r_hl.upper = this->r_l;
-    this->r_af.lower = this->r_a;
-    this->r_af.upper = this->r_f;
+    this->r_bc.lower = &this->r_b;
+    this->r_bc.upper = &this->r_c;
+    this->r_de.lower = &this->r_d;
+    this->r_de.upper = &this->r_e;
+    this->r_hl.lower = &this->r_h;
+    this->r_hl.upper = &this->r_l;
+    this->r_af.lower = &this->r_a;
+    this->r_af.upper = &this->r_f;
     
     this->cb_state = false;
     
@@ -97,6 +98,17 @@ void CPU::tick() {
     if (current_pc == 0x0100 || current_pc == 0x0101) {
         this->running = false;
         std::cout << "HIT the start of the ROM!" << std::endl;
+    }
+    
+    if (STEPIN == 1 || (STEPIN + 1) == this->r_pc.value) {
+        std::cout << std::hex <<
+            "af: " << this->r_af.value() << std::endl <<
+            "bc: " << this->r_bc.value() << std::endl <<
+            "de: " << this->r_de.value() << std::endl <<
+            "hl: " << this->r_hl.value() << std::endl <<
+            "sp: " << this->r_sp.value << std::endl <<
+            "pc: " << this->r_pc.value << std::endl;
+        std::cin.get();
     }
 }
 
@@ -581,13 +593,13 @@ void CPU::execute_cb_code(int op_val) {
     }
 }
 
-uint16_t CPU::get_register_value16(combined_reg dest) {
+uint16_t CPU::get_register_value16(combined_reg *dest) {
     union {
         uint8_t bit8[2];
         uint16_t bit16[1];
     } data_conv;
-    data_conv.bit8[0] = dest.lower.value;
-    data_conv.bit8[1] = dest.upper.value;
+    data_conv.bit8[0] = dest->lower->value;
+    data_conv.bit8[1] = dest->upper.value;
 
     return data_conv.bit16[0];
 }

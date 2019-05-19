@@ -30,17 +30,17 @@ class combined_reg {
     // L would be written a byte before H.
     // If you were to read, L would be read from the address before H.
 public:
-    reg8 lower;
-    reg8 upper;
-    uint16_t value() { return (lower.value << 8) | (upper.value & 0xff);};
+    reg8 *lower;
+    reg8 *upper;
+    uint16_t value() { return (lower->value << 8) | (upper->value & 0xff);};
     void set_value(uint16_t data) {
         union {
             uint8_t bit8[2];
             uint16_t bit16[1];
         } data_conv;
         data_conv.bit16[0] = data;
-        this->lower.value = data_conv.bit8[0];
-        this->upper.value = data_conv.bit8[1];
+        this->lower->value = data_conv.bit8[0];
+        this->upper->value = data_conv.bit8[1];
     };
 };
 
