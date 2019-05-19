@@ -20,8 +20,8 @@ public:
     void inc(int address);
     void stack_push(uint16_t &sp_val, uint8_t pc_val);
     void stack_push(uint16_t &sp_val, uint16_t pc_val);
-    void stack_pop(uint16_t &sp_val, uint8_t &dest);
-    void stack_pop(uint16_t &sp_val, uint16_t &dest);
+    uint8_t stack_pop8(uint16_t &sp_val);
+    uint16_t stack_pop(uint16_t &sp_val);
 
     RamSubset get_character_ram();
     RamSubset get_bg_map_1();

@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 CPU::CPU(RAM *ram, VPU *vpu_inst) {
     
@@ -33,6 +33,8 @@ CPU::CPU(RAM *ram, VPU *vpu_inst) {
     this->r_de.upper = this->r_e;
     this->r_hl.lower = this->r_h;
     this->r_hl.upper = this->r_l;
+    this->r_af.lower = this->r_a;
+    this->r_af.upper = this->r_f;
     
     this->cb_state = false;
     
@@ -58,11 +60,11 @@ bool CPU::is_running() {
 
 void CPU::tick() {
     this->temp_counter ++;
-    if (this->temp_counter >= 100)
-        this->running = false;
+    //if (this->temp_counter >= 1000)
+    //    this->running = false;
 
     if (DEBUG)
-        std::cout << "New Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;    
+        std::cout << std::endl << std::endl << "New Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;    
 
     // If interupt state is either enabled or pending disable,
     // check interupts
@@ -110,6 +112,9 @@ void CPU::execute_op_code(int op_val) {
             if (DEBUG)
                 std::cout << "Noop: " << std::hex << this->r_pc.value << std::endl;
             break;
+        case 0x01:
+            this->op_Load(this->r_bc);
+            break;
         case 0x02:
             this->op_Load(this->r_bc.value(), this->r_a);
             break;
@@ -126,8 +131,18 @@ void CPU::execute_op_code(int op_val) {
             // Load byte into C
             this->op_Load(this->r_b);
             break;
+        case 0x08:
+            // Load byte into C
+            this->op_Load(this->get_inc_pc_val16(), this->r_sp);
+            break;
         case 0x0a:
             this->op_Load(this->r_a, this->get_register_value16(this->r_bc));
+            break;
+        case 0x0b:
+            this->op_Dec(this->r_bc);
+            break;
+        case 0x0c:
+            this->op_Inc(this->r_c);
             break;
         case 0x0d:
             this->op_Dec(this->r_c);
@@ -154,11 +169,24 @@ void CPU::execute_op_code(int op_val) {
             // Load byte into C
             this->op_Load(this->r_d);
             break;
+        case 0x17:
+            this->op_RL(this->r_a);
+            break;
         case 0x1a:
             this->op_Load(this->r_a, this->get_register_value16(this->r_de));
             break;
+        case 0x1b:
+            this->op_Dec(this->r_de);
+            break;
+        case 0x1c:
+            this->op_Inc(this->r_e);
+            break;
         case 0x1d:
             this->op_Dec(this->r_e);
+            break;
+        case 0x20:
+            if (! this->get_zero_flag())
+                this->op_JR();
             break;
         case 0x21:
             this->op_Load(this->r_hl);
@@ -180,6 +208,14 @@ void CPU::execute_op_code(int op_val) {
             if (this->get_zero_flag())
                 this->op_JR();
             break;
+        case 0x2a:
+            this->op_Get_inc_set(this->r_a, this->r_hl);
+        case 0x2b:
+            this->op_Dec(this->r_hl);
+            break;
+        case 0x2c:
+            this->op_Inc(this->r_l);
+            break;
         case 0x2d:
             this->op_Dec(this->r_l);
             break;
@@ -193,6 +229,12 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x37:
             this->op_SCF();
+            break;
+        case 0x3b:
+            this->op_Dec(this->r_sp);
+            break;
+        case 0x3c:
+            this->op_Inc(this->r_a);
             break;
         case 0x3d:
             this->op_Dec(this->r_a);
@@ -211,6 +253,18 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x66:
             this->op_Load(this->r_h, this->get_register_value16(this->r_hl));
+            break;
+        case 0x70:
+            this->op_Load(this->get_register_value16(this->r_hl), this->r_b);
+            break;
+        case 0x71:
+            this->op_Load(this->get_register_value16(this->r_hl), this->r_c);
+            break;
+        case 0x72:
+            this->op_Load(this->get_register_value16(this->r_hl), this->r_d);
+            break;
+        case 0x73:
+            this->op_Load(this->get_register_value16(this->r_hl), this->r_e);
             break;
         case 0x76:
             this->op_Halt();
@@ -242,8 +296,74 @@ void CPU::execute_op_code(int op_val) {
         case 0x7f:
             this->op_Load(this->r_a, this->r_a);
             break;
+        case 0x80:
+            this->op_Add(this->r_a, this->r_b);
+            break;
+        case 0x81:
+            this->op_Add(this->r_a, this->r_c);
+            break;
+        case 0x82:
+            this->op_Add(this->r_a, this->r_d);
+            break;
+        case 0x83:
+            this->op_Add(this->r_a, this->r_e);
+            break;
+        case 0x84:
+            this->op_Add(this->r_a, this->r_h);
+            break;
+        case 0x85:
+            this->op_Add(this->r_a, this->r_l);
+            break;
         case 0x86:
-            this->op_Add(this->r_a, this->get_register_value16(this->r_hl));
+            this->op_Add(this->r_a, (uint16_t)this->ram->get_val(this->get_register_value16(this->r_hl)));
+            break;
+        case 0x87:
+            this->op_Add(this->r_a, this->r_a);
+            break;
+        case 0x88:
+            this->op_Adc(this->r_a, this->r_b);
+            break;
+        case 0x89:
+            this->op_Adc(this->r_a, this->r_c);
+            break;
+        case 0x8a:
+            this->op_Adc(this->r_a, this->r_d);
+            break;
+        case 0x8b:
+            this->op_Adc(this->r_a, this->r_e);
+            break;
+        case 0x8c:
+            this->op_Adc(this->r_a, this->r_h);
+            break;
+        case 0x8d:
+            this->op_Adc(this->r_a, this->r_l);
+            break;
+        case 0x8e:
+            this->op_Adc(this->r_a, this->get_register_value16(this->r_hl));
+            break;
+        case 0x8f:
+            this->op_Adc(this->r_a, this->r_a);
+            break;
+        case 0xa0:
+            this->op_AND(this->r_b);
+            break;
+        case 0xa1:
+            this->op_AND(this->r_c);
+            break;
+        case 0xa2:
+            this->op_AND(this->r_d);
+            break;
+        case 0xa3:
+            this->op_AND(this->r_e);
+            break;
+        case 0xa4:
+            this->op_AND(this->r_h);
+            break;
+        case 0xa5:
+            this->op_AND(this->r_l);
+            break;
+        case 0xa6:
+            this->op_AND(this->ram->get_val(this->get_register_value16(this->r_hl)));
             break;
         case 0xa7:
             this->op_AND(this->r_a);
@@ -252,29 +372,84 @@ void CPU::execute_op_code(int op_val) {
             // X-OR A with A into A
             this->op_XOR(this->r_a);
             break;
+        case 0xb0:
+            this->op_OR(this->r_b);
+            break;
+        case 0xb1:
+            this->op_OR(this->r_c);
+            break;
+        case 0xb2:
+            this->op_OR(this->r_d);
+            break;
+        case 0xb3:
+            this->op_OR(this->r_e);
+            break;
+        case 0xb4:
+            this->op_OR(this->r_h);
+            break;
+        case 0xb5:
+            this->op_OR(this->r_l);
+            break;
+        case 0xb6:
+            this->op_OR(this->ram->get_val(this->get_register_value16(this->r_hl)));
+            break;
+        case 0xb7:
+            this->op_OR(this->r_a);
+            break;
         case 0xb9:
             this->op_CP(this->r_c);
+            break;
+        case 0xc1:
+            this->op_Pop(this->r_bc);
+            break;
+        case 0xc2:
+            if (! this->get_zero_flag())
+                this->op_JP();
+            break;
+        case 0xc3:
+            this->op_JP();
+            break;
+        case 0xc5:
+            this->op_Push(this->r_bc);
             break;
         case 0xc9:
             this->op_Return();
             break;
-        case 0xcc:
+        case 0xca:
             if (this->get_zero_flag())
-                this->op_Call();
+                this->op_JP();
             break;
         case 0xcb:
             // Set flag for CB
             this->cb_state = true;
             break;
+        case 0xcc:
+            if (this->get_zero_flag())
+                this->op_Call();
+            break;
         case 0xcd:
             this->op_Call();
             break;
         case 0xce:
-            this->op_Adc();
+            this->op_Adc(this->r_a);
+            break;
+        case 0xd1:
+            this->op_Pop(this->r_de);
+            break;
+        case 0xd2:
+            if (! this->get_carry_flag())
+                this->op_JP();
             break;
         case 0xd4:
             if (! this->get_carry_flag())
                 this->op_Call();
+            break;
+        case 0xd5:
+            this->op_Push(this->r_de);
+            break;
+        case 0xda:
+            if (this->get_carry_flag())
+                this->op_JP();
             break;
         case 0xdf:
             this->op_RST(0x0018);
@@ -282,8 +457,14 @@ void CPU::execute_op_code(int op_val) {
         case 0xe0:
             this->op_Load(0xff00 + this->get_inc_pc_val8(), this->r_a);
             break;
+        case 0xe1:
+            this->op_Pop(this->r_hl);
+            break;
         case 0xe2:
             this->op_Load(0xff00 + this->r_c.value, this->r_a);
+            break;
+        case 0xe5:
+            this->op_Push(this->r_hl);
             break;
         case 0xe6:
             this->op_AND();
@@ -291,9 +472,15 @@ void CPU::execute_op_code(int op_val) {
         case 0xf0:
             this->op_Load(this->r_a, 0xff00 + this->get_inc_pc_val8());
             break;
+        case 0xf1:
+            this->op_Pop(this->r_af);
+            break;
         case 0xf3:
             // Disable interupts
             this->op_DI();
+            break;
+        case 0xf5:
+            this->op_Push(this->r_af);
             break;
         case 0xfb:
             // Enable interupts
@@ -313,6 +500,9 @@ void CPU::execute_op_code(int op_val) {
 
 void CPU::execute_cb_code(int op_val) {
     switch(op_val) {
+        case 0x11:
+            this->op_RL(this->r_c);
+            break;
         case 0x37:
             this->op_Swap(this->r_a);
             break;
@@ -387,6 +577,23 @@ void CPU::op_AND(uint8_t comp) {
     this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, 0L);
 }
 
+// OR operators - OR with the A register value, set result to A
+void CPU::op_OR() {
+    uint8_t comp = this->get_inc_pc_val8();
+    this->op_OR(comp);
+}
+void CPU::op_OR(reg8 comp) {
+    this->op_OR(comp.value);
+}
+void CPU::op_OR(uint8_t comp) {
+    uint8_t res = this->r_a.value | comp;
+    this->r_a.value = res;
+    this->set_zero_flag(res);
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, 0L);
+    this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, 0L);
+}
+
 // Set single bit of a given register to a given value
 void CPU::set_register_bit(reg8 source, uint8_t bit_shift, unsigned char val) {
     if (val == 1)
@@ -428,7 +635,7 @@ void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
 uint8_t CPU::get_inc_pc_val8() {
     uint8_t ori_val = this->ram->get_val(this->r_pc.value);
     if (DEBUG)
-        std::cout << "Got Value from RAM: " << std::hex << (int)ori_val << " at " << (int)this->r_pc.value << std::endl;
+        std::cout << "Got PC value from RAM: " << std::hex << (int)ori_val << " at " << (int)this->r_pc.value << std::endl;
     uint8_t val;
     memcpy(&val, &ori_val, 1);
     this->r_pc.value ++;
@@ -484,24 +691,33 @@ void CPU::op_Set(uint8_t bit, reg8 dest) {
 }
 
 // Add 8bit PC value and carry flag to A.
-void CPU::op_Adc() {
+void CPU::op_Adc(reg8 dest) {
+    uint8_t source = this->get_inc_pc_val8();
+    this->op_Adc(dest, source);
+}
+void CPU::op_Adc(reg8 dest, reg8 source) {
+    this->op_Adc(dest, source.value);
+}
+void CPU::op_Adc(reg8 dest, uint8_t source) {
     union {
         uint8_t bit8[2];
         uint16_t bit16[1];
     } data_conv;
 
     // Always work with r_a
-    uint8_t original_val = this->get_inc_pc_val8();
-    data_conv.bit8[0] = original_val;
-    data_conv.bit16[0] += this->r_a.value;
-    this->r_a.value = data_conv.bit8[0];
+    uint8_t original_val;
+    memcpy(&original_val, &source, 1);
+    memcpy(&data_conv.bit8[0], &source, 1);
+    data_conv.bit8[1] = 0;
+    data_conv.bit16[0] += dest.value;
+    dest.value = data_conv.bit8[0];
 
     // Set carry flag, based on 1st bit of second byte
     uint8_t carry_flag = (0x01 & data_conv.bit8[1]) >> 0;
     this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, carry_flag);
 
     // Set zero flag
-    this->set_zero_flag(this->r_a.value);
+    this->set_zero_flag(dest.value);
 
     // Set subtract flag to 0
     this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
@@ -510,8 +726,10 @@ void CPU::op_Adc() {
     this->set_half_carry(original_val, data_conv.bit8[0]);
 }
 
-// Op code
+
 // @TODO: Move these
+
+////////////////////////// Load OPs //////////////////////////
 void CPU::op_Load(reg8 dest) {
     dest.value = this->get_inc_pc_val8();
 }
@@ -521,6 +739,9 @@ void CPU::op_Load(combined_reg dest) {
 }
 void CPU::op_Load(reg16 dest) {
     dest.value = this->get_inc_pc_val16();
+}
+void CPU::op_Load(uint16_t dest_addr, reg16 source) {
+    this->ram->set((int)dest_addr, source.value);
 }
 // Copy 1 byte between registers
 void CPU::op_Load(reg8 dest, reg8 source) {
@@ -535,13 +756,22 @@ void CPU::op_Load(reg8 dest, int source_addr) {
     dest.value = this->ram->get_val(source_addr);
 }
 
-void CPU::op_Add(reg8 dest, int source_addr) {
+
+////////////////////////// General arithmatic OPs //////////////////////////
+void CPU::op_Add(reg8 dest) {
+    uint16_t source = this->get_inc_pc_val8();
+    this->op_Add(dest, source);
+}
+void CPU::op_Add(reg8 dest, reg8 src) {
+    this->op_Add(dest, (uint16_t)src.value);
+}
+void CPU::op_Add(reg8 dest, uint16_t src) {
     uint8_t original_val = dest.value;
 
     this->data_conv.bit8[0] = dest.value;
     this->data_conv.bit8[1] = 0;
 
-    this->data_conv.bit16[0] += (uint16_t)this->ram->get_val(source_addr);
+    this->data_conv.bit16[0] += src;
 
     dest.value = this->data_conv.bit8[0];
     
@@ -589,7 +819,19 @@ void CPU::op_Inc(combined_reg dest) {
     dest.lower.value = data_conv.bit8[0];
     dest.upper.value = data_conv.bit8[1];
 }
-
+void CPU::op_Dec(reg16 dest) {
+    this->data_conv32.bit16[0] = dest.value;
+    this->data_conv32.bit16[1] = 0;
+    this->data_conv32.bit32[0] = (uint32_t)((int)(this->data_conv32.bit32[0]) - 1);
+    dest.value = this->data_conv32.bit16[0];
+}
+void CPU::op_Dec(combined_reg dest) {
+    this->data_conv32.bit16[0] = dest.value();
+    this->data_conv32.bit16[1] = 0;
+    this->data_conv32.bit32[0] = (uint32_t)((int)(this->data_conv32.bit32[0]) - 1);
+    dest.lower.value = this->data_conv32.bit8[0];
+    dest.upper.value = this->data_conv32.bit8[1];
+}
 void CPU::op_Dec(reg8 dest) {
     uint8_t original_val = dest.value;
     this->data_conv.bit8[0] = dest.value;
@@ -607,6 +849,7 @@ void CPU::op_Dec(reg8 dest) {
     this->set_half_carry(original_val, this->data_conv.bit8[0]);
 }
 
+////////////////////////// bit-related OPs //////////////////////////
 void CPU::op_CP() {
     this->op_CP(this->get_inc_pc_val8());
 }
@@ -632,11 +875,25 @@ void CPU::op_Swap(reg8 dest) {
     this->set_zero_flag(dest.value);
 }
 
+void CPU::op_RL(reg8 src) {
+    // Shift old value left 1 bit into a 16-bit register
+    this->data_conv.bit16[0] = src.value << 1 | this->get_carry_flag();
+    src.value = this->data_conv.bit8[1];
+    this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, this->data_conv.bit8[1] & 0x01);
+    this->set_zero_flag(src.value);
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, 0L);
+}
+
+////////////////////////// Misc OPs //////////////////////////
+
 void CPU::op_SCF() {
     this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
     this->set_register_bit(this->r_f, this->HALF_CARRY_FLAG_BIT, 0L);
     this->set_register_bit(this->r_f, this->CARRY_FLAG_BIT, 1L);
 }
+
+////////////////////////// STACK-related OPs //////////////////////////
 
 void CPU::op_Call() {
     // Get jump address
@@ -652,13 +909,33 @@ void CPU::op_Call() {
 }
 
 void CPU::op_Return() {
-    this->ram->stack_pop(this->r_sp.value, this->r_pc.value);
+    this->r_pc.value = this->ram->stack_pop(this->r_sp.value);
+}
+
+void CPU::op_Push(reg16 src) {
+    this->op_Push(src.value);
+}
+void CPU::op_Push(combined_reg src) {
+    this->op_Push(src.value());
+}
+void CPU::op_Push(uint16_t src) {
+    this->ram->stack_push(this->r_sp.value, src);
+}
+
+void CPU::op_Pop(reg16 dest) {
+    dest.value = this->op_Pop();
+}
+void CPU::op_Pop(combined_reg dest) {
+    dest.set_value(this->op_Pop());
+}
+uint16_t CPU::op_Pop() {
+    return this->ram->stack_pop(this->r_sp.value);
 }
 
 // Jump forward N number instructions
 void CPU::op_JR() {
     // Default to obtaining value from next byte
-    uint16_t jump_by = this->get_inc_pc_val8();
+    int16_t jump_by = this->get_inc_pc_val8();
     if (DEBUG)
         std::cout << "Jump from " << std::hex << (int)this->r_pc.value << " by " << (int)jump_by;
     // @TODO Verify that this jumps by the value AFTER the pc increment
@@ -667,6 +944,23 @@ void CPU::op_JR() {
     //this->r_pc.value --;
     if (DEBUG)
         std::cout << " to " << std::hex << (int)this->r_pc.value << std::endl;
+}
+
+// Jump to address
+void CPU::op_JP() {
+    // Default to obtaining value from next byte
+    int16_t jump_to = this->get_inc_pc_val16();
+    this->op_JP(jump_to);
+}
+void CPU::op_JP(combined_reg jmp_reg) {
+    this->op_JP(jmp_reg.value());
+}
+void CPU::op_JP(uint16_t jump_to) {
+    if (DEBUG)
+        std::cout << std::hex << "Jump from " << (int)this->r_pc.value << " to " << (int)jump_to << std::endl;
+    // @TODO Verify that this jumps by the value AFTER the pc increment
+    // for this instruction.
+    this->r_pc.value = jump_to;
 }
 
 void CPU::op_RST(uint16_t memory_addr) {
@@ -680,6 +974,8 @@ void CPU::op_RST(uint16_t memory_addr) {
     // Set PC to jump destination address
     this->r_pc.value = memory_addr;
 }
+
+////////////////////////// halty-waity-related OPs //////////////////////////
 
 void CPU::op_Halt() {
     // Set DI state to pending, e.g.

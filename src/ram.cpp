@@ -16,6 +16,8 @@ RAM::RAM() {
 uint8_t RAM::get_val(int address) {
     uint8_t val;
     memcpy(&val, &this->memory[address], 1);
+    if (DEBUG)
+        std::cout << std::hex << "Got from RAM (" << address << "): "  << (int)val << std::endl;
     return val;
 }
 uint8_t RAM::get_val(uint16_t address) {
@@ -53,25 +55,28 @@ void RAM::stack_push(uint16_t &sp_val, uint16_t pc_val) {
     this->stack_push(sp_val, data_conv.bit8[1]);
     this->stack_push(sp_val, data_conv.bit8[0]);    
 }
-void RAM::stack_pop(uint16_t &sp_val, uint8_t &dest) {
+uint8_t RAM::stack_pop8(uint16_t &sp_val) {
     // Obtain value from stack and decrease SP value,
-    dest = this->get_val(sp_val);
+    uint8_t dest = this->get_val(sp_val);
     std::cout << "got: " << std::hex << (int)dest << " from " << sp_val << std::endl;
     sp_val ++;
+    return dest;
 }
-void RAM::stack_pop(uint16_t &sp_val, uint16_t &dest) {
+uint16_t RAM::stack_pop(uint16_t &sp_val) {
     union {
         uint8_t bit8[2];
         uint16_t bit16[1];
     } data_conv;
-    this->stack_pop(sp_val, data_conv.bit8[0]);
-    this->stack_pop(sp_val, data_conv.bit8[1]);
+    data_conv.bit8[0] = this->stack_pop8(sp_val);
+    data_conv.bit8[1] = this->stack_pop8(sp_val);
     if (DEBUG)
         std::cout << "Returning to: " << std::hex << (int)data_conv.bit16[0] << std::endl;
-    dest = data_conv.bit16[0];
+    return data_conv.bit16[0];
 }
 
 void RAM::set(int address, uint8_t val) {
+    if (DEBUG)
+        std::cout << std::hex << "Set RAM value (" << address << "): "  << (int)val << std::endl;
     this->memory[address] = val;
 }
 void RAM::set(uint16_t address, uint8_t val) {

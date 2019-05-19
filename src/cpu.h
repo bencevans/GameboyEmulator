@@ -33,6 +33,15 @@ public:
     reg8 lower;
     reg8 upper;
     uint16_t value() { return (lower.value << 8) | (upper.value & 0xff);};
+    void set_value(uint16_t data) {
+        union {
+            uint8_t bit8[2];
+            uint16_t bit16[1];
+        } data_conv;
+        data_conv.bit16[0] = data;
+        this->lower.value = data_conv.bit8[0];
+        this->upper.value = data_conv.bit8[1];
+    };
 };
 
 class CPU {
@@ -93,6 +102,7 @@ private:
     combined_reg r_bc;
     combined_reg r_de;
     combined_reg r_hl;
+    combined_reg r_af;
     
     // Stack pointer
     stack_pointer r_sp;
@@ -117,16 +127,21 @@ private:
 
     void op_Load(reg8 dest);
     void op_Load(reg16 dest);
+    void op_Load(uint16_t dest_addr, reg16 source);
     void op_Load(reg8 dest, reg8 source);
     void op_Load(combined_reg dest);
     void op_Load(int dest_addr, reg8 source);
     void op_Load(reg8 dest, int source_addr);
 
-    void op_Add(reg8 dest, int source_addr);
+    void op_Add(reg8 dest);
+    void op_Add(reg8 dest, reg8 src);
+    void op_Add(reg8 dest, uint16_t src);
     
     void op_Inc(reg8 dest);
     void op_Inc(combined_reg dest);
     void op_Dec(reg8 dest);
+    void op_Dec(reg16 dest);
+    void op_Dec(combined_reg dest);
 
     void op_CP();
     void op_CP(reg8 in);
@@ -134,11 +149,21 @@ private:
 
     void op_SCF();
     void op_Swap(reg8 dest);
+    void op_RL(reg8 src);
 
     void op_Call();
     void op_Return();
     void op_JR();
+    void op_JP();
+    void op_JP(combined_reg jmp_reg);
+    void op_JP(uint16_t jump_to);
     void op_RST(uint16_t memory_addr);
+    void op_Push(reg16 src);
+    void op_Push(combined_reg src);
+    void op_Push(uint16_t src);
+    void op_Pop(reg16 dest);
+    void op_Pop(combined_reg dest);
+    uint16_t op_Pop();
 
     void op_XOR(reg8 comp);
 
@@ -146,13 +171,19 @@ private:
     void op_AND(reg8 comp);
     void op_AND(uint8_t comp);
 
+    void op_OR();
+    void op_OR(reg8 comp);
+    void op_OR(uint8_t comp);
+
     void op_Get_dec_set(combined_reg dest, reg8 source);
     void op_Get_inc_set(combined_reg dest, reg8 source);
 
     void op_Bit(reg8 comp, int bit);
     void op_Set(uint8_t bit, reg8 dest);
 
-    void op_Adc();
+    void op_Adc(reg8 dest);
+    void op_Adc(reg8 dest, reg8 source);
+    void op_Adc(reg8 dest, uint8_t source);
 
     void op_EI();
     void op_DI();
