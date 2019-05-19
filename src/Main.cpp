@@ -40,7 +40,7 @@ int main(int argc, char* args[])
     //}
     
     // create the window
-    sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH), APP_NAME);
+    sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH, 4), APP_NAME);
 
     RAM ram_inst = RAM();
     char bios_path[] = "./copyright/DMG_ROM.bin";
