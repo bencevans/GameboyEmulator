@@ -123,6 +123,7 @@ private:
     void set_zero_flag(const uint8_t is_it);
     uint8_t get_zero_flag();
     void set_half_carry(uint8_t original_val, uint8_t input);
+    void set_half_carry(uint16_t original_val, uint16_t input);
     uint8_t get_carry_flag();
 
     void op_Load(reg8 dest);
@@ -136,6 +137,9 @@ private:
     void op_Add(reg8 dest);
     void op_Add(reg8 dest, reg8 src);
     void op_Add(reg8 dest, uint16_t src);
+    void op_Add(combined_reg dest, combined_reg src);
+    void op_Add(combined_reg dest, reg16 src);
+    void op_Add(combined_reg dest, uint32_t src);
     
     void op_Inc(reg8 dest);
     void op_Inc(combined_reg dest);
@@ -175,8 +179,10 @@ private:
     void op_OR(reg8 comp);
     void op_OR(uint8_t comp);
 
-    void op_Get_dec_set(combined_reg dest, reg8 source);
-    void op_Get_inc_set(combined_reg dest, reg8 source);
+    void op_Load_Dec(combined_reg dest, reg8 source);
+    void op_Load_Dec(reg8 dest, combined_reg source);
+    void op_Load_Inc(combined_reg dest, reg8 source);
+    void op_Load_Inc(reg8 dest, combined_reg source);
 
     void op_Bit(reg8 comp, int bit);
     void op_Set(uint8_t bit, reg8 dest);

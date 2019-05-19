@@ -193,7 +193,7 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x22:
             // Get HL, dec and set
-            this->op_Get_inc_set(this->r_hl, this->r_a);
+            this->op_Load_Inc(this->r_hl, this->r_a);
             break;
         case 0x23:
             this->op_Inc(this->r_hl);
@@ -209,7 +209,7 @@ void CPU::execute_op_code(int op_val) {
                 this->op_JR();
             break;
         case 0x2a:
-            this->op_Get_inc_set(this->r_a, this->r_hl);
+            this->op_Load_Inc(this->r_a, this->r_hl);
         case 0x2b:
             this->op_Dec(this->r_hl);
             break;
@@ -225,10 +225,17 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x32:
             // Get HL, dec and set
-            this->op_Get_dec_set(this->r_hl, this->r_a);
+            this->op_Load_Dec(this->r_hl, this->r_a);
             break;
         case 0x37:
             this->op_SCF();
+            break;
+        case 0x39:
+            this->op_Add(this->r_hl, this->r_sp);
+            break;
+        case 0x3a:
+            // Get HL, dec and set
+            this->op_Load_Dec(this->r_a, this->r_hl);
             break;
         case 0x3b:
             this->op_Dec(this->r_sp);
@@ -250,6 +257,42 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x50:
             this->op_Load(this->r_d, this->r_b);
+            break;
+        case 0x51:
+            this->op_Load(this->r_d, this->r_c);
+            break;
+        case 0x52:
+            this->op_Load(this->r_d, this->r_d);
+            break;
+        case 0x53:
+            this->op_Load(this->r_d, this->r_e);
+            break;
+        case 0x54:
+            this->op_Load(this->r_d, this->r_h);
+            break;
+        case 0x55:
+            this->op_Load(this->r_d, this->r_l);
+            break;
+        case 0x56:
+            this->op_Load(this->r_d, this->get_register_value16(this->r_hl));
+            break;
+        case 0x60:
+            this->op_Load(this->r_h, this->r_b);
+            break;
+        case 0x61:
+            this->op_Load(this->r_h, this->r_c);
+            break;
+        case 0x62:
+            this->op_Load(this->r_h, this->r_d);
+            break;
+        case 0x63:
+            this->op_Load(this->r_h, this->r_e);
+            break;
+        case 0x64:
+            this->op_Load(this->r_h, this->r_h);
+            break;
+        case 0x65:
+            this->op_Load(this->r_h, this->r_l);
             break;
         case 0x66:
             this->op_Load(this->r_h, this->get_register_value16(this->r_hl));
@@ -630,6 +673,15 @@ void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
         // This means it will result in half carry if the value has changed.
         ((0x10 & original_val) >> 4) ^ ((0x10 & input) >> 4));
 }
+void CPU::set_half_carry(uint16_t original_val, uint16_t input) {
+    // @TODO Check this implimentation
+    this->set_register_bit(
+        this->r_f,
+        this->HALF_CARRY_FLAG_BIT,
+        // XOR the original and new values' 5th BIT.
+        // This means it will result in half carry if the value has changed.
+        ((0x0100 & original_val) >> 8) ^ ((0x0100 & input) >> 8));
+}
 
 // Get value from memory at PC and increment PC
 uint8_t CPU::get_inc_pc_val8() {
@@ -661,22 +713,24 @@ uint16_t CPU::get_inc_pc_val16() {
 
 // Get value from specified register, decrement and store
 // in memory (using address of two registers)
-void CPU::op_Get_dec_set(combined_reg dest, reg8 source) {
-    uint8_t value;
-    memcpy(&value, &source.value, 1);
-    uint16_t register_value16 = this->get_register_value16(dest);
-    this->ram->set(register_value16, value);
-    this->ram->dec(register_value16);
+void CPU::op_Load_Dec(combined_reg dest, reg8 source) {
+    this->op_Load(dest.value(), source);
+    this->op_Dec(dest);
+}
+void CPU::op_Load_Dec(reg8 dest, combined_reg source) {
+    this->op_Load(dest, source.value());
+    this->op_Dec(source);
 }
 
 // Get value from specified register, increment and store
 // in memory (using address of two registers)
-void CPU::op_Get_inc_set(combined_reg dest, reg8 source) {
-    uint8_t value;
-    memcpy(&value, &source.value, 1);
-    uint16_t register_value16 = this->get_register_value16(dest);
-    this->ram->set(register_value16, value);
-    this->ram->inc(register_value16);
+void CPU::op_Load_Inc(combined_reg dest, reg8 source) {
+    this->op_Load(dest.value(), source);
+    this->op_Inc(dest);
+}
+void CPU::op_Load_Inc(reg8 dest, combined_reg source) {
+    this->op_Load(dest, source.value());
+    this->op_Inc(source);
 }
 
 void CPU::op_Bit(reg8 comp, int bit) {
@@ -783,6 +837,33 @@ void CPU::op_Add(reg8 dest, uint16_t src) {
     this->set_register_bit(
         this->r_f, this->CARRY_FLAG_BIT,
         (0x01 & this->data_conv.bit8[1]) >> 0);
+
+}
+
+void CPU::op_Add(combined_reg dest, combined_reg src) {
+    this->op_Add(dest, (uint32_t)src.value());
+}
+void CPU::op_Add(combined_reg dest, reg16 src) {
+    this->op_Add(dest, (uint32_t)src.value);
+}
+void CPU::op_Add(combined_reg dest, uint32_t src) {
+    uint16_t original_val = dest.value();
+
+    this->data_conv32.bit16[0] = dest.value();
+    this->data_conv32.bit16[1] = 0;
+
+    this->data_conv32.bit32[0] += src;
+
+    dest.lower.value = this->data_conv32.bit8[0];
+    dest.upper.value = this->data_conv32.bit8[1];
+    
+    this->set_half_carry(original_val, dest.value());
+
+    // Set subtract flag to 0, since this is add
+    this->set_register_bit(this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(
+        this->r_f, this->CARRY_FLAG_BIT,
+        (0x01 & this->data_conv32.bit16[1]) >> 0);
 
 }
 
