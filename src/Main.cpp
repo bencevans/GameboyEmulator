@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "ram.h"
+#include "./vpu.h"
 #include "cpu.h"
 #include <SFML/Graphics.hpp>
 
@@ -47,11 +48,15 @@ int main(int argc, char* args[])
     ram_inst.load_bios(bios_path);
     ram_inst.load_rom(rom_path);
 
-    CPU cpu_inst = CPU(ram_inst);
+    VPU vpu_inst = VPU(&ram_inst);
+    CPU cpu_inst = CPU(&ram_inst, &vpu_inst);
 
     // run the program as long as the window is open
     while (window.isOpen() && cpu_inst.is_running())
     {
+        cpu_inst.tick();
+        vpu_inst.tick();
+        
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
         while (window.pollEvent(event))
@@ -66,8 +71,6 @@ int main(int argc, char* args[])
 
         // draw everything here...
         // window.draw(...);
-
-        cpu_inst.tick();
 
         // end the current frame
         window.display();

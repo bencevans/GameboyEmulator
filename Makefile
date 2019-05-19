@@ -231,6 +231,33 @@ src/ram_subset.cpp.s:
 	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/ram_subset.cpp.s
 .PHONY : src/ram_subset.cpp.s
 
+src/vpu.o: src/vpu.cpp.o
+
+.PHONY : src/vpu.o
+
+# target to build an object file
+src/vpu.cpp.o:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/vpu.cpp.o
+.PHONY : src/vpu.cpp.o
+
+src/vpu.i: src/vpu.cpp.i
+
+.PHONY : src/vpu.i
+
+# target to preprocess a source file
+src/vpu.cpp.i:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/vpu.cpp.i
+.PHONY : src/vpu.cpp.i
+
+src/vpu.s: src/vpu.cpp.s
+
+.PHONY : src/vpu.s
+
+# target to generate assembly for a file
+src/vpu.cpp.s:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/vpu.cpp.s
+.PHONY : src/vpu.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -252,6 +279,9 @@ help:
 	@echo "... src/ram_subset.o"
 	@echo "... src/ram_subset.i"
 	@echo "... src/ram_subset.s"
+	@echo "... src/vpu.o"
+	@echo "... src/vpu.i"
+	@echo "... src/vpu.s"
 .PHONY : help
 
 

@@ -5,11 +5,13 @@
 		<File Name="src/cpu.cpp"/>
 		<File Name="src/ram.cpp"/>
 		<File Name="src/ram_subset.cpp"/>
+		<File Name="src/vpu.cpp"/>
 	</VirtualDirectory>
 	<VirtualDirectory Name="include">
 		<File Name="src/cpu.h"/>
 		<File Name="src/ram.h"/>
 		<File Name="src/ram_subset.h"/>
+		<File Name="src/vpu.h"/>
 	</VirtualDirectory>
 	<Settings Type="Executable">
 		<Configuration Name="Release" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">

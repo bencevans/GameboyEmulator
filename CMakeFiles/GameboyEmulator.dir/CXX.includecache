@@ -6,6 +6,12 @@
 
 #IncludeRegexTransform: 
 
+/home/matthew/w/g/gameboy-emulator/src/./vpu.h
+memory
+-
+ram.h
+/home/matthew/w/g/gameboy-emulator/src/./ram.h
+
 /home/matthew/w/g/gameboy-emulator/src/Main.cpp
 iostream
 -
@@ -13,6 +19,8 @@ string
 -
 ram.h
 /home/matthew/w/g/gameboy-emulator/src/ram.h
+./vpu.h
+/home/matthew/w/g/gameboy-emulator/src/./vpu.h
 cpu.h
 /home/matthew/w/g/gameboy-emulator/src/cpu.h
 SFML/Graphics.hpp
@@ -33,6 +41,8 @@ memory
 -
 ram.h
 /home/matthew/w/g/gameboy-emulator/src/ram.h
+./vpu.h
+/home/matthew/w/g/gameboy-emulator/src/./vpu.h
 
 /home/matthew/w/g/gameboy-emulator/src/ram.cpp
 iostream
@@ -59,4 +69,16 @@ memory
 /home/matthew/w/g/gameboy-emulator/src/ram_subset.h
 memory
 -
+
+/home/matthew/w/g/gameboy-emulator/src/vpu.cpp
+vpu.h
+/home/matthew/w/g/gameboy-emulator/src/vpu.h
+memory
+-
+
+/home/matthew/w/g/gameboy-emulator/src/vpu.h
+memory
+-
+ram.h
+/home/matthew/w/g/gameboy-emulator/src/ram.h
 

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "ram.h"
+#include "./vpu.h"
 
 // Any register
 struct reg { };
@@ -37,7 +38,7 @@ public:
 class CPU {
 
 public:
-    CPU(RAM ram);
+    CPU(RAM *ram, VPU *vpu_inst);
     void tick();
     bool is_running();
 
@@ -137,6 +138,7 @@ private:
     void op_Call();
     void op_Return();
     void op_JR();
+    void op_RST(uint16_t memory_addr);
 
     void op_XOR(reg8 comp);
 
@@ -156,6 +158,7 @@ private:
     void op_DI();
     void op_Halt();
     
-    RAM ram;
+    RAM *ram;
+    VPU *vpu_inst;
     bool running;
 };

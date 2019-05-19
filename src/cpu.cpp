@@ -8,7 +8,7 @@
 
 #define DEBUG 1
 
-CPU::CPU(RAM ram) {
+CPU::CPU(RAM *ram, VPU *vpu_inst) {
     
     this->r_a = accumulator();
     this->r_a.value = 0;
@@ -49,6 +49,7 @@ CPU::CPU(RAM ram) {
     this->running = true;
     
     this->ram = ram;
+    this->vpu_inst = vpu_inst;
 }
 
 bool CPU::is_running() {
@@ -57,7 +58,7 @@ bool CPU::is_running() {
 
 void CPU::tick() {
     this->temp_counter ++;
-    if (this->temp_counter >= 200)
+    if (this->temp_counter >= 500)
         this->running = false;
     
     // If interupt state is either enabled or pending disable,
@@ -274,6 +275,9 @@ void CPU::execute_op_code(int op_val) {
             if (! this->get_carry_flag())
                 this->op_Call();
             break;
+        case 0xdf:
+            this->op_RST(0x0018);
+            break;
         case 0xe0:
             this->op_Load(0xff00 + this->get_inc_pc_val8(), this->r_a);
             break;
@@ -421,7 +425,7 @@ void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
 
 // Get value from memory at PC and increment PC
 uint8_t CPU::get_inc_pc_val8() {
-    uint8_t ori_val = this->ram.get_val(this->r_pc.value);
+    uint8_t ori_val = this->ram->get_val(this->r_pc.value);
     if (DEBUG)
         std::cout << "Got Value from RAM: " << std::hex << (int)ori_val << " at " << (int)this->r_pc.value << std::endl;
     uint8_t val;
@@ -453,8 +457,8 @@ void CPU::op_Get_dec_set(combined_reg dest, reg8 source) {
     uint8_t value;
     memcpy(&value, &source.value, 1);
     uint16_t register_value16 = this->get_register_value16(dest);
-    this->ram.set(register_value16, value);
-    this->ram.dec(register_value16);
+    this->ram->set(register_value16, value);
+    this->ram->dec(register_value16);
 }
 
 // Get value from specified register, increment and store
@@ -463,8 +467,8 @@ void CPU::op_Get_inc_set(combined_reg dest, reg8 source) {
     uint8_t value;
     memcpy(&value, &source.value, 1);
     uint16_t register_value16 = this->get_register_value16(dest);
-    this->ram.set(register_value16, value);
-    this->ram.inc(register_value16);
+    this->ram->set(register_value16, value);
+    this->ram->inc(register_value16);
 }
 
 void CPU::op_Bit(reg8 comp, int bit) {
@@ -523,11 +527,11 @@ void CPU::op_Load(reg8 dest, reg8 source) {
 }
 // Copy register value into destination address of memory
 void CPU::op_Load(int dest_addr, reg8 source) {
-    this->ram.set(dest_addr, source.value);
+    this->ram->set(dest_addr, source.value);
 }
 // Copy data from source memory address to destination
 void CPU::op_Load(reg8 dest, int source_addr) {
-    dest.value = this->ram.get_val(source_addr);
+    dest.value = this->ram->get_val(source_addr);
 }
 
 void CPU::op_Add(reg8 dest, int source_addr) {
@@ -536,7 +540,7 @@ void CPU::op_Add(reg8 dest, int source_addr) {
     this->data_conv.bit8[0] = dest.value;
     this->data_conv.bit8[1] = 0;
 
-    this->data_conv.bit16[0] += (uint16_t)this->ram.get_val(source_addr);
+    this->data_conv.bit16[0] += (uint16_t)this->ram->get_val(source_addr);
 
     dest.value = this->data_conv.bit8[0];
     
@@ -640,14 +644,14 @@ void CPU::op_Call() {
         std::cout << "Jumping from: " << std::hex << this->r_pc.value << " to " << (int)jmp_dest_addr << std::endl;
 
     // Push PC (which has already been incremented) to stack
-    this->ram.stack_push(this->r_sp.value, this->r_pc.value);
+    this->ram->stack_push(this->r_sp.value, this->r_pc.value);
     
     // Set PC to jump destination address
     this->r_pc.value = jmp_dest_addr;
 }
 
 void CPU::op_Return() {
-    this->ram.stack_pop(this->r_sp.value, this->r_pc.value);
+    this->ram->stack_pop(this->r_sp.value, this->r_pc.value);
 }
 
 // Jump forward N number instructions
@@ -662,6 +666,18 @@ void CPU::op_JR() {
     //this->r_pc.value --;
     if (DEBUG)
         std::cout << " to " << std::hex << (int)this->r_pc.value << std::endl;
+}
+
+void CPU::op_RST(uint16_t memory_addr) {
+    // Get jump address
+    if (DEBUG)
+        std::cout << "Jumping from: " << std::hex << this->r_pc.value << " to " << (int)memory_addr << std::endl;
+
+    // Push PC (which has already been incremented) to stack
+    this->ram->stack_push(this->r_sp.value, this->r_pc.value);
+    
+    // Set PC to jump destination address
+    this->r_pc.value = memory_addr;
 }
 
 void CPU::op_Halt() {
