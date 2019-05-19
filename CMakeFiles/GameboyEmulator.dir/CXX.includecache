@@ -11,6 +11,8 @@ memory
 -
 ram.h
 /home/matthew/w/g/gameboy-emulator/src/./ram.h
+SFML/Graphics.hpp
+-
 
 /home/matthew/w/g/gameboy-emulator/src/Main.cpp
 iostream
@@ -81,4 +83,6 @@ memory
 -
 ram.h
 /home/matthew/w/g/gameboy-emulator/src/ram.h
+SFML/Graphics.hpp
+-
 

@@ -9,8 +9,9 @@
 
 #define DEBUG 1
 
-VPU::VPU(RAM *ram) {
+VPU::VPU(RAM *ram, sf::RenderWindow *window) {
     this->ram = ram;
+    this->window = window;
     this->next_screen();
 }
 

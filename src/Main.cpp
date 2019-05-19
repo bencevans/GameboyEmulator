@@ -43,12 +43,12 @@ int main(int argc, char* args[])
     sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH), APP_NAME);
 
     RAM ram_inst = RAM();
-    char bios_path[] = "./copyright/[BIOS] Nintendo Game Boy Boot ROM (World).gb";
+    char bios_path[] = "./copyright/DMG_ROM.bin";
     char rom_path[] = "./copyright/Tetris (JUE) (V1.1) [!].gb";
     ram_inst.load_bios(bios_path);
     ram_inst.load_rom(rom_path);
 
-    VPU vpu_inst = VPU(&ram_inst);
+    VPU vpu_inst = VPU(&ram_inst, &window);
     CPU cpu_inst = CPU(&ram_inst, &vpu_inst);
 
     // run the program as long as the window is open

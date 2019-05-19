@@ -58,9 +58,12 @@ bool CPU::is_running() {
 
 void CPU::tick() {
     this->temp_counter ++;
-    if (this->temp_counter >= 500)
+    if (this->temp_counter >= 100)
         this->running = false;
-    
+
+    if (DEBUG)
+        std::cout << "New Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;    
+
     // If interupt state is either enabled or pending disable,
     // check interupts
     if (this->interupt_state == this->INTERUPT_STATE::ENABLED ||
@@ -79,8 +82,6 @@ void CPU::tick() {
 
     // Read value from memory
     int op_val = (int)this->get_inc_pc_val8();
-    if (DEBUG)
-        std::cout << std::hex << this->r_pc.value << " - " << this->r_sp.value << std::endl;
 
     if (this->cb_state) {
         this->execute_cb_code(op_val);

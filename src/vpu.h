@@ -2,10 +2,11 @@
 
 #include <memory>
 #include "ram.h"
+#include <SFML/Graphics.hpp>
 
 class VPU {
 public:
-    VPU(RAM *ram);
+    VPU(RAM *ram, sf::RenderWindow *window);
     void tick();
     
 private:
@@ -31,9 +32,12 @@ private:
     const uint16_t LCDC_LYC_ADDR = 0xff45; // Custom location for interupt if LY equals this
     const uint16_t LCDC_WY_ADDR = 0xff4a; // Window y position
     const uint16_t LCDC_WX_ADDR = 0xff4b; // Window x position
+    const uint16_t VRAM_BG_MAPS[2] = {0x9800, 0x9c00};
+    const uint16_t VRAM_TILE_DATA_TABLES[2] = {0x8000, 0x8800};
     
     void next_screen();
     void next_line();
     
     RAM *ram;
+    sf::RenderWindow *window;
 };
