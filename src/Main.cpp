@@ -40,7 +40,7 @@ int main(int argc, char* args[])
     //}
     
     // create the window
-    sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH, 4), APP_NAME);
+    sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH), APP_NAME);
 
     RAM ram_inst = RAM();
     char bios_path[] = "./copyright/DMG_ROM.bin";
@@ -56,7 +56,7 @@ int main(int argc, char* args[])
     {
         cpu_inst.tick();
         vpu_inst.tick();
-        
+
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
         while (window.pollEvent(event))
