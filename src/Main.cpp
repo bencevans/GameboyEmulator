@@ -67,13 +67,13 @@ int main(int argc, char* args[])
         }
 
         // clear the window with black color
-        window.clear(sf::Color::Black);
+        //window.clear(sf::Color::Black);
 
         // draw everything here...
         // window.draw(...);
 
         // end the current frame
-        window.display();
+        //window.display();
     }
     
     std::cin.get();

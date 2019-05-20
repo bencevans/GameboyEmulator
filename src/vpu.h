@@ -57,6 +57,7 @@ private:
     RAM *ram;
     sf::RenderWindow *window;
     sf::Sprite sf_sprite;
+    sf::FloatRect sf_rect;
     sf::Texture sf_texture;
     sf::Image sf_image;
     

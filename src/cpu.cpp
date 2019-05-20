@@ -6,8 +6,9 @@
 #include <iostream>
 #include <string.h>
 
-#define DEBUG 1
+#define DEBUG 0
 #define STEPIN 0
+#define STOP_BEFORE_ROM 1
 
 CPU::CPU(RAM *ram, VPU *vpu_inst) {
     
@@ -95,8 +96,8 @@ void CPU::tick() {
     
     // Stop runnign when we hit the start of the ROM
     int current_pc = (int)this->r_pc.value;
-    if (current_pc == 0x0100 || current_pc == 0x0101) {
-        //this->running = false;
+    if ((current_pc == 0x0100 || current_pc == 0x0101) && STOP_BEFORE_ROM) {
+        this->running = false;
         std::cout << "HIT the start of the ROM!" << std::endl;
     }
     
