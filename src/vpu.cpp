@@ -4,10 +4,11 @@
 // #include  <iomanip>
 
 #include <iostream>
+#include <unistd.h>
 // #include <string.h>
 #include <memory>
 
-#define DEBUG 0
+#define DEBUG 1
 
 VPU::VPU(RAM *ram) {
     this->ram = ram;
@@ -22,28 +23,29 @@ VPU::VPU(RAM *ram) {
     this->current_pixel_x = 0;
 
 	//Create Window
-	int const x = 0, y = 0, border_width = 1;
+	int const x = 50, y = 50, border_width = 1;
 	this->sc = DefaultScreen(this->di);
 	this->ro = DefaultRootWindow(this->di);
 	this->wi = XCreateSimpleWindow(
         this->di, this->ro,
         x, y,
-        this->SCREEN_WIDTH, this->SCREEN_HEIGHT,
+        (unsigned int)this->SCREEN_WIDTH, (unsigned int)this->SCREEN_HEIGHT,
         border_width, 
         BlackPixel(this->di, this->sc),
         WhitePixel(this->di, this->sc));
 
     XMapWindow(this->di, this->wi); //Make window visible
+    this->wait_for_window();
     XFlush(this->di);
+
 	XStoreName(this->di, this->wi, "Gameboy EmU"); // Set window title
-	
 	//Prepare the window for drawing
 	this->gc = XCreateGC(this->di, this->ro, 0, NULL);
-
 	//Select what events the window will listen to
 	XSelectInput(this->di, this->wi, KeyPressMask | ExposureMask);
 
-    this->process_events();
+    // Wait some BS time for window to display
+    //sleep(10);
 
     // Set all pixels to black
     XSetForeground(this->di, this->gc, (unsigned long)0xFFDDCCFFDDCC);
@@ -51,13 +53,40 @@ VPU::VPU(RAM *ram) {
         for (unsigned int y = 0; y < this->SCREEN_HEIGHT; y++)
                 XDrawPoint(this->di, this->wi, this->gc, (int)x, (int)y);
 
-    this->process_events();
+}
+
+static Bool predicate(Display *display, XEvent *ev, XPointer arg)
+{
+    std::cout << ev->type << std::endl;
+    return (ev->type == MapNotify);
+}
+
+void VPU::wait_for_window() {
+    
+    XEvent ev;
+    XWindowAttributes xwa;
+
+    XPeekIfEvent(this->di, &ev, predicate, NULL);
+
+    do {
+        XGetWindowAttributes(this->di, this->wi, &xwa);
+        usleep(1);
+        std::cout << xwa.map_state;
+    } while(xwa.map_state != IsViewable);  
 }
 
 void VPU::process_events() {
     //while (XPending(this->di))
-    while (XEventsQueued(this->di, QueuedAlready))
-        XNextEvent(this->di, &this->ev);
+    //while (XEventsQueued(this->di, QueuedAlready))
+    //    XNextEvent(this->di, &this->ev);
+    while (XPending (this->di))
+    //while (XCheckWindowEvent(this->di, this->wi, 0, &this->ev))
+        XNextEvent (this->di, &this->ev);
+        //if (XFilterEvent (&this->ev, None))
+        //{
+        //    continue;
+        //}
+    //}
 }
 
 void VPU::next_screen() {
@@ -171,7 +200,7 @@ void VPU::process_pixel() {
     };
     XSetForeground(this->di, this->gc, color);
 	XDrawPoint(this->di, this->wi, this->gc, (int)this->get_current_x(), (int)this->get_current_y());
-
+    this->process_events();
     if (DEBUG && color != 0x0)
         std::cout << std::hex << "Setting Pixel color: " << (unsigned int)this->get_current_x() << " " << (unsigned int)this->get_current_y() << " " << (int)color << std::endl;
     this->current_pixel_x ++;

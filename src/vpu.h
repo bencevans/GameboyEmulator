@@ -60,11 +60,6 @@ private:
     void next_line();
     
     RAM *ram;
-//    sf::RenderWindow *window;
-//    sf::Sprite sf_sprite;
-//    sf::FloatRect sf_rect;
-//    sf::Texture sf_texture;
-//    sf::Image sf_image;
     int sc;
     Window ro;
     Window wi;
@@ -83,6 +78,7 @@ private:
     vec_2d get_pixel_tile_position();
     
     void process_pixel();
+    void wait_for_window();
     
     // Copy from CPU :(
     unsigned char get_register_bit(uint16_t address, uint8_t bit_shift);
