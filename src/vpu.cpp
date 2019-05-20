@@ -7,7 +7,7 @@
 // #include <string.h>
 #include <memory>
 
-#define DEBUG 1
+#define DEBUG 0
 
 VPU::VPU(RAM *ram, sf::RenderWindow *window) {
     this->ram = ram;
@@ -20,19 +20,20 @@ VPU::VPU(RAM *ram, sf::RenderWindow *window) {
 
     this->sf_texture = sf::Texture();
     this->sf_texture.create(this->SCREEN_WIDTH, this->SCREEN_HEIGHT);
-    sf::IntRect rect;
-    rect.width = this->SCREEN_WIDTH / 2;
-    rect.height = this->SCREEN_HEIGHT;
-    rect.left = 0;
-    rect.top = 0;
-    this->sf_sprite = sf::Sprite(this->sf_texture, rect);
-    this->sf_sprite.setTexture(this->sf_texture);
-    this->sf_sprite.setPosition(0, 0);
-    this->sf_sprite.setScale(
-        this->SCREEN_WIDTH / this->sf_sprite.getLocalBounds().width, 
-        this->SCREEN_HEIGHT / this->sf_sprite.getLocalBounds().height);
-    this->window->draw(this->sf_sprite);
-    this->window->display();
+//    sf::IntRect rect;
+//    rect.width = this->SCREEN_WIDTH;
+//    rect.height = this->SCREEN_HEIGHT;
+//    rect.left = 0;
+//    rect.top = 0;
+//    this->sf_sprite = sf::Sprite(this->sf_texture, rect);
+//    this->sf_sprite.setTexture(this->sf_texture);
+//    this->sf_sprite.setPosition(0, 0);
+//    this->sf_sprite.setScale(
+//        this->SCREEN_WIDTH / this->sf_sprite.getLocalBounds().width, 
+//        this->SCREEN_HEIGHT / this->sf_sprite.getLocalBounds().height);
+//    this->window->clear();
+//    this->window->draw(this->sf_sprite);
+//    this->window->display();
 }
 
 void VPU::next_screen() {
@@ -43,7 +44,20 @@ void VPU::next_screen() {
     // Reset current line
     this->ram->set(this->LCDC_LY_ADDR, 0x00);
     this->current_pixel_x = 0;
-
+    sf::IntRect rect;
+    rect.width = this->SCREEN_WIDTH;
+    rect.height = this->SCREEN_HEIGHT;
+    rect.left = 0;
+    rect.top = 0;
+    this->sf_sprite = sf::Sprite(this->sf_texture, rect);
+    this->sf_sprite.setTexture(this->sf_texture);
+    this->sf_sprite.setPosition(0, 0);
+    this->sf_sprite.setScale(
+        this->SCREEN_WIDTH / this->sf_sprite.getLocalBounds().width, 
+        this->SCREEN_HEIGHT / this->sf_sprite.getLocalBounds().height);
+    this->window->clear();
+    this->window->draw(this->sf_sprite);
+    this->window->display();
     std::cin.get();
 }
 
@@ -68,7 +82,8 @@ void VPU::tick() {
     this->h_timer_itx ++;
 
     if (this->h_timer_itx >= this->H_LENGTH) {
-        std::cout << "NEXT LINE!" << std::endl;
+        if (DEBUG)
+            std::cout << "NEXT LINE!" << std::endl;
         this->next_line();
     }
 
@@ -123,10 +138,12 @@ uint8_t VPU::get_pixel_color() {
 
 void VPU::process_pixel() {
     //
-    uint8_t color = this->get_pixel_color();
+    uint8_t color = (this->get_pixel_color()) ? 0xff : 0x00;
+
     //this->sf_image.setPixel((unsigned int)this->get_current_x(), (unsigned int)this->get_current_y(), sf::Color(color, color, color, 0x00));
-    const uint8_t pixel_update[4] = {color, 0x00, 0x00, 0x00};
-    this->sf_texture.update(pixel_update, 1, 1, this->get_current_x(), this->get_current_y());
+    sf::Uint8 pixel_update[4] = {color, color, color, 0x00};
+    this->sf_texture.update(pixel_update, 1, 1, (unsigned int)this->get_current_x(), (unsigned int)this->get_current_y());
+    this->sf_sprite.setTexture(this->sf_texture);
     this->window->clear();
     this->window->draw(this->sf_sprite);
     this->window->display();
