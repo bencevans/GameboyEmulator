@@ -25,22 +25,22 @@ VPU::VPU(RAM *ram, sf::RenderWindow *window) {
     for (unsigned int x = 0; x < this->SCREEN_WIDTH; x++)
         for (unsigned int y = 0; y < this->SCREEN_HEIGHT; y++)
             this->sf_image.setPixel(x, y, black);
-    this->sf_texture = sf::Texture();
-    this->sf_texture.create(this->SCREEN_WIDTH, this->SCREEN_HEIGHT);
-    this->sf_texture.loadFromImage(this->sf_image);
-    sf::IntRect rect;
-    rect.width = this->SCREEN_WIDTH;
-    rect.height = this->SCREEN_HEIGHT;
-    rect.left = 0;
-    rect.top = 0;
-    this->sf_sprite = sf::Sprite(this->sf_texture, rect);
-    this->sf_sprite.setTexture(this->sf_texture);
-    this->sf_sprite.setPosition(0, 0);
-    this->sf_sprite.setScale(
-        this->SCREEN_WIDTH / this->sf_sprite.getLocalBounds().width, 
-        this->SCREEN_HEIGHT / this->sf_sprite.getLocalBounds().height);
-    this->window->draw(this->sf_sprite);
-    this->window->display();
+//    this->sf_texture = sf::Texture();
+//    this->sf_texture.create(this->SCREEN_WIDTH, this->SCREEN_HEIGHT);
+//    this->sf_texture.loadFromImage(this->sf_image);
+//    sf::IntRect rect;
+//    rect.width = this->SCREEN_WIDTH / 2;
+//    rect.height = this->SCREEN_HEIGHT;
+//    rect.left = 0;
+//    rect.top = 0;
+//    this->sf_sprite = sf::Sprite(this->sf_texture, rect);
+//    this->sf_sprite.setTexture(this->sf_texture);
+//    this->sf_sprite.setPosition(0, 0);
+//    this->sf_sprite.setScale(
+//        this->SCREEN_WIDTH / this->sf_sprite.getLocalBounds().width, 
+//        this->SCREEN_HEIGHT / this->sf_sprite.getLocalBounds().height);
+//    this->window->draw(this->sf_sprite);
+//    this->window->display();
 }
 
 void VPU::next_screen() {
@@ -55,7 +55,7 @@ void VPU::next_screen() {
     // Refresh screen
     this->sf_texture = sf::Texture();
     this->sf_texture.create(this->SCREEN_WIDTH, this->SCREEN_HEIGHT);
-    this->sf_texture.loadFromImage(this->sf_image);
+    this->sf_texture.loadFromImage(this->sf_image, 0, 0);
     sf::IntRect rect;
     rect.width = this->SCREEN_WIDTH / 2;
     rect.height = this->SCREEN_HEIGHT;
@@ -67,6 +67,8 @@ void VPU::next_screen() {
     this->sf_sprite.setScale(
         this->SCREEN_WIDTH / this->sf_sprite.getLocalBounds().width, 
         this->SCREEN_HEIGHT / this->sf_sprite.getLocalBounds().height);
+    this->window->draw(this->sf_sprite);
+    this->window->display();
     std::cin.get();
 }
 
@@ -151,9 +153,6 @@ void VPU::process_pixel() {
     if (DEBUG && color != 0x0)
         std::cout << std::hex << "Setting Pixel color: " << (unsigned int)this->get_current_x() << " " << (unsigned int)this->get_current_y() << " " << (int)color << std::endl;
     this->current_pixel_x ++;
-    this->window->clear();
-    this->window->draw(this->sf_sprite);
-    this->window->display();
 }
 
 // Return the on-screen X coornidate of the pixel being drawn 
