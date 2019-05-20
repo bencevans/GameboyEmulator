@@ -132,9 +132,8 @@ void RAM::load_rom(char *rom_path) {
     infile.seekg(0, infile.beg);
 
     // Iterate through bytes in file and store in memory
-    size_t rom_buffer = 0x0100;
-    size_t itx = rom_buffer;
-    while (itx < (length + rom_buffer)) {
+    size_t itx = 256;
+    while (itx < (length + 256)) {
         infile >> std::noskipws >> this->memory[itx];
         itx ++;
     }

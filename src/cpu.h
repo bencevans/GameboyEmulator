@@ -32,15 +32,15 @@ class combined_reg {
 public:
     reg8 *lower;
     reg8 *upper;
-    uint16_t value() { return (lower->value << 8) | (upper->value & 0xff);};
+    uint16_t value() { return ((uint16_t)upper->value << 8) | ((uint16_t)lower->value);};
     void set_value(uint16_t data) {
         union {
             uint8_t bit8[2];
             uint16_t bit16[1];
         } data_conv;
         data_conv.bit16[0] = data;
-        this->lower->value = data_conv.bit8[0];
-        this->upper->value = data_conv.bit8[1];
+        this->upper->value = data_conv.bit8[0];
+        this->lower->value = data_conv.bit8[1];
     };
 };
 
@@ -61,6 +61,7 @@ private:
     INTERUPT_STATE interupt_state;
     bool halt_state;
     bool cb_state;
+    bool stepped_in;
     
     
     union {
@@ -112,15 +113,15 @@ private:
     uint8_t get_inc_pc_val8();
     uint16_t get_inc_pc_val16();
     uint16_t get_register_value16(combined_reg *dest);
-    void set_register_bit(reg8 *source, uint8_t bit_shift, unsigned char val);
-    unsigned char get_register_bit(reg8 *source, uint8_t bit_shift);
+    void set_register_bit(reg8 *source, uint8_t bit_shift, unsigned int val);
+    unsigned int get_register_bit(reg8 *source, unsigned int bit_shift);
     
     void execute_op_code(int op_val);
     void execute_cb_code(int op_val);
     
     void check_interupts();
     
-    void set_zero_flag(const uint8_t is_it);
+    void set_zero_flag(const uint8_t val);
     uint8_t get_zero_flag();
     void set_half_carry(uint8_t original_val, uint8_t input);
     void set_half_carry(uint16_t original_val, uint16_t input);
@@ -184,7 +185,7 @@ private:
     void op_Load_Inc(combined_reg *dest, reg8 *source);
     void op_Load_Inc(reg8 *dest, combined_reg *source);
 
-    void op_Bit(reg8 *comp, int bit);
+    void op_Bit(reg8 *comp, unsigned int bit);
     void op_Set(uint8_t bit, reg8 *dest);
 
     void op_Adc(reg8 *dest);

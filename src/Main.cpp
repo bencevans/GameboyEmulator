@@ -8,6 +8,7 @@
 #define SCREEN_HEIGHT 160
 #define APP_NAME "GameBoy Emulator"
 
+#define DISABLE_VPU 0
 #define DEBUG 0
 
 struct arguments_t {
@@ -58,14 +59,8 @@ int main(int argc, char* args[])
     while (cpu_inst->is_running())
     {
         cpu_inst->tick();
-        vpu_inst->tick();
-        vpu_inst->tick();
-        vpu_inst->tick();
-        vpu_inst->tick();
-        vpu_inst->tick();
-        vpu_inst->tick();
-        vpu_inst->tick();
-        vpu_inst->tick();
+        if (! DISABLE_VPU)
+            vpu_inst->tick();
 
         vpu_inst->process_events();
     }
