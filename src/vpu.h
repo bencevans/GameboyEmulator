@@ -17,6 +17,7 @@ public:
     VPU(RAM *ram);
     void tick();
     void tear_down();
+    void process_events();
     Display *di;
 private:
     // Clock cycle definitions

@@ -27,8 +27,6 @@ ram.h
 /home/matthew/w/g/gameboy-emulator/src/./vpu.h
 cpu.h
 /home/matthew/w/g/gameboy-emulator/src/cpu.h
-X11/Xlib.h
--
 
 /home/matthew/w/g/gameboy-emulator/src/cpu.cpp
 cpu.h

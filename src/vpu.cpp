@@ -11,7 +11,7 @@
 
 VPU::VPU(RAM *ram) {
     this->ram = ram;
-    this->di = XOpenDisplay(getenv(":0"));
+    this->di = XOpenDisplay(getenv("DISPLAY"));
     if (this->di == NULL) {
 		printf("Couldn't open display.\n");
 	}
@@ -23,12 +23,18 @@ VPU::VPU(RAM *ram) {
 
 	//Create Window
 	int const x = 0, y = 0, border_width = 1;
-	this->sc    = DefaultScreen(this->di);
+	this->sc = DefaultScreen(this->di);
 	this->ro = DefaultRootWindow(this->di);
-	this->wi = XCreateSimpleWindow(this->di, this->ro, x, y, this->SCREEN_WIDTH, this->SCREEN_HEIGHT, border_width, 
-                                BlackPixel(this->di, this->sc), WhitePixel(this->di, this->sc));
+	this->wi = XCreateSimpleWindow(
+        this->di, this->ro,
+        x, y,
+        this->SCREEN_WIDTH, this->SCREEN_HEIGHT,
+        border_width, 
+        BlackPixel(this->di, this->sc),
+        WhitePixel(this->di, this->sc));
 
     XMapWindow(this->di, this->wi); //Make window visible
+    XFlush(this->di);
 	XStoreName(this->di, this->wi, "Gameboy EmU"); // Set window title
 	
 	//Prepare the window for drawing
@@ -36,6 +42,22 @@ VPU::VPU(RAM *ram) {
 
 	//Select what events the window will listen to
 	XSelectInput(this->di, this->wi, KeyPressMask | ExposureMask);
+
+    this->process_events();
+
+    // Set all pixels to black
+    XSetForeground(this->di, this->gc, (unsigned long)0xFFDDCCFFDDCC);
+    for (unsigned int x = 0; x < this->SCREEN_WIDTH; x++)
+        for (unsigned int y = 0; y < this->SCREEN_HEIGHT; y++)
+                XDrawPoint(this->di, this->wi, this->gc, (int)x, (int)y);
+
+    this->process_events();
+}
+
+void VPU::process_events() {
+    //while (XPending(this->di))
+    while (XEventsQueued(this->di, QueuedAlready))
+        XNextEvent(this->di, &this->ev);
 }
 
 void VPU::next_screen() {
@@ -45,22 +67,6 @@ void VPU::next_screen() {
     this->refresh_timer_itx = 0;
     // Reset current line
     this->ram->set(this->LCDC_LY_ADDR, 0x00);
-//    this->current_pixel_x = 0;
-//    sf::IntRect rect;
-//    rect.width = this->SCREEN_WIDTH;
-//    rect.height = this->SCREEN_HEIGHT;
-//    rect.left = 0;
-//    rect.top = 0;
-//    this->sf_sprite = sf::Sprite(this->sf_texture, rect);
-//    this->sf_sprite.setTexture(this->sf_texture);
-//    this->sf_sprite.setPosition(0, 0);
-//    this->sf_sprite.setScale(
-//        this->SCREEN_WIDTH / this->sf_sprite.getLocalBounds().width, 
-//        this->SCREEN_HEIGHT / this->sf_sprite.getLocalBounds().height);
-//    this->window->clear();
-//    this->window->draw(this->sf_sprite);
-//    this->window->display();
-    std::cin.get();
 }
 
 void VPU::next_line() {
@@ -146,7 +152,23 @@ void VPU::tear_down() {
 
 void VPU::process_pixel() {
     //
-    uint8_t color = (this->get_pixel_color() << 4);
+    uint32_t color;
+    switch(this->get_pixel_color()) {
+        case 0x00:
+            color = 0x00;
+            break;
+        case 0x01:
+            color = 0x00444444;
+            break;
+        case 0x02:
+            color = 0x00888888;
+            break;
+        case 0x03:
+            color = 0x00cccccc;
+            break;
+        default:
+            color = 0x00ffffff;
+    };
     XSetForeground(this->di, this->gc, color);
 	XDrawPoint(this->di, this->wi, this->gc, (int)this->get_current_x(), (int)this->get_current_y());
 
@@ -174,7 +196,3 @@ uint16_t VPU::get_tile_address() {
         )
     ));
 }
-
-//void VPU::get_pixel_color(uint8_t x, uint8_t y) {
-//    
-//}

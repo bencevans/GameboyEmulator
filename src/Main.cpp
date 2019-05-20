@@ -3,7 +3,6 @@
 #include "ram.h"
 #include "./vpu.h"
 #include "cpu.h"
-#include <X11/Xlib.h>
 
 #define SCREEN_WIDTH 144
 #define SCREEN_HEIGHT 160
@@ -46,27 +45,24 @@ int main(int argc, char* args[])
 //		return -1;
 //	}
 
-    RAM ram_inst = RAM();
+    RAM *ram_inst = new RAM();
     char bios_path[] = "./copyright/DMG_ROM.bin";
     char rom_path[] = "./copyright/Tetris (JUE) (V1.1) [!].gb";
-    ram_inst.load_bios(bios_path);
-    ram_inst.load_rom(rom_path);
+    ram_inst->load_bios(bios_path);
+    ram_inst->load_rom(rom_path);
 
-    VPU vpu_inst = VPU(&ram_inst);
-    CPU cpu_inst = CPU(&ram_inst, &vpu_inst);
-
-    XEvent ev;
+    VPU *vpu_inst = new VPU(ram_inst);
+    CPU *cpu_inst = new CPU(ram_inst, vpu_inst);
 
     // run the program as long as the window is open
-    while (cpu_inst.is_running())
+    while (cpu_inst->is_running())
     {
-        cpu_inst.tick();
-        vpu_inst.tick();
-        
-        while (XPending(vpu_inst.di))
-            XNextEvent(vpu_inst.di, &ev);
+        cpu_inst->tick();
+        vpu_inst->tick();
+
+        vpu_inst->process_events();
     }
-    vpu_inst.tear_down();
+    vpu_inst->tear_down();
     
     std::cin.get();
 
