@@ -77,8 +77,8 @@ uint8_t VPU::get_background_data_type() {
 
 vec_2d VPU::get_pixel_tile_position() {
     vec_2d pos;
-    pos.x = (this->get_background_scroll_x() + this->get_current_x()) % this->TILE_WIDTH;
-    pos.y = (this->get_background_scroll_y() + this->get_current_y()) % this->TILE_HEIGHT;
+    pos.x = (int)(this->get_background_scroll_x() + this->get_current_x()) % this->TILE_WIDTH;
+    pos.y = (int)(this->get_background_scroll_y() + this->get_current_y()) % this->TILE_HEIGHT;
     return pos;
 }
 
@@ -88,16 +88,16 @@ uint8_t VPU::get_pixel_color() {
     int byte_index = ((this->TILE_WIDTH / 2) % pos.x) * 2;
     uint8_t colour_byte = this->ram->get_val(
         this->get_tile_address() +
-        (pos.y * this->TILE_HEIGHT) +
-        (pos.x >= (this->TILE_WIDTH / 2) ? 1 : 0)
+        (uint16_t)(pos.y * this->TILE_HEIGHT) +
+        (uint16_t)(pos.x >= (this->TILE_WIDTH / 2) ? 1 : 0)
     );
     return (colour_byte << byte_index) & (0x04);
 }
 
 void VPU::process_pixel() {
     //
-    //if (this->get_pixel_color())
-    this->sf_image.setPixel((int)this->get_current_x(), (int)this->get_current_y(), sf::Color((uint8_t)0xff, (uint8_t)0xff, (uint8_t)0xff));
+    if (this->get_pixel_color())
+        this->sf_image.setPixel((int)this->get_current_x(), (int)this->get_current_y(), sf::Color((uint8_t)0xff, (uint8_t)0xff, (uint8_t)0xff));
     this->current_pixel_x ++;
     this->sf_texture.loadFromImage(this->sf_image);
     this->window->draw(this->sf_sprite);
@@ -119,8 +119,8 @@ uint16_t VPU::get_tile_address() {
     return (this->VRAM_TILE_DATA_TABLES[this->get_background_data_type()] + this->ram->get_val(
         this->VRAM_BG_MAPS[this->get_background_map_type()] +
         (uint16_t)(
-            ((this->get_background_scroll_y() + this->get_current_y()) * this->BACKGROUND_TILE_GRID_WIDTH) +
-            (this->get_background_scroll_x() + this->get_current_x())
+            ((int)(this->get_background_scroll_y() + this->get_current_y()) * this->BACKGROUND_TILE_GRID_WIDTH) +
+            (int)(this->get_background_scroll_x() + this->get_current_x())
         )
     ));
 }
