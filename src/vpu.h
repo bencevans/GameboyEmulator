@@ -2,7 +2,10 @@
 
 #include <memory>
 #include "ram.h"
-#include <SFML/Graphics.hpp>
+//#include <SFML/Graphics.hpp>
+#include <stdlib.h>
+#include <X11/Xlib.h>
+
 
 struct vec_2d {
     uint8_t x;
@@ -11,9 +14,10 @@ struct vec_2d {
 
 class VPU {
 public:
-    VPU(RAM *ram, sf::RenderWindow *window);
+    VPU(RAM *ram);
     void tick();
-    
+    void tear_down();
+    Display *di;
 private:
     // Clock cycle definitions
     // Not sure which is most critical - timing of overall screen refresh or lenth of vblank
@@ -55,11 +59,16 @@ private:
     void next_line();
     
     RAM *ram;
-    sf::RenderWindow *window;
-    sf::Sprite sf_sprite;
-    sf::FloatRect sf_rect;
-    sf::Texture sf_texture;
-    sf::Image sf_image;
+//    sf::RenderWindow *window;
+//    sf::Sprite sf_sprite;
+//    sf::FloatRect sf_rect;
+//    sf::Texture sf_texture;
+//    sf::Image sf_image;
+    int sc;
+    Window ro;
+    Window wi;
+    GC gc;
+    XEvent ev;
     
     
     uint8_t get_background_scroll_x();

@@ -3,7 +3,7 @@
 #include <cstring>
 
 #include "ram.h"
-#define DEBUG 1
+#define DEBUG 0
 
 RAM::RAM() {
     // Initialise memory to 0.

@@ -6,9 +6,9 @@
 #include <iostream>
 #include <string.h>
 
-#define DEBUG 1
-#define STEPIN 0x01
-#define STOP_BEFORE_ROM 1
+#define DEBUG 0
+#define STEPIN 0
+#define STOP_BEFORE_ROM 0
 
 CPU::CPU(RAM *ram, VPU *vpu_inst) {
     

@@ -9,17 +9,43 @@
 
 #define DEBUG 0
 
-VPU::VPU(RAM *ram, sf::RenderWindow *window) {
+VPU::VPU(RAM *ram) {
     this->ram = ram;
-    this->window = window;
+    this->di = XOpenDisplay(getenv(":0"));
+    if (this->di == NULL) {
+		printf("Couldn't open display.\n");
+	}
     this->h_timer_itx = 0;
     this->refresh_timer_itx = 0;
     // Reset current line
     this->ram->set(this->LCDC_LY_ADDR, 0x00);
     this->current_pixel_x = 0;
 
-    this->sf_texture = sf::Texture();
-    this->sf_texture.create(this->SCREEN_WIDTH, this->SCREEN_HEIGHT);
+	//Create Window
+	int const x = 0, y = 0, border_width = 1;
+	this->sc    = DefaultScreen(this->di);
+	this->ro = DefaultRootWindow(this->di);
+	this->wi = XCreateSimpleWindow(this->di, this->ro, x, y, this->SCREEN_WIDTH, this->SCREEN_HEIGHT, border_width, 
+                                BlackPixel(this->di, this->sc), WhitePixel(this->di, this->sc));
+
+    XMapWindow(this->di, this->wi); //Make window visible
+	XStoreName(this->di, this->wi, "Gameboy EmU"); // Set window title
+	
+	//Prepare the window for drawing
+	this->gc = XCreateGC(this->di, this->ro, 0, NULL);
+
+	//Select what events the window will listen to
+	XSelectInput(this->di, this->wi, KeyPressMask | ExposureMask);
+}
+
+void VPU::next_screen() {
+    if (DEBUG)
+        std::cout << "NEXT SCREEN" << std::endl;
+    this->h_timer_itx = 0;
+    this->refresh_timer_itx = 0;
+    // Reset current line
+    this->ram->set(this->LCDC_LY_ADDR, 0x00);
+//    this->current_pixel_x = 0;
 //    sf::IntRect rect;
 //    rect.width = this->SCREEN_WIDTH;
 //    rect.height = this->SCREEN_HEIGHT;
@@ -34,30 +60,6 @@ VPU::VPU(RAM *ram, sf::RenderWindow *window) {
 //    this->window->clear();
 //    this->window->draw(this->sf_sprite);
 //    this->window->display();
-}
-
-void VPU::next_screen() {
-    if (DEBUG)
-        std::cout << "NEXT SCREEN" << std::endl;
-    this->h_timer_itx = 0;
-    this->refresh_timer_itx = 0;
-    // Reset current line
-    this->ram->set(this->LCDC_LY_ADDR, 0x00);
-    this->current_pixel_x = 0;
-    sf::IntRect rect;
-    rect.width = this->SCREEN_WIDTH;
-    rect.height = this->SCREEN_HEIGHT;
-    rect.left = 0;
-    rect.top = 0;
-    this->sf_sprite = sf::Sprite(this->sf_texture, rect);
-    this->sf_sprite.setTexture(this->sf_texture);
-    this->sf_sprite.setPosition(0, 0);
-    this->sf_sprite.setScale(
-        this->SCREEN_WIDTH / this->sf_sprite.getLocalBounds().width, 
-        this->SCREEN_HEIGHT / this->sf_sprite.getLocalBounds().height);
-    this->window->clear();
-    this->window->draw(this->sf_sprite);
-    this->window->display();
     std::cin.get();
 }
 
@@ -136,17 +138,18 @@ uint8_t VPU::get_pixel_color() {
     return (colour_byte << byte_index) & (0x04);
 }
 
+void VPU::tear_down() {
+    XFreeGC(this->di, this->gc);
+	XDestroyWindow(this->di, this->wi);
+	XCloseDisplay(this->di);
+}
+
 void VPU::process_pixel() {
     //
-    uint8_t color = (this->get_pixel_color()) ? 0xff : 0x00;
+    uint8_t color = (this->get_pixel_color() << 4);
+    XSetForeground(this->di, this->gc, color);
+	XDrawPoint(this->di, this->wi, this->gc, (int)this->get_current_x(), (int)this->get_current_y());
 
-    //this->sf_image.setPixel((unsigned int)this->get_current_x(), (unsigned int)this->get_current_y(), sf::Color(color, color, color, 0x00));
-    sf::Uint8 pixel_update[4] = {color, color, color, 0x00};
-    this->sf_texture.update(pixel_update, 1, 1, (unsigned int)this->get_current_x(), (unsigned int)this->get_current_y());
-    this->sf_sprite.setTexture(this->sf_texture);
-    this->window->clear();
-    this->window->draw(this->sf_sprite);
-    this->window->display();
     if (DEBUG && color != 0x0)
         std::cout << std::hex << "Setting Pixel color: " << (unsigned int)this->get_current_x() << " " << (unsigned int)this->get_current_y() << " " << (int)color << std::endl;
     this->current_pixel_x ++;

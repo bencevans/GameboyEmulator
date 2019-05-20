@@ -194,8 +194,8 @@ GameboyEmulator: CMakeFiles/GameboyEmulator.dir/src/ram.cpp.o
 GameboyEmulator: CMakeFiles/GameboyEmulator.dir/src/ram_subset.cpp.o
 GameboyEmulator: CMakeFiles/GameboyEmulator.dir/src/vpu.cpp.o
 GameboyEmulator: CMakeFiles/GameboyEmulator.dir/build.make
-GameboyEmulator: /usr/lib/x86_64-linux-gnu/libsfml-graphics.so
-GameboyEmulator: /usr/lib/x86_64-linux-gnu/libsfml-audio.so
+GameboyEmulator: /usr/lib/x86_64-linux-gnu/libX11.so
+GameboyEmulator: /usr/lib/x86_64-linux-gnu/libXext.so
 GameboyEmulator: CMakeFiles/GameboyEmulator.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/matthew/w/g/gameboy-emulator/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable GameboyEmulator"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/GameboyEmulator.dir/link.txt --verbose=$(VERBOSE)

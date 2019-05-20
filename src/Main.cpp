@@ -3,7 +3,7 @@
 #include "ram.h"
 #include "./vpu.h"
 #include "cpu.h"
-#include <SFML/Graphics.hpp>
+#include <X11/Xlib.h>
 
 #define SCREEN_WIDTH 144
 #define SCREEN_HEIGHT 160
@@ -40,7 +40,11 @@ int main(int argc, char* args[])
     //}
     
     // create the window
-    sf::RenderWindow window(sf::VideoMode(SCREEN_HEIGHT, SCREEN_WIDTH), APP_NAME);
+//    Display *di = XOpenDisplay(getenv("DISPLAY"));
+//    if (di == NULL) {
+//		printf("Couldn't open display.\n");
+//		return -1;
+//	}
 
     RAM ram_inst = RAM();
     char bios_path[] = "./copyright/DMG_ROM.bin";
@@ -48,33 +52,21 @@ int main(int argc, char* args[])
     ram_inst.load_bios(bios_path);
     ram_inst.load_rom(rom_path);
 
-    VPU vpu_inst = VPU(&ram_inst, &window);
+    VPU vpu_inst = VPU(&ram_inst);
     CPU cpu_inst = CPU(&ram_inst, &vpu_inst);
 
+    XEvent ev;
+
     // run the program as long as the window is open
-    while (window.isOpen() && cpu_inst.is_running())
+    while (cpu_inst.is_running())
     {
         cpu_inst.tick();
         vpu_inst.tick();
-
-        // check all the window's events that were triggered since the last iteration of the loop
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            // "close requested" event: we close the window
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        // clear the window with black color
-        //window.clear(sf::Color::Black);
-
-        // draw everything here...
-        // window.draw(...);
-
-        // end the current frame
-        //window.display();
+        
+        while (XPending(vpu_inst.di))
+            XNextEvent(vpu_inst.di, &ev);
     }
+    vpu_inst.tear_down();
     
     std::cin.get();
 

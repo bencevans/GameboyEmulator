@@ -11,7 +11,9 @@ memory
 -
 ram.h
 /home/matthew/w/g/gameboy-emulator/src/./ram.h
-SFML/Graphics.hpp
+stdlib.h
+-
+X11/Xlib.h
 -
 
 /home/matthew/w/g/gameboy-emulator/src/Main.cpp
@@ -25,7 +27,7 @@ ram.h
 /home/matthew/w/g/gameboy-emulator/src/./vpu.h
 cpu.h
 /home/matthew/w/g/gameboy-emulator/src/cpu.h
-SFML/Graphics.hpp
+X11/Xlib.h
 -
 
 /home/matthew/w/g/gameboy-emulator/src/cpu.cpp
@@ -85,6 +87,8 @@ memory
 -
 ram.h
 /home/matthew/w/g/gameboy-emulator/src/ram.h
-SFML/Graphics.hpp
+stdlib.h
+-
+X11/Xlib.h
 -
 
