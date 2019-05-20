@@ -52,7 +52,7 @@ private:
     
     // Each is 3FF bytes (1024 bytes), providing 32x32 tiles, meanig 1 byte per tile
     const uint16_t VRAM_BG_MAPS[2] = {0x9800, 0x9c00};
-    const uint16_t VRAM_TILE_DATA_TABLES[2] = {0x8000, 0x8800};
+    const uint16_t VRAM_TILE_DATA_TABLES[3] = {0x8000, 0x8800, 0x9000};
     const uint16_t BACKGROUND_TILE_GRID_WIDTH = 32;
     const uint16_t BACKGROUND_TILE_GRID_HEIGHT = 32;
     const uint16_t TILE_WIDTH = 8;
@@ -67,15 +67,18 @@ private:
     uint8_t get_background_scroll_y();
     uint8_t get_current_x();
     uint8_t get_current_y();
-    uint8_t get_background_map_type();
+    uint8_t get_background_map();
     uint8_t get_background_data_type();
+    int get_tile_map_index_from_current_coord();
+    uint16_t get_tile_data_address(uint8_t tile_number);
     uint8_t get_pixel_color();
     uint16_t get_tile_address();
+    uint16_t get_current_tile_data_address();
     vec_2d get_pixel_tile_position();
     
     void process_pixel();
     void wait_for_window();
     
     // Copy from CPU :(
-    unsigned char get_register_bit(uint16_t address, uint8_t bit_shift);
+    unsigned int get_register_bit(uint16_t address, unsigned int bit_shift);
 };
