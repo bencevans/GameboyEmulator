@@ -59,12 +59,19 @@ int main(int argc, char* args[])
     {
         cpu_inst->tick();
         vpu_inst->tick();
+        vpu_inst->tick();
+        vpu_inst->tick();
+        vpu_inst->tick();
+        vpu_inst->tick();
+        vpu_inst->tick();
+        vpu_inst->tick();
+        vpu_inst->tick();
 
         vpu_inst->process_events();
     }
-    vpu_inst->tear_down();
-    
+
     std::cin.get();
+    vpu_inst->tear_down();
 
     return 0;
 }

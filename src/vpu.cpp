@@ -12,10 +12,13 @@
 
 VPU::VPU(RAM *ram) {
     this->ram = ram;
-    this->di = XOpenDisplay(getenv("DISPLAY"));
-    if (this->di == NULL) {
-		printf("Couldn't open display.\n");
-	}
+    SDL_Init(SDL_INIT_VIDEO);
+    this->window = SDL_CreateWindow("Gameboy Emu",
+        0, 0, this->SCREEN_WIDTH, this->SCREEN_HEIGHT, 0);
+    this->renderer = SDL_CreateRenderer(this->window, -1, 0);
+    SDL_CreateWindowAndRenderer(this->SCREEN_HEIGHT, this->SCREEN_WIDTH, 0, &this->window, &this->renderer);
+
+
     this->h_timer_itx = 0;
     this->refresh_timer_itx = 0;
     // Reset current line
@@ -23,70 +26,41 @@ VPU::VPU(RAM *ram) {
     this->current_pixel_x = 0;
 
 	//Create Window
-	int const x = 50, y = 50, border_width = 1;
-	this->sc = DefaultScreen(this->di);
-	this->ro = DefaultRootWindow(this->di);
-	this->wi = XCreateSimpleWindow(
-        this->di, this->ro,
-        x, y,
-        (unsigned int)this->SCREEN_WIDTH, (unsigned int)this->SCREEN_HEIGHT,
-        border_width, 
-        BlackPixel(this->di, this->sc),
-        WhitePixel(this->di, this->sc));
 
-    XMapWindow(this->di, this->wi); //Make window visible
-    this->wait_for_window();
-    XFlush(this->di);
-
-	XStoreName(this->di, this->wi, "Gameboy EmU"); // Set window title
-	//Prepare the window for drawing
-	this->gc = XCreateGC(this->di, this->ro, 0, NULL);
-	//Select what events the window will listen to
-	XSelectInput(this->di, this->wi, KeyPressMask | ExposureMask);
-
-    // Wait some BS time for window to display
-    //sleep(10);
-
+    // Clear with white
+    SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 0);
+    SDL_RenderClear(this->renderer);
+    SDL_RenderPresent(this->renderer);
+    SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
     // Set all pixels to black
-    XSetForeground(this->di, this->gc, (unsigned long)0xFFDDCCFFDDCC);
     for (unsigned int x = 0; x < this->SCREEN_WIDTH; x++)
         for (unsigned int y = 0; y < this->SCREEN_HEIGHT; y++)
-                XDrawPoint(this->di, this->wi, this->gc, (int)x, (int)y);
+                SDL_RenderDrawPoint(this->renderer, (int)y, (int)x);
+                
 
-}
-
-static Bool predicate(Display *display, XEvent *ev, XPointer arg)
-{
-    std::cout << ev->type << std::endl;
-    return (ev->type == MapNotify);
-}
-
-void VPU::wait_for_window() {
-    
-    XEvent ev;
-    XWindowAttributes xwa;
-
-    XPeekIfEvent(this->di, &ev, predicate, NULL);
-
-    do {
-        XGetWindowAttributes(this->di, this->wi, &xwa);
-        usleep(1);
-        std::cout << xwa.map_state;
-    } while(xwa.map_state != IsViewable);  
+    SDL_SetRenderDrawColor(this->renderer, 0, 255, 0, 0);
+    // Set all pixels to black
+    for (unsigned int x = 60; x < 80; x++)
+        for (unsigned int y = 50; y < 90; y++)
+                SDL_RenderDrawPoint(this->renderer, (int)x, (int)y);
+    SDL_RenderPresent(this->renderer);
 }
 
 void VPU::process_events() {
     //while (XPending(this->di))
     //while (XEventsQueued(this->di, QueuedAlready))
     //    XNextEvent(this->di, &this->ev);
-    while (XPending (this->di))
+    //while (XPending (this->di))
     //while (XCheckWindowEvent(this->di, this->wi, 0, &this->ev))
-        XNextEvent (this->di, &this->ev);
+        //XNextEvent (this->di, &this->ev);
         //if (XFilterEvent (&this->ev, None))
         //{
         //    continue;
         //}
     //}
+    
+    SDL_RenderPresent(this->renderer);
+    //SDL_PollEvent(&this->event);
 }
 
 void VPU::next_screen() {
@@ -174,32 +148,32 @@ uint8_t VPU::get_pixel_color() {
 }
 
 void VPU::tear_down() {
-    XFreeGC(this->di, this->gc);
-	XDestroyWindow(this->di, this->wi);
-	XCloseDisplay(this->di);
+    SDL_DestroyRenderer(this->renderer);
+    SDL_DestroyWindow(this->window);
+    SDL_Quit();
 }
 
 void VPU::process_pixel() {
     //
-    uint32_t color;
-    switch(this->get_pixel_color()) {
+    uint8_t color = this->get_pixel_color();
+    switch(color) {
         case 0x00:
-            color = 0x00;
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             break;
         case 0x01:
-            color = 0x00444444;
+            SDL_SetRenderDrawColor(renderer, 86, 86, 86, 0);
             break;
         case 0x02:
-            color = 0x00888888;
+            SDL_SetRenderDrawColor(renderer, 172, 172, 172, 0);
             break;
         case 0x03:
-            color = 0x00cccccc;
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
             break;
         default:
-            color = 0x00ffffff;
+            // Random colour
+            SDL_SetRenderDrawColor(renderer, 255, 0, 128, 0);
     };
-    XSetForeground(this->di, this->gc, color);
-	XDrawPoint(this->di, this->wi, this->gc, (int)this->get_current_x(), (int)this->get_current_y());
+    SDL_RenderDrawPoint(this->renderer, (int)this->get_current_x(), (int)this->get_current_y());
     this->process_events();
     if (DEBUG && color != 0x0)
         std::cout << std::hex << "Setting Pixel color: " << (unsigned int)this->get_current_x() << " " << (unsigned int)this->get_current_y() << " " << (int)color << std::endl;

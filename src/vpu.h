@@ -4,7 +4,7 @@
 #include "ram.h"
 //#include <SFML/Graphics.hpp>
 #include <stdlib.h>
-#include <X11/Xlib.h>
+#include <SDL.h>
 
 
 struct vec_2d {
@@ -18,7 +18,9 @@ public:
     void tick();
     void tear_down();
     void process_events();
-    Display *di;
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    SDL_Event event;
 private:
     // Clock cycle definitions
     // Not sure which is most critical - timing of overall screen refresh or lenth of vblank
@@ -60,12 +62,6 @@ private:
     void next_line();
     
     RAM *ram;
-    int sc;
-    Window ro;
-    Window wi;
-    GC gc;
-    XEvent ev;
-    
     
     uint8_t get_background_scroll_x();
     uint8_t get_background_scroll_y();
