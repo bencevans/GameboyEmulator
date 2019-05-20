@@ -18,8 +18,44 @@ VPU::VPU(RAM *ram, sf::RenderWindow *window) {
     this->ram->set(this->LCDC_LY_ADDR, 0x00);
     this->current_pixel_x = 0;
 
+
+    const sf::Color black = sf::Color((uint32_t)0xffffffff);
+    this->sf_image = sf::Image();
+    this->sf_image.create((unsigned int)this->SCREEN_WIDTH, (unsigned int)this->SCREEN_HEIGHT, black);
+    for (unsigned int x = 0; x < this->SCREEN_WIDTH; x++)
+        for (unsigned int y = 0; y < this->SCREEN_HEIGHT; y++)
+            this->sf_image.setPixel(x, y, black);
+//    this->sf_texture = sf::Texture();
+//    this->sf_texture.create(this->SCREEN_WIDTH, this->SCREEN_HEIGHT);
+//    this->sf_texture.loadFromImage(this->sf_image);
+//    sf::IntRect rect;
+//    rect.width = this->SCREEN_WIDTH / 2;
+//    rect.height = this->SCREEN_HEIGHT;
+//    rect.left = 0;
+//    rect.top = 0;
+//    this->sf_sprite = sf::Sprite(this->sf_texture, rect);
+//    this->sf_sprite.setTexture(this->sf_texture);
+//    this->sf_sprite.setPosition(0, 0);
+//    this->sf_sprite.setScale(
+//        this->SCREEN_WIDTH / this->sf_sprite.getLocalBounds().width, 
+//        this->SCREEN_HEIGHT / this->sf_sprite.getLocalBounds().height);
+//    this->window->draw(this->sf_sprite);
+//    this->window->display();
+}
+
+void VPU::next_screen() {
+    if (DEBUG)
+        std::cout << "NEXT SCREEN" << std::endl;
+    this->h_timer_itx = 0;
+    this->refresh_timer_itx = 0;
+    // Reset current line
+    this->ram->set(this->LCDC_LY_ADDR, 0x00);
+    this->current_pixel_x = 0;
+    
+    // Refresh screen
     this->sf_texture = sf::Texture();
     this->sf_texture.create(this->SCREEN_WIDTH, this->SCREEN_HEIGHT);
+    this->sf_texture.loadFromImage(this->sf_image, 0, 0);
     sf::IntRect rect;
     rect.width = this->SCREEN_WIDTH / 2;
     rect.height = this->SCREEN_HEIGHT;
@@ -33,17 +69,6 @@ VPU::VPU(RAM *ram, sf::RenderWindow *window) {
         this->SCREEN_HEIGHT / this->sf_sprite.getLocalBounds().height);
     this->window->draw(this->sf_sprite);
     this->window->display();
-}
-
-void VPU::next_screen() {
-    if (DEBUG)
-        std::cout << "NEXT SCREEN" << std::endl;
-    this->h_timer_itx = 0;
-    this->refresh_timer_itx = 0;
-    // Reset current line
-    this->ram->set(this->LCDC_LY_ADDR, 0x00);
-    this->current_pixel_x = 0;
-
     std::cin.get();
 }
 
@@ -124,12 +149,7 @@ uint8_t VPU::get_pixel_color() {
 void VPU::process_pixel() {
     //
     uint8_t color = this->get_pixel_color();
-    //this->sf_image.setPixel((unsigned int)this->get_current_x(), (unsigned int)this->get_current_y(), sf::Color(color, color, color, 0x00));
-    const uint8_t pixel_update[4] = {color, 0x00, 0x00, 0x00};
-    this->sf_texture.update(pixel_update, 1, 1, this->get_current_x(), this->get_current_y());
-    this->window->clear();
-    this->window->draw(this->sf_sprite);
-    this->window->display();
+    this->sf_image.setPixel((unsigned int)this->get_current_x(), (unsigned int)this->get_current_y(), sf::Color(color, color, color, 0x00));
     if (DEBUG && color != 0x0)
         std::cout << std::hex << "Setting Pixel color: " << (unsigned int)this->get_current_x() << " " << (unsigned int)this->get_current_y() << " " << (int)color << std::endl;
     this->current_pixel_x ++;
