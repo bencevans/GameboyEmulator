@@ -141,6 +141,12 @@ private:
     void op_Add(combined_reg *dest, combined_reg *src);
     void op_Add(combined_reg *dest, reg16 *src);
     void op_Add(combined_reg *dest, uint32_t src);
+    void op_Sub(reg8 *dest);
+    void op_Sub(reg8 *dest, reg8 *src);
+    void op_Sub(reg8 *dest, uint16_t src);
+    void op_Sub(combined_reg *dest, combined_reg *src);
+    void op_Sub(combined_reg *dest, reg16 *src);
+    void op_Sub(combined_reg *dest, uint32_t src);
     
     void op_Inc(reg8 *dest);
     void op_Inc(combined_reg *dest);

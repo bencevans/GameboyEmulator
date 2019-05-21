@@ -8,7 +8,7 @@
 #define SCREEN_HEIGHT 160
 #define APP_NAME "GameBoy Emulator"
 
-#define DISABLE_VPU 1
+#define DISABLE_VPU 0
 #define DEBUG 0
 
 struct arguments_t {

@@ -91,19 +91,21 @@ void VPU::tick() {
         return;
 
     this->refresh_timer_itx ++;
-    if (this->refresh_timer_itx >= this->SCREEN_REFRESH_INTERVAL)
-        this->next_screen();
+    //if (this->refresh_timer_itx >= this->SCREEN_REFRESH_INTERVAL)
+    //    this->next_screen();
     // Update line timer
     this->h_timer_itx ++;
 
-    if (this->h_timer_itx >= this->H_LENGTH) {
-        if (DEBUG)
-            std::cout << "NEXT LINE!" << std::endl;
-        this->next_line();
-    }
+    //if (this->h_timer_itx >= this->H_LENGTH) {
+    //    if (DEBUG)
+    //        std::cout << "NEXT LINE!" << std::endl;
+    //    this->next_line();
+    //}
 
     if (this->get_current_x() < this->SCREEN_WIDTH)
         this->process_pixel();
+    else
+        this->next_line();
 }
 
 uint8_t VPU::get_background_scroll_y() {
