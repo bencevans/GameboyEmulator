@@ -76,6 +76,7 @@ void VPU::next_line() {
     this->h_timer_itx = 0;
     this->current_pixel_x = 0;
     // Increment current line
+    this->process_events();
     if (this->get_current_y() == this->SCREEN_HEIGHT)
         this->next_screen();
     else
@@ -86,6 +87,9 @@ void VPU::tick() {
     // Update timers and skip to next screen,
     // if required.
     // Update screen timer
+    if (! this->lcd_enabled())
+        return;
+
     this->refresh_timer_itx ++;
     if (this->refresh_timer_itx >= this->SCREEN_REFRESH_INTERVAL)
         this->next_screen();
@@ -111,6 +115,10 @@ uint8_t VPU::get_background_scroll_x() {
 
 unsigned int VPU::get_register_bit(uint16_t address, unsigned int bit_shift) {
     return ((this->ram->get_val(address) & (1U  << bit_shift)) >> bit_shift);
+}
+
+uint8_t VPU::lcd_enabled() {
+    return this->get_register_bit(this->LCDC_CONTROL_ADDR, 0x07);
 }
 
 uint8_t VPU::get_background_map() {
@@ -173,7 +181,7 @@ void VPU::process_pixel() {
             SDL_SetRenderDrawColor(renderer, 255, 0, 128, 0);
     };
     SDL_RenderDrawPoint(this->renderer, (int)this->get_current_x(), (int)this->get_current_y());
-    this->process_events();
+    //this->process_events();
     if (DEBUG && color != 0x0)
         std::cout << std::hex << "Setting Pixel color: " << (unsigned int)this->get_current_x() << " " << (unsigned int)this->get_current_y() << " " << (int)color << std::endl;
     this->current_pixel_x ++;

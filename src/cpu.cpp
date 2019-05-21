@@ -560,7 +560,7 @@ void CPU::execute_op_code(int op_val) {
             break;
 
         default:
-            std::cout << "Unknown op code: 0x";
+            std::cout << std::hex << ((int)this->r_pc.value - 1) << "Unknown op code: 0x";
             std::cout << std::setfill('0') << std::setw(2) << std::hex << op_val;
             std::cout << std::endl;
             break;

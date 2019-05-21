@@ -67,8 +67,12 @@ private:
     uint8_t get_background_scroll_y();
     uint8_t get_current_x();
     uint8_t get_current_y();
+    
+    // Control register bits
     uint8_t get_background_map();
     uint8_t get_background_data_type();
+    uint8_t lcd_enabled();
+
     int get_tile_map_index_from_current_coord();
     uint16_t get_tile_data_address(uint8_t tile_number);
     uint8_t get_pixel_color();
