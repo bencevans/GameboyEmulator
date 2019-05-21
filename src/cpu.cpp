@@ -67,9 +67,26 @@ void CPU::tick() {
     //if (this->temp_counter >= 1000)
     //    this->running = false;
 
-    if (DEBUG || this->stepped_in)
+    if (DEBUG || this->stepped_in) {
+        if (! this->stepped_in) {
+            std::cout << std::hex <<
+            "a : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_a.value << std::endl <<
+            " f: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_f.value << std::endl <<
+            "af: " << std::setfill('0') << std::setw(4) << this->r_af.value() << std::endl <<
+            "b : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_b.value << std::endl <<
+            " c: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_c.value << std::endl <<
+            "bc: " << std::setfill('0') << std::setw(4) << this->r_bc.value() << std::endl <<
+            "d : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_d.value << std::endl <<
+            " e: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_e.value << std::endl <<
+            "de: " << std::setfill('0') << std::setw(4) << this->r_de.value() << std::endl <<
+            "h : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_h.value << std::endl <<
+            " l: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_l.value << std::endl <<
+            "hl: " << std::setfill('0') << std::setw(4) << this->r_hl.value() << std::endl <<
+            "sp: " << std::setfill('0') << std::setw(4) << this->r_sp.value << std::endl <<
+            "pc: " << std::setfill('0') << std::setw(4) << this->r_pc.value << std::endl;
+        }
         std::cout << std::endl << std::endl << "New Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;    
-
+    }
     // If interupt state is either enabled or pending disable,
     // check interupts
     if (this->interupt_state == this->INTERUPT_STATE::ENABLED ||
@@ -248,6 +265,7 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x2a:
             this->op_Load_Inc(&this->r_a, &this->r_hl);
+            break;
         case 0x2b:
             this->op_Dec(&this->r_hl);
             break;
@@ -958,8 +976,8 @@ void CPU::op_Inc(combined_reg *dest) {
         uint32_t bit32[1];
     } data_conv;
 
-    data_conv.bit16[0] = dest->lower->value;
-    data_conv.bit16[1] = dest->upper->value;
+    data_conv.bit8[0] = dest->lower->value;
+    data_conv.bit8[1] = dest->upper->value;
     data_conv.bit32[0] = (uint32_t)((int)(data_conv.bit32[0]) + 1);
     dest->lower->value = data_conv.bit8[0];
     dest->upper->value = data_conv.bit8[1];

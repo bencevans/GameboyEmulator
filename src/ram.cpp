@@ -18,7 +18,7 @@ uint8_t RAM::get_val(int address) {
     memcpy(&val, &this->memory[address], 1);
     if (DEBUG)
         std::cout << std::hex << "Got from RAM (" << address << "): "  << (int)val << std::endl;
-    return val;
+    return this->memory[address];
 }
 uint8_t RAM::get_val(uint16_t address) {
     return this->get_val((int)address);
@@ -58,7 +58,7 @@ void RAM::stack_push(uint16_t &sp_val, uint16_t pc_val) {
 uint8_t RAM::stack_pop8(uint16_t &sp_val) {
     // Obtain value from stack and decrease SP value,
     uint8_t dest = this->get_val(sp_val);
-    std::cout << "got: " << std::hex << (int)dest << " from " << sp_val << std::endl;
+    std::cout << "got: " << std::hex << (int)dest << " from " << (int)sp_val << std::endl;
     sp_val ++;
     return dest;
 }
@@ -75,16 +75,16 @@ uint16_t RAM::stack_pop(uint16_t &sp_val) {
 }
 
 void RAM::set(int address, uint8_t val) {
-    if (DEBUG)
-        std::cout << std::hex << "Set RAM value (" << address << "): "  << (int)val << std::endl;
-    this->memory[address] = val;
-}
-void RAM::set(uint16_t address, uint8_t val) {
     if (address < 0x8000) {
         std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
         std::cout << std::hex << "Forbidden RAM write: " << (int)val << " at " << (int)address << std::endl;
         std::cin.get();
     }
+    if (DEBUG)
+        std::cout << std::hex << "Set RAM value (" << address << "): "  << (int)val << std::endl;
+    this->memory[address] = val;
+}
+void RAM::set(uint16_t address, uint8_t val) {
     this->set((int)address, val);
 }
 void RAM::dec(int address) {
@@ -110,37 +110,38 @@ RamSubset RAM::get_high_ram() {
 }
 
 void RAM::load_bios(char *bios_path) {
-    // Open file
-    std::ifstream infile(bios_path);
+// Open file  
+std::ifstream infile(bios_path, std::ios::binary);  
 
-    // Get length of file
-    infile.seekg(0, infile.end);
-    size_t length = infile.tellg();
-    infile.seekg(0, infile.beg);
+// Iterate through bytes in file and store in memory  
+size_t addr = 0;
+while (true) {
+  uint8_t ch = infile.get();
+  if (infile.eof()) {
+     break;
+  }
+  this->memory[addr] = (uint8_t)ch;
+  std::cout << std::hex << (int)addr << " " << (int)ch << " " << (int)this->memory[addr] << std::endl;
 
-    // Iterate through bytes in file and store in memory
-    unsigned long itx = 0;
-    while (itx < length) {
-        infile >> std::noskipws >> this->memory[itx];
-        itx ++;
-    }
-    infile.close();
+  addr++;  
+}  
+std::cin.get();
+infile.close();
 }
 
 void RAM::load_rom(char *rom_path) {
-    // Open file
-    std::ifstream infile(rom_path);
+// Open file  
+std::ifstream infile(rom_path, std::ios::binary);  
 
-    // Get length of file
-    infile.seekg(0, infile.end);
-    size_t length = infile.tellg();
-    infile.seekg(0, infile.beg);
-
-    // Iterate through bytes in file and store in memory
-    size_t itx = 256;
-    while (itx < (length + 256)) {
-        infile >> std::noskipws >> this->memory[itx];
-        itx ++;
-    }
-    infile.close();
+// Iterate through bytes in file and store in memory  
+size_t addr = 0;
+while (true) {
+  uint8_t ch = infile.get();
+  if (infile.eof()) {
+     break;
+  }
+  this->memory[addr + 256] = (uint8_t)ch;
+  addr++;
+}  
+infile.close();
 }
