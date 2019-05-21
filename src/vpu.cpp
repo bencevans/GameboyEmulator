@@ -64,6 +64,7 @@ void VPU::process_events() {
 }
 
 void VPU::next_screen() {
+    this->process_events();
     if (DEBUG)
         std::cout << "NEXT SCREEN" << std::endl;
     this->h_timer_itx = 0;
@@ -76,7 +77,6 @@ void VPU::next_line() {
     this->h_timer_itx = 0;
     this->current_pixel_x = 0;
     // Increment current line
-    this->process_events();
     if (this->get_current_y() == this->SCREEN_HEIGHT)
         this->next_screen();
     else
@@ -118,6 +118,7 @@ unsigned int VPU::get_register_bit(uint16_t address, unsigned int bit_shift) {
 }
 
 uint8_t VPU::lcd_enabled() {
+    return 1;
     return this->get_register_bit(this->LCDC_CONTROL_ADDR, 0x07);
 }
 

@@ -3,7 +3,7 @@
 #include <cstring>
 
 #include "ram.h"
-#define DEBUG 0
+#define DEBUG 1
 
 RAM::RAM() {
     // Initialise memory to 0.
@@ -80,6 +80,11 @@ void RAM::set(int address, uint8_t val) {
     this->memory[address] = val;
 }
 void RAM::set(uint16_t address, uint8_t val) {
+    if (address < 0x8000) {
+        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << std::hex << "Forbidden RAM write: " << (int)val << " at " << (int)address << std::endl;
+        std::cin.get();
+    }
     this->set((int)address, val);
 }
 void RAM::dec(int address) {

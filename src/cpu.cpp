@@ -6,8 +6,9 @@
 #include <iostream>
 #include <string.h>
 
-#define DEBUG 0
+#define DEBUG 1
 #define STEPIN 0
+#define STOP_ON_BAD_OPCODE 1
 #define STOP_BEFORE_ROM 1
 
 CPU::CPU(RAM *ram, VPU *vpu_inst) {
@@ -91,6 +92,9 @@ void CPU::tick() {
 
     // Read value from memory
     int op_val = (int)this->get_inc_pc_val8();
+    
+    if (DEBUG || this->stepped_in)
+        std::cout << "CB: " << (int)this->cb_state << " Op Code: " << std::hex << op_val << std::endl;
 
     if (this->cb_state) {
         this->execute_cb_code(op_val);
@@ -213,6 +217,10 @@ void CPU::execute_op_code(int op_val) {
         case 0x20:
             if (! this->get_zero_flag())
                 this->op_JR();
+            else
+                // If we don't perform the OP, pull
+                // data from ram to inc PC
+                this->get_inc_pc_val8();
             break;
         case 0x21:
             this->op_Load(&this->r_hl);
@@ -233,6 +241,10 @@ void CPU::execute_op_code(int op_val) {
         case 0x28:
             if (this->get_zero_flag())
                 this->op_JR();
+            else
+                // If we don't perform the OP, pull
+                // data from ram to inc PC
+                this->get_inc_pc_val8();
             break;
         case 0x2a:
             this->op_Load_Inc(&this->r_a, &this->r_hl);
@@ -474,6 +486,10 @@ void CPU::execute_op_code(int op_val) {
         case 0xc2:
             if (! this->get_zero_flag())
                 this->op_JP();
+            else
+                // If we don't perform the OP, pull
+                // data from ram to inc PC
+                this->get_inc_pc_val16();
             break;
         case 0xc3:
             this->op_JP();
@@ -487,6 +503,10 @@ void CPU::execute_op_code(int op_val) {
         case 0xca:
             if (this->get_zero_flag())
                 this->op_JP();
+            else
+                // If we don't perform the OP, pull
+                // data from ram to inc PC
+                this->get_inc_pc_val16();
             break;
         case 0xcb:
             // Set flag for CB
@@ -495,6 +515,10 @@ void CPU::execute_op_code(int op_val) {
         case 0xcc:
             if (this->get_zero_flag())
                 this->op_Call();
+            else
+                // If we don't perform the OP, pull
+                // data from ram to inc PC
+                this->get_inc_pc_val16();
             break;
         case 0xcd:
             this->op_Call();
@@ -508,6 +532,10 @@ void CPU::execute_op_code(int op_val) {
         case 0xd2:
             if (! this->get_carry_flag())
                 this->op_JP();
+            else
+                // If we don't perform the OP, pull
+                // data from ram to inc PC
+                this->get_inc_pc_val16();
             break;
         case 0xd4:
             if (! this->get_carry_flag())
@@ -519,6 +547,10 @@ void CPU::execute_op_code(int op_val) {
         case 0xda:
             if (this->get_carry_flag())
                 this->op_JP();
+            else
+                // If we don't perform the OP, pull
+                // data from ram to inc PC
+                this->get_inc_pc_val16();
             break;
         case 0xdf:
             this->op_RST(0x0018);
@@ -563,6 +595,10 @@ void CPU::execute_op_code(int op_val) {
             std::cout << std::hex << ((int)this->r_pc.value - 1) << "Unknown op code: 0x";
             std::cout << std::setfill('0') << std::setw(2) << std::hex << op_val;
             std::cout << std::endl;
+            if (STOP_ON_BAD_OPCODE) {
+                this->running = false;
+                this->stepped_in = true;
+            }
             break;
     }
 }
@@ -603,6 +639,10 @@ void CPU::execute_cb_code(int op_val) {
             std::cout << "Unknown CB op code: ";
             std::cout << std::hex << op_val;
             std::cout << std::endl;
+            if (STOP_ON_BAD_OPCODE) {
+                this->running = false;
+                this->stepped_in = true;
+            }
             break;
     }
 }
