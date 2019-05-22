@@ -55,5 +55,9 @@ private:
     // @TODO Reduce this to exclude mappings to other
     // periferals.
     uint8_t memory[MAX_MEM_SIZE] = {};
+    uint16_t ROM_SWAP_ADDRESS = (uint16_t)0xff50;
+    unsigned int BOOT_ROM_SIZE = 256;
+    void swap_boot_rom();
+    uint8_t memory_boot_swap[256];
     uint16_t memory_max = MAX_MEM_SIZE;
 };

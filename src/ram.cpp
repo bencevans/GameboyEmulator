@@ -79,7 +79,7 @@ uint16_t RAM::stack_pop(uint16_t &sp_val) {
 void RAM::set(int address, uint8_t val) {
     // If attempting to inc the LCD LY attribute, just
     // reset it
-    if ((unsigned int)address == 0xFF44)
+    if (address == this->LCDC_LY_ADDR)
         this->v_set(address, 0x00);
     else
         this->v_set(address, val);
@@ -90,6 +90,10 @@ void RAM::v_set(int address, uint8_t val) {
         std::cout << std::hex << "Forbidden RAM write: " << (int)val << " at " << (int)address << std::endl;
         std::cin.get();
     }
+
+    if (address == this->ROM_SWAP_ADDRESS && val)
+        this->swap_boot_rom();
+
     if (DEBUG)
         std::cout << std::hex << "Set RAM value (" << address << "): "  << (int)val << std::endl;
     this->memory[address] = val;
@@ -110,7 +114,7 @@ uint8_t RAM::dec(uint16_t address) {
 uint8_t RAM::inc(int address) {
     // If attempting to inc the LCD LY attribute, just
     // reset it
-    if ((unsigned int)address == 0xFF44)
+    if (address == this->LCDC_LY_ADDR)
     {
         this->v_set(address, 0x00);
         return (uint8_t)0x00;
@@ -125,7 +129,7 @@ uint8_t RAM::v_inc(int address) {
 uint8_t RAM::inc(uint16_t address) {
     // If attempting to inc the LCD LY attribute, just
     // reset it
-    if ((unsigned int)address == 0xFF44)
+    if (address == this->LCDC_LY_ADDR)
     {
         this->v_set(address, 0x00);
         return (uint8_t)0x00;
@@ -197,7 +201,9 @@ void RAM::load_rom(char *rom_path) {
             break;
         }
         // Skip first 256 bytes?
-        if (addr > 255)
+        if (addr <= 255)
+            this->memory_boot_swap[addr] = (uint8_t)ch;
+        else
             this->memory[addr] = (uint8_t)ch;
         addr++;
         //std::cout << std::hex << (int)(addr + 255) << " " << (int)ch << " " << (int)this->memory[addr] << std::endl;
@@ -205,4 +211,13 @@ void RAM::load_rom(char *rom_path) {
     if (DEBUG)
         infile.close();
     std::cin.get();
+}
+void RAM::swap_boot_rom() {
+    uint8_t temp;
+    
+    for (unsigned int itx = 0; itx < this->BOOT_ROM_SIZE; itx ++) {
+        temp = this->memory[itx];
+        this->memory[itx] = this->memory_boot_swap[itx];
+        this->memory_boot_swap[itx] = temp;
+    }
 }

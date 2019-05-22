@@ -206,6 +206,9 @@ void CPU::execute_op_code(int op_val) {
             // Load byte into C
             this->op_Load(this->get_inc_pc_val16(), &this->r_sp);
             break;
+        case 0x09:
+            this->op_Add(&this->r_hl, &this->r_bc);
+            break;
         case 0x0a:
             this->op_Load(&this->r_a, this->get_register_value16(&this->r_bc));
             break;
@@ -245,6 +248,9 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x18:
             this->op_JR();
+            break;
+        case 0x19:
+            this->op_Add(&this->r_hl, &this->r_de);
             break;
         case 0x1a:
             this->op_Load(&this->r_a, this->get_register_value16(&this->r_de));
@@ -295,6 +301,9 @@ void CPU::execute_op_code(int op_val) {
                 // If we don't perform the OP, pull
                 // data from ram to inc PC
                 this->get_inc_pc_val8();
+            break;
+        case 0x29:
+            this->op_Add(&this->r_hl, &this->r_hl);
             break;
         case 0x2a:
             this->op_Load_Inc(&this->r_a, &this->r_hl);
@@ -370,6 +379,9 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x57:
             this->op_Load(&this->r_d, &this->r_a);
+            break;
+        case 0x5f:
+            this->op_Load(&this->r_e, &this->r_a);
             break;
         case 0x60:
             this->op_Load(&this->r_h, &this->r_b);
@@ -563,6 +575,12 @@ void CPU::execute_op_code(int op_val) {
         case 0xc5:
             this->op_Push(&this->r_bc);
             break;
+        case 0xc6:
+            this->op_Add(&this->r_a);
+            break;
+        case 0xc7:
+            this->op_RST(0x0000);
+            break;
         case 0xc9:
             this->op_Return();
             break;
@@ -592,6 +610,9 @@ void CPU::execute_op_code(int op_val) {
         case 0xce:
             this->op_Adc(&this->r_a);
             break;
+        case 0xcf:
+            this->op_RST(0x0008);
+            break;
         case 0xd1:
             this->op_Pop(&this->r_de);
             break;
@@ -609,6 +630,9 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0xd5:
             this->op_Push(&this->r_de);
+            break;
+        case 0xd7:
+            this->op_RST(0x0010);
             break;
         case 0xda:
             if (this->get_carry_flag())
@@ -636,8 +660,14 @@ void CPU::execute_op_code(int op_val) {
         case 0xe6:
             this->op_AND();
             break;
+        case 0xe7:
+            this->op_RST(0x0020);
+            break;
         case 0xea:
             this->op_Load(this->get_inc_pc_val16(), &this->r_a);
+            break;
+        case 0xef:
+            this->op_RST(0x0028);
             break;
         case 0xf0:
             this->op_Load(&this->r_a, 0xff00 + this->get_inc_pc_val8());
@@ -652,12 +682,18 @@ void CPU::execute_op_code(int op_val) {
         case 0xf5:
             this->op_Push(&this->r_af);
             break;
+        case 0xf7:
+            this->op_RST(0x0030);
+            break;
         case 0xfb:
             // Enable interupts
             this->op_EI();
             break;
         case 0xfe:
             this->op_CP();
+            break;
+        case 0xff:
+            this->op_RST(0x0028);
             break;
 
         default:
