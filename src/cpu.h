@@ -138,6 +138,7 @@ private:
     void op_Load(reg8 *dest, int source_addr);
 
     void op_Add(reg8 *dest);
+    void op_Add(reg16 *dest);
     void op_Add(reg8 *dest, reg8 *src);
     void op_Add(reg8 *dest, uint16_t src);
     void op_Add(combined_reg *dest, combined_reg *src);

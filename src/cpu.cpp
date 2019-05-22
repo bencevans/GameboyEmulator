@@ -9,7 +9,9 @@
 
 #define DEBUG 0
 #define INTERUPT_DEBUG 1
-#define STEPIN 0
+#define STEPIN 0x100
+#define STEPIN_AFTER 0
+
 //x98
 #define STOP_ON_BAD_OPCODE 1
 #define STOP_BEFORE_ROM 0
@@ -67,9 +69,11 @@ bool CPU::is_running() {
 
 void CPU::tick() {
     this->temp_counter ++;
-    //if (this->temp_counter % 2401 == 0)
-    //    std::cout << "1000 Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;
+    if (this->temp_counter % 2401 == 0)
+        std::cout << "1000 Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;
         //this->running = false;
+    if (STEPIN_AFTER && (! this->stepped_in) && this->temp_counter >= STEPIN_AFTER)
+        this->stepped_in = true;
 
     if (DEBUG || this->stepped_in) {
         if (! this->stepped_in) {
@@ -155,8 +159,8 @@ void CPU::tick() {
 }
 
 void CPU::check_interupts() {
-    // Check VPU V-Blank nterupt
-    if ((this->ram->get_val(this->ram->LCDC_STATUS_ADDR) & (uint8_t)0x11) == (uint8_t)0x11)
+    // Check VPU V-Blank interupt
+    if ((this->ram->get_val(this->ram->LCDC_STATUS_ADDR) & (uint8_t)0x11))
     {    
         if (INTERUPT_DEBUG || DEBUG || this->stepped_in)
             std::cout << std::hex << "Got v-blank interupt at: " << (unsigned int)this->r_pc.value << std::endl;
@@ -165,7 +169,8 @@ void CPU::check_interupts() {
         this->ram->stack_push(this->r_sp.value, this->r_pc.value);
         // Jump to 0x0040
         this->r_pc.value = (uint8_t)0x0040;
-    } else if ((this->ram->get_val(this->ram->LCDC_STATUS_ADDR) & (uint8_t)0x08) == (uint8_t)0x08)
+    }
+    else if ((this->ram->get_val(this->ram->LCDC_STATUS_ADDR) & (uint8_t)0x08))
     {
         if (INTERUPT_DEBUG || DEBUG || this->stepped_in)
             std::cout << std::hex << "Got h-blank interupt at: " << (unsigned int)this->r_pc.value << std::endl;
@@ -753,6 +758,12 @@ void CPU::execute_op_code(int op_val) {
         case 0xe7:
             this->op_RST(0x0020);
             break;
+        case 0xe8:
+            this->op_Add(&this->r_sp);
+            break;
+        case 0xe9:
+            this->op_JP();
+            break;
         case 0xea:
             this->op_Load(this->get_inc_pc_val16(), &this->r_a);
             break;
@@ -1145,7 +1156,12 @@ void CPU::op_Add(combined_reg *dest, uint32_t src) {
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
         (0x01 & this->data_conv32.bit16[1]) >> 0);
-
+}
+void CPU::op_Add(reg16 *dest) {
+    // Get byte from next byte, treat as signed 8-bit value
+    int8_t source = this->get_inc_pc_val8();
+    // Add to value of dest
+    dest->value += source;
 }
 
 
@@ -1354,20 +1370,13 @@ uint16_t CPU::op_Pop() {
 // Jump forward N number instructions
 void CPU::op_JR() {
     // Default to obtaining value from next byte
-    union {
-        uint8_t uint8[2];
-        int8_t int8[2];
-        uint16_t uint16[1];
-        int16_t int16[1];
-    } data;
-    data.int8[0] = (int8_t)this->get_inc_pc_val8();
-    data.uint16[0] += (uint16_t)this->r_pc.value;
-    int jump_by = (int)data.uint8[0] - (int)this->r_pc.value;
+    int8_t jp = this->get_inc_pc_val8();
+
     if (DEBUG || this->stepped_in)
-        std::cout << "Jump from " << std::hex << (int)this->r_pc.value << " by " << (int)jump_by;
+        std::cout << "Jump from " << std::hex << (int)this->r_pc.value << " by " << (int)jp;
     // @TODO Verify that this jumps by the value AFTER the pc increment
     // for this instruction.
-    this->r_pc.value = data.uint8[0];
+    this->r_pc.value += jp;
     //this->r_pc.value --;
     if (DEBUG || this->stepped_in)
         std::cout << " to " << std::hex << (int)this->r_pc.value << std::endl;
