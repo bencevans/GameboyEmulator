@@ -350,8 +350,50 @@ void CPU::execute_op_code(int op_val) {
         case 0x3e:
             this->op_Load(&this->r_a);
             break;
+        case 0x40:
+            this->op_Load(&this->r_b, &this->r_b);
+            break;
+        case 0x41:
+            this->op_Load(&this->r_b, &this->r_c);
+            break;
+        case 0x42:
+            this->op_Load(&this->r_b, &this->r_d);
+            break;
+        case 0x43:
+            this->op_Load(&this->r_b, &this->r_e);
+            break;
+        case 0x44:
+            this->op_Load(&this->r_b, &this->r_h);
+            break;
+        case 0x45:
+            this->op_Load(&this->r_b, &this->r_l);
+            break;
+        case 0x46:
+            this->op_Load(&this->r_b, this->get_register_value16(&this->r_hl));
+            break;
         case 0x47:
             this->op_Load(&this->r_b, &this->r_a);
+            break;
+        case 0x48:
+            this->op_Load(&this->r_c, &this->r_b);
+            break;
+        case 0x49:
+            this->op_Load(&this->r_c, &this->r_c);
+            break;
+        case 0x4a:
+            this->op_Load(&this->r_c, &this->r_d);
+            break;
+        case 0x4b:
+            this->op_Load(&this->r_c, &this->r_e);
+            break;
+        case 0x4c:
+            this->op_Load(&this->r_c, &this->r_h);
+            break;
+        case 0x4d:
+            this->op_Load(&this->r_c, &this->r_l);
+            break;
+        case 0x4e:
+            this->op_Load(&this->r_c, this->get_register_value16(&this->r_hl));
             break;
         case 0x4f:
             this->op_Load(&this->r_c, &this->r_a);
@@ -380,6 +422,27 @@ void CPU::execute_op_code(int op_val) {
         case 0x57:
             this->op_Load(&this->r_d, &this->r_a);
             break;
+        case 0x58:
+            this->op_Load(&this->r_e, &this->r_b);
+            break;
+        case 0x59:
+            this->op_Load(&this->r_e, &this->r_c);
+            break;
+        case 0x5a:
+            this->op_Load(&this->r_e, &this->r_d);
+            break;
+        case 0x5b:
+            this->op_Load(&this->r_e, &this->r_e);
+            break;
+        case 0x5c:
+            this->op_Load(&this->r_e, &this->r_h);
+            break;
+        case 0x5d:
+            this->op_Load(&this->r_e, &this->r_l);
+            break;
+        case 0x5e:
+            this->op_Load(&this->r_e, this->get_register_value16(&this->r_hl));
+            break;
         case 0x5f:
             this->op_Load(&this->r_e, &this->r_a);
             break;
@@ -407,6 +470,27 @@ void CPU::execute_op_code(int op_val) {
         case 0x67:
             this->op_Load(&this->r_h, &this->r_a);
             break;
+        case 0x68:
+            this->op_Load(&this->r_l, &this->r_b);
+            break;
+        case 0x69:
+            this->op_Load(&this->r_l, &this->r_c);
+            break;
+        case 0x6a:
+            this->op_Load(&this->r_l, &this->r_d);
+            break;
+        case 0x6b:
+            this->op_Load(&this->r_l, &this->r_e);
+            break;
+        case 0x6c:
+            this->op_Load(&this->r_l, &this->r_h);
+            break;
+        case 0x6d:
+            this->op_Load(&this->r_l, &this->r_l);
+            break;
+        case 0x6e:
+            this->op_Load(&this->r_l, this->get_register_value16(&this->r_hl));
+            break;
         case 0x70:
             this->op_Load(this->get_register_value16(&this->r_hl), &this->r_b);
             break;
@@ -418,6 +502,12 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0x73:
             this->op_Load(this->get_register_value16(&this->r_hl), &this->r_e);
+            break;
+        case 0x74:
+            this->op_Load(this->get_register_value16(&this->r_hl), &this->r_h);
+            break;
+        case 0x75:
+            this->op_Load(this->get_register_value16(&this->r_hl), &this->r_l);
             break;
         case 0x76:
             this->op_Halt();
