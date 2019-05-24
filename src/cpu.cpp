@@ -2,14 +2,14 @@
 
 // Used for printing hex
 #include "helper.h"
-#include  <iomanip>
+#include <iomanip>
 
 #include <iostream>
 #include <string.h>
 
 #define DEBUG 0
 #define INTERUPT_DEBUG 1
-#define STEPIN 0x100
+#define STEPIN 0
 #define STEPIN_AFTER 0
 
 //x98
@@ -77,21 +77,7 @@ void CPU::tick() {
 
     if (DEBUG || this->stepped_in) {
         if (! this->stepped_in) {
-            std::cout << std::hex <<
-            "a : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_a.value << std::endl <<
-            " f: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_f.value << std::endl <<
-            "af: " << std::setfill('0') << std::setw(4) << this->r_af.value() << std::endl <<
-            "b : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_b.value << std::endl <<
-            " c: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_c.value << std::endl <<
-            "bc: " << std::setfill('0') << std::setw(4) << this->r_bc.value() << std::endl <<
-            "d : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_d.value << std::endl <<
-            " e: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_e.value << std::endl <<
-            "de: " << std::setfill('0') << std::setw(4) << this->r_de.value() << std::endl <<
-            "h : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_h.value << std::endl <<
-            " l: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_l.value << std::endl <<
-            "hl: " << std::setfill('0') << std::setw(4) << this->r_hl.value() << std::endl <<
-            "sp: " << std::setfill('0') << std::setw(4) << this->r_sp.value << std::endl <<
-            "pc: " << std::setfill('0') << std::setw(4) << this->r_pc.value << std::endl;
+            this->print_state_m();
         }
         std::cout << std::endl << std::endl << "New Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;    
     }
@@ -139,23 +125,27 @@ void CPU::tick() {
     }
     
     if (this->stepped_in) {
-        std::cout << std::hex <<
-            "a : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_a.value << std::endl <<
-            " f: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_f.value << std::endl <<
-            "af: " << std::setfill('0') << std::setw(4) << this->r_af.value() << std::endl <<
-            "b : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_b.value << std::endl <<
-            " c: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_c.value << std::endl <<
-            "bc: " << std::setfill('0') << std::setw(4) << this->r_bc.value() << std::endl <<
-            "d : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_d.value << std::endl <<
-            " e: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_e.value << std::endl <<
-            "de: " << std::setfill('0') << std::setw(4) << this->r_de.value() << std::endl <<
-            "h : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_h.value << std::endl <<
-            " l: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_l.value << std::endl <<
-            "hl: " << std::setfill('0') << std::setw(4) << this->r_hl.value() << std::endl <<
-            "sp: " << std::setfill('0') << std::setw(4) << this->r_sp.value << std::endl <<
-            "pc: " << std::setfill('0') << std::setw(4) << this->r_pc.value << std::endl;
+        this->print_state_m();
         std::cin.get();
     }
+}
+
+void CPU::print_state_m() {
+    std::cout << std::hex <<
+        "a : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_a.value << std::endl <<
+        " f: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_f.value << std::endl <<
+        "af: " << std::setfill('0') << std::setw(4) << this->r_af.value() << std::endl <<
+        "b : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_b.value << std::endl <<
+        " c: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_c.value << std::endl <<
+        "bc: " << std::setfill('0') << std::setw(4) << this->r_bc.value() << std::endl <<
+        "d : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_d.value << std::endl <<
+        " e: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_e.value << std::endl <<
+        "de: " << std::setfill('0') << std::setw(4) << this->r_de.value() << std::endl <<
+        "h : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_h.value << std::endl <<
+        " l: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_l.value << std::endl <<
+        "hl: " << std::setfill('0') << std::setw(4) << this->r_hl.value() << std::endl <<
+        "sp: " << std::setfill('0') << std::setw(4) << this->r_sp.value << std::endl <<
+        "pc: " << std::setfill('0') << std::setw(4) << this->r_pc.value << std::endl;
 }
 
 void CPU::check_interupts() {
@@ -332,6 +322,9 @@ void CPU::execute_op_code(int op_val) {
         case 0x32:
             // Get HL, dec and set
             this->op_Load_Dec(&this->r_hl, &this->r_a);
+            break;
+        case 0x36:
+            this->op_Load(this->get_register_value16(&this->r_hl));
             break;
         case 0x37:
             this->op_SCF();
@@ -619,6 +612,24 @@ void CPU::execute_op_code(int op_val) {
         case 0xa7:
             this->op_AND(&this->r_a);
             break;
+        case 0x98:
+            this->op_SBC(&this->r_a, &this->r_a);
+            break;
+        case 0x99:
+            this->op_SBC(&this->r_a, &this->r_b);
+            break;
+        case 0x9a:
+            this->op_SBC(&this->r_a, &this->r_c);
+            break;
+        case 0x9b:
+            this->op_SBC(&this->r_a, &this->r_d);
+            break;
+        case 0x9c:
+            this->op_SBC(&this->r_a, &this->r_h);
+            break;
+        case 0x9d:
+            this->op_SBC(&this->r_a, &this->r_l);
+            break;
         case 0xaf:
             // X-OR A with A into A
             this->op_XOR(&this->r_a);
@@ -653,6 +664,10 @@ void CPU::execute_op_code(int op_val) {
         case 0xbe:
             this->op_CP(this->ram->get_val(this->r_hl.value()));
             break;
+        case 0xc0:
+            if (! this->get_zero_flag())
+                this->op_Return();
+            break;
         case 0xc1:
             this->op_Pop(&this->r_bc);
             break;
@@ -675,6 +690,10 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0xc7:
             this->op_RST(0x0000);
+            break;
+        case 0xc8:
+            if (this->get_zero_flag())
+                this->op_Return();
             break;
         case 0xc9:
             this->op_Return();
@@ -708,6 +727,10 @@ void CPU::execute_op_code(int op_val) {
         case 0xcf:
             this->op_RST(0x0008);
             break;
+        case 0xd0:
+            if (! this->get_carry_flag())
+                this->op_Return();
+            break;
         case 0xd1:
             this->op_Pop(&this->r_de);
             break;
@@ -728,6 +751,10 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0xd7:
             this->op_RST(0x0010);
+            break;
+        case 0xd8:
+            if (this->get_carry_flag())
+                this->op_Return();
             break;
         case 0xda:
             if (this->get_carry_flag())
@@ -785,6 +812,9 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0xf7:
             this->op_RST(0x0030);
+            break;
+        case 0xfa:
+            this->op_Load(&this->r_a, this->get_inc_pc_val16());
             break;
         case 0xfb:
             // Enable interupts
@@ -1079,6 +1109,11 @@ void CPU::op_Adc(reg8 *dest, uint8_t source) {
 void CPU::op_Load(reg8 *dest) {
     dest->value = this->get_inc_pc_val8();
 }
+// Load next byte into provided address
+void CPU::op_Load(uint16_t dest) {
+    uint8_t val = this->get_inc_pc_val8();
+    this->op_Load(dest, val);
+}
 void CPU::op_Load(combined_reg *dest) {
     dest->lower->value = this->get_inc_pc_val8();
     dest->upper->value = this->get_inc_pc_val8();
@@ -1095,7 +1130,14 @@ void CPU::op_Load(reg8 *dest, reg8 *source) {
 }
 // Copy register value into destination address of memory
 void CPU::op_Load(int dest_addr, reg8 *source) {
-    this->ram->set(dest_addr, source->value);
+    this->op_Load(dest_addr, source->value);
+}
+void CPU::op_Load(int dest_addr, uint8_t val) {
+    this->ram->set(dest_addr, val);
+}
+void CPU::op_Load(reg8 *dest, uint16_t source_addr) {
+    int source_addr_i = source_addr;
+    this->op_Load(dest, source_addr_i);
 }
 // Copy data from source memory address to destination
 void CPU::op_Load(reg8 *dest, int source_addr) {
@@ -1164,7 +1206,6 @@ void CPU::op_Add(reg16 *dest) {
     dest->value += source;
 }
 
-
 void CPU::op_Sub(reg8 *dest) {
     uint16_t source = this->get_inc_pc_val8();
     this->op_Sub(dest, source);
@@ -1191,6 +1232,12 @@ void CPU::op_Sub(reg8 *dest, uint16_t src) {
         &this->r_f, this->CARRY_FLAG_BIT,
         (0x01 & this->data_conv.bit8[1]) >> 0);
 
+}
+
+void CPU::op_SBC(reg8 *dest, reg8 *src)
+{
+    // Subtract src plus carry flag
+    this->op_Sub(dest, (uint16_t)(src->value + (uint8_t)this->get_carry_flag()));
 }
 
 void CPU::op_Sub(combined_reg *dest, combined_reg *src) {

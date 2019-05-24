@@ -21,6 +21,8 @@ iostream
 -
 string
 -
+signal.h
+-
 helper.h
 /home/matthew/w/g/gameboy-emulator/src/helper.h
 ram.h
@@ -62,6 +64,8 @@ iostream
 fstream
 -
 cstring
+-
+signal.h
 -
 helper.h
 /home/matthew/w/g/gameboy-emulator/src/helper.h

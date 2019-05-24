@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <signal.h>
 #include "helper.h"
 #include "ram.h"
 #include "./vpu.h"
@@ -33,6 +34,10 @@ arguments_t get_arguments(int argc, char* args[]) {
     return arguments;
 }
 
+//void handle_error() {
+//    CPU::print_state();
+//};
+
 int main(int argc, char* args[])
 {
     //arguments_t arguments = get_arguments(argc, args);
@@ -55,6 +60,11 @@ int main(int argc, char* args[])
 
     VPU *vpu_inst = new VPU(ram_inst);
     CPU *cpu_inst = new CPU(ram_inst, vpu_inst);
+
+    // Setup handler for exception
+    //void (*prev_handler)(int);
+    //prev_handler =
+    //signal(SIGSEGV, CPU::print_state);
 
     // run the program as long as the window is open
     while (cpu_inst->is_running())

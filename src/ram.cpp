@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <signal.h>
 
 #include "helper.h"
 #include "ram.h"
@@ -85,11 +86,12 @@ void RAM::set(int address, uint8_t val) {
         this->v_set(address, val);
 }
 void RAM::v_set(int address, uint8_t val) {
-    if (address < 0x8000) {
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-        std::cout << std::hex << "Forbidden RAM write: " << (int)val << " at " << (int)address << std::endl;
-        std::cin.get();
-    }
+    //if (address < 0x8000) {
+    //    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    //    std::cout << std::hex << "Forbidden RAM write: " << (int)val << " at " << (int)address << std::endl;
+    //    std::cin.get();
+        //raise(SIGSEGV);
+    //}
 
     if (address == this->ROM_SWAP_ADDRESS && val)
         this->swap_boot_rom();

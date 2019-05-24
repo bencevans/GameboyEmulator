@@ -48,9 +48,10 @@ class CPU {
 
 public:
     CPU(RAM *ram, VPU *vpu_inst);
+
     void tick();
     bool is_running();
-
+    //void print_state();
 private:
     enum INTERUPT_STATE {
         DISABLED,
@@ -63,7 +64,7 @@ private:
     bool cb_state;
     bool stepped_in;
     
-    
+
     union {
         uint8_t bit8[2];
         uint16_t bit16[1];
@@ -116,6 +117,8 @@ private:
     void set_register_bit(reg8 *source, uint8_t bit_shift, unsigned int val);
     unsigned int get_register_bit(reg8 *source, unsigned int bit_shift);
     
+    void print_state_m();
+    
     void execute_op_code(int op_val);
     void execute_cb_code(int op_val);
     
@@ -131,11 +134,14 @@ private:
 
     void op_Load(reg8 *dest);
     void op_Load(reg16 *dest);
+    void op_Load(uint16_t dest);
     void op_Load(uint16_t dest_addr, reg16 *source);
     void op_Load(reg8 *dest, reg8 *source);
     void op_Load(combined_reg *dest);
     void op_Load(int dest_addr, reg8 *source);
+    void op_Load(int dest_addr, uint8_t val);
     void op_Load(reg8 *dest, int source_addr);
+    void op_Load(reg8 *dest, uint16_t source_addr);
 
     void op_Add(reg8 *dest);
     void op_Add(reg16 *dest);
@@ -150,6 +156,7 @@ private:
     void op_Sub(combined_reg *dest, combined_reg *src);
     void op_Sub(combined_reg *dest, reg16 *src);
     void op_Sub(combined_reg *dest, uint32_t src);
+    void op_SBC(reg8 *dest, reg8 *src);
     
     void op_Inc(reg8 *dest);
     void op_Inc(combined_reg *dest);
