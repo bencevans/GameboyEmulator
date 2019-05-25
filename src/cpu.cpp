@@ -9,8 +9,15 @@
 
 #define DEBUG 0
 #define INTERUPT_DEBUG 1
+//#define STEPIN 0x0101
+//#define STEPIN 0x07f2
 #define STEPIN 0
-#define STEPIN_AFTER 0
+#define DEBUG_POINT 0
+// 0x9c9d19
+//#define STEPIN_AFTER 0x9c9bca
+
+//#define STEPIN_AFTER 0x2ca380
+#define STEPIN_AFTER 0x2ca370
 #define DEBUG_EVERY 1
 
 //x98
@@ -90,11 +97,11 @@ void CPU::tick() {
             this->print_state_m();
         }
         std::cout << std::endl << std::endl << "New Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;    
-    }
+    } else if (DEBUG_POINT && this->r_pc.value == DEBUG_POINT)
+        this->print_state_m();
     // If interupt state is either enabled or pending disable,
     // check interupts
-    if (this->interupt_state == this->INTERUPT_STATE::ENABLED ||
-        this->interupt_state == this->INTERUPT_STATE::PENDING_DISABLE)
+    if (this->interupt_state == this->INTERUPT_STATE::ENABLED)
         this->check_interupts();
     
     // Check if interupt state is in a pending state
@@ -142,6 +149,7 @@ void CPU::tick() {
 
 void CPU::print_state_m() {
     std::cout << std::hex <<
+        "CPU Count: " << this->temp_counter << std::endl <<
         "a : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_a.value << std::endl <<
         " f: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_f.value << std::endl <<
         "af: " << std::setfill('0') << std::setw(4) << this->r_af.value() << std::endl <<

@@ -82,11 +82,14 @@ int main(int argc, char* args[])
     //signal(SIGSEGV, CPU::print_state);
 
     // run the program as long as the window is open
+    bool to_vpu_tick = true;
     while (cpu_inst->is_running())
     {
         cpu_inst->tick();
         if (! DISABLE_VPU) {
-            vpu_inst->tick();
+            if (to_vpu_tick)
+                vpu_inst->tick();
+            to_vpu_tick = ! to_vpu_tick;
             //vpu_inst->tick();
             //vpu_inst->tick();
             //vpu_inst->tick();
