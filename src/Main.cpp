@@ -38,6 +38,18 @@ arguments_t get_arguments(int argc, char* args[]) {
 //    CPU::print_state();
 //};
 
+//class StaticState {
+//public:
+//    StaticState(CPU cpu_inst_);
+//    static CPU get_inst();
+//};
+//StaticState::StaticState(CPU cpu_inst_) {
+//    static CPU StaticState::cpu_inst = cpu_inst_;
+//}
+//CPU StaticState::get_inst() {
+//    return StaticState::cpu_inst;
+//}
+
 int main(int argc, char* args[])
 {
     //arguments_t arguments = get_arguments(argc, args);
@@ -60,6 +72,8 @@ int main(int argc, char* args[])
 
     VPU *vpu_inst = new VPU(ram_inst);
     CPU *cpu_inst = new CPU(ram_inst, vpu_inst);
+    //CPU cpu_inst = *cpu_inst_ptr;
+    //StaticState::cpu_inst = cpu_inst;
 
     // Setup handler for exception
     //void (*prev_handler)(int);

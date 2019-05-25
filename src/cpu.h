@@ -48,6 +48,7 @@ class CPU {
 
 public:
     CPU(RAM *ram, VPU *vpu_inst);
+    virtual ~CPU() {};
 
     void tick();
     bool is_running();

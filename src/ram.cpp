@@ -86,7 +86,7 @@ void RAM::set(int address, uint8_t val) {
         this->v_set(address, val);
 }
 void RAM::v_set(int address, uint8_t val) {
-    //if (address < 0x8000) {
+    //if (address < 0xa000) {
     //    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     //    std::cout << std::hex << "Forbidden RAM write: " << (int)val << " at " << (int)address << std::endl;
     //    std::cin.get();
