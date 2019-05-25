@@ -151,13 +151,11 @@ private:
     void op_Add(combined_reg *dest, combined_reg *src);
     void op_Add(combined_reg *dest, reg16 *src);
     void op_Add(combined_reg *dest, uint32_t src);
-    void op_Sub(reg8 *dest);
-    void op_Sub(reg8 *dest, reg8 *src);
-    void op_Sub(reg8 *dest, uint16_t src);
-    void op_Sub(combined_reg *dest, combined_reg *src);
-    void op_Sub(combined_reg *dest, reg16 *src);
-    void op_Sub(combined_reg *dest, uint32_t src);
-    void op_SBC(reg8 *dest, reg8 *src);
+    void op_Sub();
+    void op_Sub(reg8 *src);
+    void op_Sub(uint16_t src);
+    void op_SBC(reg8 *src);
+    void op_SBC(uint8_t src);
     
     void op_Inc(reg8 *dest);
     void op_Inc(combined_reg *dest);
@@ -171,7 +169,13 @@ private:
 
     void op_SCF();
     void op_Swap(reg8 *dest);
+    void op_Swap(uint16_t mem_addr);
+    void op_SRL(reg8 *src);
+    void op_SRL(uint16_t mem_addr);
     void op_RL(reg8 *src);
+    void op_RL(uint16_t mem_addr);
+    void op_RR(reg8 *src);
+    void op_RR(uint16_t mem_addr);
 
     void op_Call();
     void op_Return();
@@ -188,6 +192,8 @@ private:
     uint16_t op_Pop();
 
     void op_XOR(reg8 *comp);
+    void op_XOR(uint16_t mem_addr);
+    void op_XOR(uint8_t val);
 
     void op_AND();    
     void op_AND(reg8 *comp);
