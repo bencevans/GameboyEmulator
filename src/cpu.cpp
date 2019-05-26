@@ -1641,7 +1641,7 @@ void CPU::op_SRL(uint16_t mem_addr)
     uint8_t val = this->ram->get_val(mem_addr);
     uint8_t carry_bit = val & (0x01);
     // Shift bits right and force MSB to 0
-    val = ((val > 1) & (uint16_t)0x7F);
+    val = ((val >> 1) & (uint8_t)0x7F);
     
     // Push new value back into memory
     this->ram->set(mem_addr, val);
@@ -1661,7 +1661,7 @@ void CPU::op_SRL(reg8 *src)
     uint8_t carry_bit = src->value & (0x01);
 
     // Shift bits right and force MSB to 0
-    src->value = ((src->value > 1) & (uint16_t)0x7F);
+    src->value = ((src->value >> 1) & (uint8_t)0x7F);
     
     // Put pushed bit into carry flag
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, carry_bit);
