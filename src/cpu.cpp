@@ -11,15 +11,18 @@
 #define INTERUPT_DEBUG 1
 //#define STEPIN 0x0101
 //#define STEPIN 0x07f2
-#define STEPIN 0
-#define DEBUG_POINT 0
+#define STEPIN 0x0271 //0x029d
+#define DEBUG_POINT 0 //0x26c
 // 0x9c9d19
 //#define STEPIN_AFTER 0x9c9bca
 
+#define STEPIN_AFTER 0 //0x2ca380
 //#define STEPIN_AFTER 0x2ca380
-#define STEPIN_AFTER 0x2ca370
+//#define STEPIN_AFTER 0x2ca370
 #define DEBUG_EVERY 1
 
+
+// Look for FFC3 set to 7f
 //x98
 #define STOP_ON_BAD_OPCODE 1
 #define STOP_BEFORE_ROM 0
@@ -153,14 +156,14 @@ void CPU::print_state_m() {
         "a : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_a.value << std::endl <<
         " f: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_f.value << std::endl <<
         "af: " << std::setfill('0') << std::setw(4) << this->r_af.value() << std::endl <<
-        "b : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_b.value << std::endl <<
-        " c: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_c.value << std::endl <<
+        //"b : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_b.value << std::endl <<
+        //" c: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_c.value << std::endl <<
         "bc: " << std::setfill('0') << std::setw(4) << this->r_bc.value() << std::endl <<
-        "d : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_d.value << std::endl <<
-        " e: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_e.value << std::endl <<
+        //"d : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_d.value << std::endl <<
+        //" e: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_e.value << std::endl <<
         "de: " << std::setfill('0') << std::setw(4) << this->r_de.value() << std::endl <<
-        "h : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_h.value << std::endl <<
-        " l: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_l.value << std::endl <<
+        //"h : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_h.value << std::endl <<
+        //" l: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_l.value << std::endl <<
         "hl: " << std::setfill('0') << std::setw(4) << this->r_hl.value() << std::endl <<
         "sp: " << std::setfill('0') << std::setw(4) << this->r_sp.value << std::endl <<
         "pc: " << std::setfill('0') << std::setw(4) << this->r_pc.value << std::endl;
