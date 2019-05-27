@@ -319,14 +319,14 @@ void TestRunner::test_RL(reg8 *reg, uint8_t op_code)
     // Test RL
     this->cpu_inst->r_pc.value = 0x0000;
     this->cpu_inst->r_f.value = 0xf0;
-    reg->value = 0xd6;
+    reg->value = 0xad;
     this->ram_inst->memory[0x0000] = 0xcb;
     this->ram_inst->memory[0x0001] = op_code;
     this->cpu_inst->tick(); // Enable cb-mode
     this->cpu_inst->tick(); // Perform RLC
 
     // Assert value at b
-    this->assert_equal(reg->value, 0xad);
+    this->assert_equal(reg->value, 0x5b);
 
     // Ensure carry flag is set to 1 (the value that was moved
     // left
@@ -339,9 +339,9 @@ void TestRunner::test_RL(reg8 *reg, uint8_t op_code)
     this->ram_inst->memory[0x0002] = 0xcb;
     this->ram_inst->memory[0x0003] = op_code;
     this->cpu_inst->tick(); // Enable cb-mode
-    this->cpu_inst->tick(); // Perform RLC
+    this->cpu_inst->tick(); // Perform RL
 
-    this->assert_equal(reg->value, 0x5b);
+    this->assert_equal(reg->value, 0xb7);
 
     // Ensure carry flag is set to 0 (the value that was moved
     // left
@@ -355,9 +355,9 @@ void TestRunner::test_RL(reg8 *reg, uint8_t op_code)
     this->ram_inst->memory[0x0004] = 0xcb;
     this->ram_inst->memory[0x0005] = op_code;
     this->cpu_inst->tick(); // Enable cb-mode
-    this->cpu_inst->tick(); // Perform RLC
+    this->cpu_inst->tick(); // Perform RL
 
-    this->assert_equal(reg->value, 0x01);
+    this->assert_equal(reg->value, 0x00);
 
     // Ensure carry flag is set to 0 (the value that was moved
     // left

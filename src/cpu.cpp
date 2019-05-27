@@ -1207,7 +1207,7 @@ unsigned int CPU::get_register_bit(reg8 *source, unsigned int bit_shift) {
 
 // Set zero flag, based on the value of a given register
 void CPU::set_zero_flag(const uint8_t val) {
-    this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, ((val == (uint8_t)0x0) ? 1U : 0U));
+    this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, ((val == (uint8_t)0x00) ? 1U : 0U));
 }
 
 uint8_t CPU::get_zero_flag() {
@@ -1701,9 +1701,10 @@ void CPU::op_SRL(reg8 *src)
 
 void CPU::op_RL(reg8 *src) {
     // Shift old value left 1 bit into a 16-bit register
+    this->data_conv.bit16[0] = 0x0000;
     this->data_conv.bit16[0] = ((uint16_t)src->value << 1) | (this->get_carry_flag() & 0x01);
     src->value = this->data_conv.bit8[0];
-    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (unsigned int)(this->data_conv.bit8[1] & 0x01));
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (this->data_conv.bit8[1] & 0x01));
     // If not RLA, set zero flag
     if (this->cb_state)
         this->set_zero_flag(src->value);
