@@ -10,18 +10,12 @@ class RAM {
 public:
     RAM();
     uint8_t get_val(uint16_t address);
-    uint8_t get_val(int address);
     uint8_t* get_ref(uint16_t a);
     void set(uint16_t address, uint8_t val);
-    void set(int address, uint8_t val);
     void v_set(uint16_t address, uint8_t val);
-    void v_set(int address, uint8_t val);
     uint8_t dec(uint16_t address);
-    uint8_t dec(int address);
     uint8_t inc(uint16_t address);
-    uint8_t inc(int address);
     uint8_t v_inc(uint16_t address);
-    uint8_t v_inc(int address);
     void stack_push(uint16_t &sp_val, uint8_t pc_val);
     void stack_push(uint16_t &sp_val, uint16_t pc_val);
     uint8_t stack_pop8(uint16_t &sp_val);

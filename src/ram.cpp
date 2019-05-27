@@ -15,28 +15,24 @@ RAM::RAM() {
         this->memory[me] = 0;
 }
 
-uint8_t RAM::get_val(int address) {
+uint8_t RAM::get_val(uint16_t address) {
     uint8_t val;
     memcpy(&val, &this->memory[address], 1);
     if (DEBUG)
         std::cout << std::hex << "Got from RAM (" << address << "): "  << (int)val << std::endl;
     return this->memory[address];
 }
-uint8_t RAM::get_val(uint16_t address) {
-    return this->get_val((int)address);
-}
 
 uint8_t* RAM::get_ref(uint16_t address) {
-    int addr = (int)address;
     uint8_t *mem_ptr = this->memory;
-    return mem_ptr + addr;
+    return mem_ptr + address;
 }
 void RAM::stack_push(uint16_t &sp_val, uint8_t pc_val) {
     // Decrease SP value, then store pc_val into the memory location
     // of sp
     sp_val --;
     if (DEBUG)
-        std::cout << "pushing to stack: " << std::hex << (int)pc_val << " at " << (int)sp_val << std::endl;
+        std::cout << "pushing to stack: " << std::hex << (unsigned int)pc_val << " at " << (int)sp_val << std::endl;
     this->set(sp_val, pc_val);
 }
 void RAM::stack_push(uint16_t &sp_val, uint16_t pc_val) {
@@ -60,7 +56,7 @@ uint8_t RAM::stack_pop8(uint16_t &sp_val) {
     // Obtain value from stack and decrease SP value,
     uint8_t dest = this->get_val(sp_val);
     if (DEBUG)
-        std::cout << "got: " << std::hex << (int)dest << " from " << (int)sp_val << std::endl;
+        std::cout << "got: " << std::hex << dest << " from " << (int)sp_val << std::endl;
     sp_val ++;
     return dest;
 }
@@ -72,11 +68,11 @@ uint16_t RAM::stack_pop(uint16_t &sp_val) {
     data_conv.bit8[0] = this->stack_pop8(sp_val);
     data_conv.bit8[1] = this->stack_pop8(sp_val);
     if (DEBUG)
-        std::cout << "Returning to: " << std::hex << (int)data_conv.bit16[0] << std::endl;
+        std::cout << "Returning to: " << std::hex << (unsigned int)data_conv.bit16[0] << std::endl;
     return data_conv.bit16[0];
 }
 
-void RAM::set(int address, uint8_t val) {
+void RAM::set(uint16_t address, uint8_t val) {
     // If attempting to inc the LCD LY attribute, just
     // reset it
     if (address == this->LCDC_LY_ADDR)
@@ -84,7 +80,7 @@ void RAM::set(int address, uint8_t val) {
     else
         this->v_set(address, val);
 }
-void RAM::v_set(int address, uint8_t val) {
+void RAM::v_set(uint16_t address, uint8_t val) {
     if (address < 0x4000) {
         std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
         std::cout << std::hex << "Forbidden RAM write: " << (int)val << " at " << (int)address << std::endl;
@@ -99,32 +95,8 @@ void RAM::v_set(int address, uint8_t val) {
         std::cout << std::hex << "Set RAM value (" << address << "): "  << (int)val << std::endl;
     this->memory[address] = val;
 }
-void RAM::set(uint16_t address, uint8_t val) {
-    this->set((int)address, val);
-}
-void RAM::v_set(uint16_t address, uint8_t val) {
-    this->v_set((int)address, val);
-}
-uint8_t RAM::dec(int address) {
-    this->memory[address] --;
-    return this->memory[address];
-}
 uint8_t RAM::dec(uint16_t address) {
-    return this->dec((int)address);
-}
-uint8_t RAM::inc(int address) {
-    // If attempting to inc the LCD LY attribute, just
-    // reset it
-    if (address == this->LCDC_LY_ADDR)
-    {
-        this->v_set(address, 0x00);
-        return (uint8_t)0x00;
-    }
-    else
-        return this->v_inc(address);
-}
-uint8_t RAM::v_inc(int address) {
-    this->memory[address] ++;
+    this->memory[address] --;
     return this->memory[address];
 }
 uint8_t RAM::inc(uint16_t address) {
@@ -136,11 +108,13 @@ uint8_t RAM::inc(uint16_t address) {
         return (uint8_t)0x00;
     }
     else
-        return this->inc((int)address);
+        return this->v_inc(address);
 }
 uint8_t RAM::v_inc(uint16_t address) {
-    return this->v_inc((int)address);
+    this->memory[address] ++;
+    return this->memory[address];
 }
+
 
 unsigned int RAM::get_ram_bit(uint16_t address, unsigned int bit_shift) {
     return ((this->get_val(address) & (1U  << bit_shift)) >> bit_shift);

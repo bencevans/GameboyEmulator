@@ -910,7 +910,7 @@ void CPU::execute_op_code(int op_val) {
             this->op_RST(0x0028);
             break;
         case 0xf0:
-            this->op_Load(&this->r_a, 0xff00 + this->get_inc_pc_val8());
+            this->op_Load(&this->r_a, (unsigned int)(0xff00 + this->get_inc_pc_val8()));
             break;
         case 0xf1:
             this->op_Pop(&this->r_af);
@@ -1376,21 +1376,21 @@ void CPU::op_Load(reg16 *dest) {
     
 }
 void CPU::op_Load(uint16_t dest_addr, reg16 *source) {
-    this->ram->set((int)dest_addr, source->value);
+    this->ram->set((unsigned int)dest_addr, source->value);
 }
 // Copy 1 byte between registers
 void CPU::op_Load(reg8 *dest, reg8 *source) {
     mempcpy(&dest->value, &source->value, 1);
 }
 // Copy register value into destination address of memory
-void CPU::op_Load(int dest_addr, reg8 *source) {
+void CPU::op_Load(unsigned int dest_addr, reg8 *source) {
     this->op_Load(dest_addr, source->value);
 }
-void CPU::op_Load(int dest_addr, uint8_t val) {
+void CPU::op_Load(unsigned int dest_addr, uint8_t val) {
     this->ram->set(dest_addr, val);
 }
 void CPU::op_Load(reg8 *dest, uint16_t source_addr) {
-    int source_addr_i = source_addr;
+    unsigned int source_addr_i = source_addr;
     this->op_Load(dest, source_addr_i);
 }
 void CPU::op_Load(combined_reg *dest, uint16_t val) {
@@ -1398,7 +1398,7 @@ void CPU::op_Load(combined_reg *dest, uint16_t val) {
 }
 
 // Copy data from source memory address to destination
-void CPU::op_Load(reg8 *dest, int source_addr) {
+void CPU::op_Load(reg8 *dest, unsigned int source_addr) {
     dest->value = this->ram->get_val(source_addr);
 }
 

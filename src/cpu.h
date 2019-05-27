@@ -141,9 +141,9 @@ protected:
     void op_Load(reg8 *dest, reg8 *source);
     void op_Load(combined_reg *dest);
     void op_Load(combined_reg *dest, uint16_t val);
-    void op_Load(int dest_addr, reg8 *source);
-    void op_Load(int dest_addr, uint8_t val);
-    void op_Load(reg8 *dest, int source_addr);
+    void op_Load(unsigned int dest_addr, reg8 *source);
+    void op_Load(unsigned dest_addr, uint8_t val);
+    void op_Load(reg8 *dest, unsigned source_addr);
     void op_Load(reg8 *dest, uint16_t source_addr);
 
     void op_Add(reg8 *dest);
