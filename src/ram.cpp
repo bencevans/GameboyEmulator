@@ -75,9 +75,9 @@ uint16_t RAM::stack_pop(uint16_t &sp_val) {
 void RAM::set(uint16_t address, uint8_t val) {
     // If attempting to inc the LCD LY attribute, just
     // reset it
-    if (address == this->LCDC_LY_ADDR)
-        this->v_set(address, 0x00);
-    else
+    //if (address == this->LCDC_LY_ADDR)
+    //    this->v_set(address, 0x00);
+    //else
         this->v_set(address, val);
 }
 void RAM::v_set(uint16_t address, uint8_t val) {
@@ -102,12 +102,12 @@ uint8_t RAM::dec(uint16_t address) {
 uint8_t RAM::inc(uint16_t address) {
     // If attempting to inc the LCD LY attribute, just
     // reset it
-    if (address == this->LCDC_LY_ADDR)
-    {
-        this->v_set(address, 0x00);
-        return (uint8_t)0x00;
-    }
-    else
+    //if (address == this->LCDC_LY_ADDR)
+    //{
+        //this->v_set(address, 0x00);
+        //return (uint8_t)0x00;
+    //}
+    //else
         return this->v_inc(address);
 }
 uint8_t RAM::v_inc(uint16_t address) {

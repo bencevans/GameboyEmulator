@@ -18,6 +18,7 @@ public:
     void test_02();
     void test_03();
     void test_04();
+    void test_cb_00();
 
     bool assert(bool outcome)
     {

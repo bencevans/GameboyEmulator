@@ -18,6 +18,8 @@ void TestRunner::run_tests()
     this->test_02();
     this->test_03();
     this->test_04();
+    
+    this->test_cb_00();
     std::cout << std::endl << "Completed tests" << std::endl;
 
 }
@@ -199,4 +201,33 @@ void TestRunner::test_04()
 
     // Ensure flags haven't changed
     assert_equal(this->cpu_inst->r_f.value, 0xa0);
+}
+
+
+
+
+
+// CB TESTS
+void TestRunner::test_cb_00()
+{
+    std::cout << "0x103";
+
+    // Test standard increment
+    this->cpu_inst->r_pc.value = 0x0000;
+    this->cpu_inst->r_f.value = 0xf0;
+    this->cpu_inst->r_b.value = 0xaf;
+    this->ram_inst->memory[0x0000] = 0xcb;
+    this->ram_inst->memory[0x0001] = 0x00;
+    this->cpu_inst->tick(); // Enable cb-mode
+    this->cpu_inst->tick(); // Perform RLC
+
+    // Assert that registers were unchanged
+    this->assert_equal(this->cpu_inst->r_b.value, 0xdf);
+
+    // Ensure carry flag is set to 1 (the value that was moved
+    // left
+    this->assert_equal(this->cpu_inst->r_f.value, 0x80);
+
+    // Ensure that SP has moved on
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x0002);
 }

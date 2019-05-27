@@ -11,13 +11,15 @@
 #define INTERUPT_DEBUG 1
 //#define STEPIN 0x0101
 //#define STEPIN 0x07f2
-#define STEPIN 0 //0x06ef //0x0271 //0x029d
-#define DEBUG_POINT 0x086e //0x086f//0x02bd//0x0291 //0x26c
+#define STEPIN 0//x0217//x075b
+//#define STEPIN 0 //0x06ef //0x0271 //0x029d
+#define DEBUG_POINT 0//x0870
+//0x086e //0x086f//0x02bd//0x0291 //0x26c
 // 0x9c9d19
 //#define STEPIN_AFTER 0x9c9bca
 
 // AF should be 10a0 PC: 086e
-#define STEPIN_AFTER 0//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
+#define STEPIN_AFTER 0//x2C3D70//2c2c85//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
 //#define STEPIN_AFTER 0x2ca380
 //#define STEPIN_AFTER 0x2ca370
 #define DEBUG_EVERY 1
@@ -163,8 +165,8 @@ void CPU::tick() {
 void CPU::print_state_m() {
     std::cout << std::hex <<
         "CPU Count: " << this->temp_counter << std::endl <<
-        "a : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_a.value << std::endl <<
-        " f: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_f.value << std::endl <<
+        //"a : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_a.value << std::endl <<
+        //" f: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_f.value << std::endl <<
         "af: " << std::setfill('0') << std::setw(4) << this->r_af.value() << std::endl <<
         //"b : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_b.value << std::endl <<
         //" c: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_c.value << std::endl <<
@@ -1580,14 +1582,14 @@ void CPU::op_Inc(combined_reg *dest) {
 
     data_conv.bit8[0] = dest->lower->value;
     data_conv.bit8[1] = dest->upper->value;
-    data_conv.bit32[0] = (uint32_t)((int)(data_conv.bit32[0]) + 1);
+    data_conv.bit32[0] = (uint32_t)((unsigned int)(data_conv.bit32[0]) + 1);
     dest->lower->value = data_conv.bit8[0];
     dest->upper->value = data_conv.bit8[1];
 }
 void CPU::op_Dec(reg16 *dest) {
     this->data_conv32.bit16[0] = dest->value;
     this->data_conv32.bit16[1] = 0;
-    this->data_conv32.bit32[0] = (uint32_t)((int)(this->data_conv32.bit32[0]) - 1);
+    this->data_conv32.bit32[0] = (uint32_t)((unsigned int)(this->data_conv32.bit32[0]) - 1);
     dest->value = this->data_conv32.bit16[0];
 }
 void CPU::op_Dec(combined_reg *dest) {
@@ -1724,7 +1726,7 @@ void CPU::op_RR(reg8 *src) {
     // Capture carry bit from LSB
     uint8_t carry_bit = src->value & (0x01);
     // Shift old value right 1 bit, setting MSB to original carry flag
-    src->value = ((src->value >> 1) | ((this->get_carry_flag() << 7) & 0x80));
+    src->value = (((src->value >> 1) & 0x7f) | ((this->get_carry_flag() << 7) & 0x80));
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, carry_bit);
 
     // If not RRA, set zero flag
@@ -1739,7 +1741,7 @@ void CPU::op_RR(uint16_t mem_addr) {
     uint8_t val = this->ram->get_val(mem_addr);
     uint8_t carry_bit = val & (0x01);
     // Shift old value right 1 bit, setting MSB to original carry flag
-    val = ((val >> 1) | ((this->get_carry_flag() << 7) & 0x80));
+    val = (((val >> 1)  & 0x7f) | ((this->get_carry_flag() << 7) & 0x80));
     this->ram->set(mem_addr, val);
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, carry_bit);
     this->set_zero_flag(val);
