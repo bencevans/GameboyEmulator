@@ -3,10 +3,13 @@
 #include <memory>
 #include "ram_subset.h"
 
+class TestRunner;
+
 // 0x10000
 #define MAX_MEM_SIZE 65535
 
 class RAM {
+    friend TestRunner;
 public:
     RAM();
     uint8_t get_val(uint16_t address);

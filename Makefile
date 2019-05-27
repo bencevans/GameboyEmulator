@@ -177,6 +177,33 @@ src/cpu.cpp.s:
 	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.s
 .PHONY : src/cpu.cpp.s
 
+src/helper.o: src/helper.cpp.o
+
+.PHONY : src/helper.o
+
+# target to build an object file
+src/helper.cpp.o:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/helper.cpp.o
+.PHONY : src/helper.cpp.o
+
+src/helper.i: src/helper.cpp.i
+
+.PHONY : src/helper.i
+
+# target to preprocess a source file
+src/helper.cpp.i:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/helper.cpp.i
+.PHONY : src/helper.cpp.i
+
+src/helper.s: src/helper.cpp.s
+
+.PHONY : src/helper.s
+
+# target to generate assembly for a file
+src/helper.cpp.s:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/helper.cpp.s
+.PHONY : src/helper.cpp.s
+
 src/ram.o: src/ram.cpp.o
 
 .PHONY : src/ram.o
@@ -231,6 +258,33 @@ src/ram_subset.cpp.s:
 	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/ram_subset.cpp.s
 .PHONY : src/ram_subset.cpp.s
 
+src/test_runner.o: src/test_runner.cpp.o
+
+.PHONY : src/test_runner.o
+
+# target to build an object file
+src/test_runner.cpp.o:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/test_runner.cpp.o
+.PHONY : src/test_runner.cpp.o
+
+src/test_runner.i: src/test_runner.cpp.i
+
+.PHONY : src/test_runner.i
+
+# target to preprocess a source file
+src/test_runner.cpp.i:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/test_runner.cpp.i
+.PHONY : src/test_runner.cpp.i
+
+src/test_runner.s: src/test_runner.cpp.s
+
+.PHONY : src/test_runner.s
+
+# target to generate assembly for a file
+src/test_runner.cpp.s:
+	$(MAKE) -f CMakeFiles/GameboyEmulator.dir/build.make CMakeFiles/GameboyEmulator.dir/src/test_runner.cpp.s
+.PHONY : src/test_runner.cpp.s
+
 src/vpu.o: src/vpu.cpp.o
 
 .PHONY : src/vpu.o
@@ -273,12 +327,18 @@ help:
 	@echo "... src/cpu.o"
 	@echo "... src/cpu.i"
 	@echo "... src/cpu.s"
+	@echo "... src/helper.o"
+	@echo "... src/helper.i"
+	@echo "... src/helper.s"
 	@echo "... src/ram.o"
 	@echo "... src/ram.i"
 	@echo "... src/ram.s"
 	@echo "... src/ram_subset.o"
 	@echo "... src/ram_subset.i"
 	@echo "... src/ram_subset.s"
+	@echo "... src/test_runner.o"
+	@echo "... src/test_runner.i"
+	@echo "... src/test_runner.s"
 	@echo "... src/vpu.o"
 	@echo "... src/vpu.i"
 	@echo "... src/vpu.s"

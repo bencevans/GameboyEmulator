@@ -1,10 +1,11 @@
 #include <iostream>
 #include <string>
 #include <signal.h>
-#include "helper.h"
-#include "ram.h"
+#include "./helper.h"
+#include "./ram.h"
 #include "./vpu.h"
-#include "cpu.h"
+#include "./cpu.h"
+#include "./test_runner.h"
 
 #define SCREEN_WIDTH 144
 #define SCREEN_HEIGHT 160
@@ -65,16 +66,22 @@ int main(int argc, char* args[])
 //	}
     Helper::init();
     RAM *ram_inst = new RAM();
+    VPU *vpu_inst = new VPU(ram_inst);
+    CPU *cpu_inst = new CPU(ram_inst, vpu_inst);
+    //CPU cpu_inst = *cpu_inst_ptr;
+    //StaticState::cpu_inst = cpu_inst;
+
+    // Run tests
+    TestRunner *rt = new TestRunner(vpu_inst, cpu_inst, ram_inst);
+    rt->run_tests();
+    cpu_inst->reset_state();
+
+    // Load bios/RAM
     char bios_path[] = "./copyright/DMG_ROM.bin";
     //char rom_path[] = "./copyright/Tetris (JUE) (V1.1) [!].gb";
     char rom_path[] = "./resources/test_roms/cpu_instrs/cpu_instrs.gb";
     ram_inst->load_bios(bios_path);
     ram_inst->load_rom(rom_path);
-
-    VPU *vpu_inst = new VPU(ram_inst);
-    CPU *cpu_inst = new CPU(ram_inst, vpu_inst);
-    //CPU cpu_inst = *cpu_inst_ptr;
-    //StaticState::cpu_inst = cpu_inst;
 
     // Setup handler for exception
     //void (*prev_handler)(int);

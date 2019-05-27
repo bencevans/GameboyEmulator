@@ -1,8 +1,11 @@
 #pragma once
 
 #include <memory>
-#include "ram.h"
+#include "./ram.h"
 #include "./vpu.h"
+
+// Stub-class for friend
+class TestRunner;
 
 // Any register
 struct reg { };
@@ -45,6 +48,7 @@ public:
 };
 
 class CPU {
+    friend TestRunner;
 
 public:
     explicit CPU(RAM *ram, VPU *vpu_inst);
@@ -52,6 +56,7 @@ public:
 
     void tick();
     bool is_running();
+    void reset_state();
     //void print_state();
 protected:
     enum INTERUPT_STATE {

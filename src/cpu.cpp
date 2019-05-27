@@ -37,24 +37,16 @@ signed int convert_signed_uint8_to_signed_int(uint8_t orig)
 }
 
 
-CPU::CPU(RAM *ram, VPU *vpu_inst) {
-    
+CPU::CPU(RAM *ram, VPU *vpu_inst)
+{    
     this->r_a = accumulator();
-    this->r_a.value = 0;
     this->r_f = gen_reg();
-    this->r_f.value = 0;
     this->r_b = gen_reg();
-    this->r_b.value = 0;
     this->r_c = gen_reg();
-    this->r_c.value = 0;
     this->r_d = gen_reg();
-    this->r_d.value = 0;
     this->r_e = gen_reg();
-    this->r_e.value = 0;
     this->r_h = gen_reg();
-    this->r_h.value = 0;
     this->r_l = gen_reg();
-    this->r_l.value = 0;
     
     this->r_bc.upper = &this->r_b;
     this->r_bc.lower = &this->r_c;
@@ -64,24 +56,38 @@ CPU::CPU(RAM *ram, VPU *vpu_inst) {
     this->r_hl.lower = &this->r_l;
     this->r_af.upper = &this->r_a;
     this->r_af.lower = &this->r_f;
+
+    // Stack pointer
+    this->r_sp = stack_pointer();
+    // Program counter
+    this->r_pc = program_counter();
+
+    this->ram = ram;
+    this->vpu_inst = vpu_inst;
+    this->reset_state();
+}
+
+void CPU::reset_state()
+{
+    this->r_a.value = 0;
+    this->r_f.value = 0;
+    this->r_b.value = 0;
+    this->r_c.value = 0;
+    this->r_d.value = 0;
+    this->r_e.value = 0;
+    this->r_h.value = 0;
+    this->r_l.value = 0;
     
     this->cb_state = false;
     
     this->interupt_state = this->INTERUPT_STATE::DISABLED;
     this->halt_state = false;
     
-    // Stack pointer
-    this->r_sp = stack_pointer();
     this->r_sp.value = 0xfffe;
-    // Program counter
-    this->r_pc = program_counter();
     this->r_pc.value = 0;
     
     this->running = true;
     this->stepped_in = false;
-    
-    this->ram = ram;
-    this->vpu_inst = vpu_inst;
 }
 
 bool CPU::is_running() {
