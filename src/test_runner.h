@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include "./ram.h"
 #include "./cpu.h"
 #include "./vpu.h"
@@ -17,5 +18,34 @@ public:
     void test_02();
     void test_03();
     void test_04();
+
+    bool assert(bool outcome)
+    {
+        if (! outcome)
+            std::cout << "F";
+        else
+            std::cout << ".";
+        return outcome;
+    }
+
+    bool assert_equal(unsigned int left, unsigned int right)
+    {
+        if (! assert(left == right))
+        {
+            std::cout << std::hex << std::endl << "Equal failure: 0x"
+                << left << " != 0x" << right << std::endl;
+                return false;
+        }
+        return true;
+    }
+
+    bool assert_equal(uint16_t left, uint16_t right)
+    {
+        return assert_equal((unsigned int)left, (unsigned int)right);
+    }
+    bool assert_equal(uint8_t left, uint8_t right)
+    {
+        return assert_equal((unsigned int)left, (unsigned int)right);
+    }
 
 };

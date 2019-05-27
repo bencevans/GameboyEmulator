@@ -9,14 +9,6 @@ TestRunner::TestRunner(VPU *vpu_inst, CPU *cpu_inst, RAM *ram_inst)
     this->ram_inst = ram_inst;
 }
 
-bool assert(bool outcome)
-{
-    if (! outcome)
-        std::cout << "F";
-    else
-        std::cout << ".";
-    return outcome;
-}
 
 void TestRunner::run_tests()
 {
@@ -32,18 +24,21 @@ void TestRunner::run_tests()
 
 void TestRunner::test_00()
 {
+    std::cout << "0x00";
     // Ensure that SP is 0
-    assert(this->cpu_inst->r_pc.value == 0x0000);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x0000);
 
     this->ram_inst->memory[0x0000] = 0x00;
     this->cpu_inst->tick();
     
     // Ensure that SP has moved on
-    assert(this->cpu_inst->r_pc.value == 0x0001);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x0001);
 }
 
 void TestRunner::test_01()
 {
+    std::cout << "0x01";
+
     this->cpu_inst->r_pc.value = 0x0000;
     this->cpu_inst->r_f.value = 0xff;
 
@@ -58,19 +53,20 @@ void TestRunner::test_01()
     this->ram_inst->memory[0x0002] = 0xab;
 
     this->cpu_inst->tick();
-    assert(this->cpu_inst->r_b.value == 0xab);
-    assert(this->cpu_inst->r_c.value == 0xcd);
-    assert(this->cpu_inst->r_bc.value() == 0xabcd);
+    this->assert_equal(this->cpu_inst->r_b.value, 0xab);
+    this->assert_equal(this->cpu_inst->r_c.value, 0xcd);
+    this->assert_equal(this->cpu_inst->r_bc.value(), 0xabcd);
     
     // Ensure flags haven't changed
-    assert(this->cpu_inst->r_f.value == 0xff);
+    this->assert_equal(this->cpu_inst->r_f.value, 0xff);
     
     // Ensure that SP has moved on
-    assert(this->cpu_inst->r_pc.value == 0x0003);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x0003);
 }
 
 void TestRunner::test_02()
 {
+    std::cout << "0x02";
     this->cpu_inst->r_pc.value = 0x0000;
     this->cpu_inst->r_f.value = 0xff;
 
@@ -86,23 +82,25 @@ void TestRunner::test_02()
     this->cpu_inst->tick();
 
     // Assert that registers were unchanged
-    assert(this->cpu_inst->r_a.value == 0xd6);
-    assert(this->cpu_inst->r_b.value == 0xfb);
-    assert(this->cpu_inst->r_c.value == 0x23);
-    assert(this->cpu_inst->r_bc.value() == 0xfb23);
+    this->assert_equal(this->cpu_inst->r_a.value, 0xd6);
+    this->assert_equal(this->cpu_inst->r_b.value, 0xfb);
+    this->assert_equal(this->cpu_inst->r_c.value, 0x23);
+    this->assert_equal(this->cpu_inst->r_bc.value(), 0xfb23);
 
     // Ensure that byte has been put into memory
-    assert(this->ram_inst->memory[0xfb23] == 0xd6);
+    this->assert_equal(this->ram_inst->memory[0xfb23], 0xd6);
 
     // Ensure flags haven't changed
-    assert(this->cpu_inst->r_f.value == 0xff);
+    this->assert_equal(this->cpu_inst->r_f.value, 0xff);
 
     // Ensure that SP has moved on
-    assert(this->cpu_inst->r_pc.value == 0x0001);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x0001);
 }
 
 void TestRunner::test_03()
 {
+    std::cout << "0x03";
+
     // Test standard increment
     this->cpu_inst->r_pc.value = 0x0000;
     this->cpu_inst->r_f.value = 0xff;
@@ -112,15 +110,15 @@ void TestRunner::test_03()
     this->cpu_inst->tick();
 
     // Assert that registers were unchanged
-    assert(this->cpu_inst->r_b.value == 0xaf);
-    assert(this->cpu_inst->r_c.value == 0xff);
-    assert(this->cpu_inst->r_bc.value() == 0xafff);
+    this->assert_equal(this->cpu_inst->r_b.value, 0xaf);
+    this->assert_equal(this->cpu_inst->r_c.value, 0xff);
+    this->assert_equal(this->cpu_inst->r_bc.value(), 0xafff);
 
     // Ensure flags haven't changed
-    assert(this->cpu_inst->r_f.value == 0xff);
+    this->assert_equal(this->cpu_inst->r_f.value, 0xff);
 
     // Ensure that SP has moved on
-    assert(this->cpu_inst->r_pc.value == 0x0001);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x0001);
 
     // Test half-carry
     
@@ -130,12 +128,12 @@ void TestRunner::test_03()
     this->cpu_inst->tick();
 
     // Assert that registers were unchanged
-    assert(this->cpu_inst->r_b.value == 0xb0);
-    assert(this->cpu_inst->r_c.value == 0x00);
-    assert(this->cpu_inst->r_bc.value() == 0xb000);
+    this->assert_equal(this->cpu_inst->r_b.value, 0xb0);
+    this->assert_equal(this->cpu_inst->r_c.value, 0x00);
+    this->assert_equal(this->cpu_inst->r_bc.value(), 0xb000);
 
     // Ensure flags haven't changed
-    assert(this->cpu_inst->r_f.value == 0x00);
+    this->assert_equal(this->cpu_inst->r_f.value, 0x00);
     
 
     // Test Carry
@@ -146,12 +144,12 @@ void TestRunner::test_03()
     this->cpu_inst->tick();
 
     // Assert that registers were unchanged
-    assert(this->cpu_inst->r_b.value == 0x00);
-    assert(this->cpu_inst->r_c.value == 0x00);
-    assert(this->cpu_inst->r_bc.value() == 0x0000);
+    this->assert_equal(this->cpu_inst->r_b.value, 0x00);
+    this->assert_equal(this->cpu_inst->r_c.value, 0x00);
+    this->assert_equal(this->cpu_inst->r_bc.value(), 0x0000);
 
     // Ensure flags haven't changed
-    assert(this->cpu_inst->r_f.value == 0x00);
+    this->assert_equal(this->cpu_inst->r_f.value, 0x00);
 }
 
 void TestRunner::test_04()
@@ -165,26 +163,28 @@ void TestRunner::test_04()
     this->cpu_inst->tick();
 
     // Assert that registers were unchanged
-    assert(this->cpu_inst->r_b.value == 0x59);
+    assert_equal(this->cpu_inst->r_b.value, 0x59);
 
-    // Ensure all flags have been unset
-    assert(this->cpu_inst->r_f.value == 0x00) || std::cout << std::hex << (unsigned int)this->cpu_inst->r_f.value;
+    // Ensure zero, subtract and half-carry flags have been unset
+    // Carry has been left
+    assert_equal(this->cpu_inst->r_f.value, 0x10);
 
     // Ensure that SP has moved on
-    assert(this->cpu_inst->r_pc.value == 0x0001);
+    assert_equal(this->cpu_inst->r_pc.value, 0x0001);
 
     // Test half-carry
     
     // Setup memory
-    this->cpu_inst->r_b.value = 0x50;
+    this->cpu_inst->r_f.value = 0x00;
+    this->cpu_inst->r_b.value = 0x5f;
     this->ram_inst->memory[0x0001] = 0x04;
     this->cpu_inst->tick();
 
     // Assert that registers were unchanged
-    assert(this->cpu_inst->r_b.value == 0x60);
+    assert_equal(this->cpu_inst->r_b.value, 0x60);
 
     // Ensure half carry has been set
-    assert(this->cpu_inst->r_f.value == 0x20);
+    assert_equal(this->cpu_inst->r_f.value, 0x20);
     
 
     // Test Carry
@@ -195,8 +195,8 @@ void TestRunner::test_04()
     this->cpu_inst->tick();
 
     // Assert that registers were unchanged
-    assert(this->cpu_inst->r_b.value == 0x00);
+    assert_equal(this->cpu_inst->r_b.value, 0x00);
 
     // Ensure flags haven't changed
-    assert(this->cpu_inst->r_f.value == 0x90);
+    assert_equal(this->cpu_inst->r_f.value, 0xa0);
 }

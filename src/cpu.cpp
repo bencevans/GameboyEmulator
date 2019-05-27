@@ -1224,7 +1224,7 @@ void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
         // XOR the original and new values' 5th BIT.
         // This means it will result in half carry if the value has changed.
         //((0x10 & original_val) >> 4) ^ ((0x10 & input) >> 4));
-        (((original_val & 0xf) + (input & 0xf)) & 0x10) ? 1U : 0U);
+        (((original_val & 0x0f) + (input & 0x0f)) & 0x10) ? 1U : 0U);
 }
 void CPU::set_half_carry(uint16_t original_val, uint16_t input) {
     // @TODO Check this implimentation
