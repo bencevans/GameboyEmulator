@@ -1479,7 +1479,15 @@ void CPU::op_Add(combined_reg *dest, uint32_t src) {
 }
 void CPU::op_Add(reg16 *dest, signed int val) {
     // Add to value of dest
-    dest->value += val;
+    uint32_t res = (0x00000000 | dest->value) + val;
+    // Reset subtract/zero flags
+    this->set_zero_flag(0x00);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+    this->set_register_bit(
+        &this->r_f, this->CARRY_FLAG_BIT,
+        (0x00010000 & res) >> 16);
+    this->set_half_carry(dest->value, val);
+    dest->value = res & 0x0000ffff;
 }
 void CPU::op_Add(reg16 *dest) {
     // Get byte from next byte, treat as signed 8-bit value
@@ -1554,7 +1562,7 @@ uint8_t CPU::op_Inc(uint8_t val) {
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
 
     // Determine half carry flag based on 5th bit of first byte
-    this->set_half_carry(original_val, 0x1);
+    this->set_half_carry(original_val, 0x01);
     return val;
 }
 void CPU::op_Inc(combined_reg *dest) {
@@ -1605,7 +1613,7 @@ uint8_t CPU::op_Dec(uint8_t val) {
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
 
     // Determine half carry flag based on 5th bit of first byte
-    this->set_half_carry_sub(original_val, 0x1);
+    this->set_half_carry_sub(original_val, 0x01);
     return val;
 }
 
@@ -1688,7 +1696,9 @@ void CPU::op_RL(reg8 *src) {
     this->data_conv.bit16[0] = ((uint16_t)src->value << 1) | (this->get_carry_flag() & 0x01);
     src->value = this->data_conv.bit8[0];
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (unsigned int)(this->data_conv.bit8[1] & 0x01));
-    this->set_zero_flag(src->value);
+    // If not RLA, set zero flag
+    if (this->cb_state)
+        this->set_zero_flag(src->value);
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
@@ -1710,7 +1720,11 @@ void CPU::op_RR(reg8 *src) {
     // Shift old value right 1 bit, setting MSB to original carry flag
     src->value = ((src->value >> 1) | ((this->get_carry_flag() << 7) & 0x80));
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, carry_bit);
-    this->set_zero_flag(src->value);
+
+    // If not RRA, set zero flag
+    if (this->cb_state)
+        this->set_zero_flag(src->value);
+
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
@@ -1733,6 +1747,11 @@ void CPU::op_RLC(reg8* src)
     src->value = (((src->value & 0x80) >> 7) & 0x01) | ((src->value << 1) & 0xfe);
     // Store bit 0 (what was bit 7, into carry flag
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (src->value & 0x01));
+    // If not RLCA, set zero flag
+    if (this->cb_state)
+        this->set_zero_flag(src->value);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
 void CPU::op_RLC(uint16_t mem_addr)
 {
@@ -1745,6 +1764,9 @@ void CPU::op_RLC(uint16_t mem_addr)
     
     // Store value into memory
     this->ram->set(mem_addr, val);
+    this->set_zero_flag(val);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
 
 void CPU::op_RRC(reg8* src)
@@ -1753,6 +1775,11 @@ void CPU::op_RRC(reg8* src)
     src->value = (src->value & 0x01) | (((src->value & 0x80) >> 7) & 0x01);
     // Store bit 7 (what was bit 0, into carry flag
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (src->value & 0x80) >> 7);
+    // If not RRCA, set zero flag
+    if (this->cb_state)
+        this->set_zero_flag(src->value);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
 void CPU::op_RRC(uint16_t mem_addr)
 {
@@ -1765,6 +1792,9 @@ void CPU::op_RRC(uint16_t mem_addr)
     
     // Store value into memory
     this->ram->set(mem_addr, val);
+    this->set_zero_flag(val);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
 
 
