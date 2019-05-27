@@ -1752,7 +1752,7 @@ void CPU::op_RR(uint16_t mem_addr) {
 void CPU::op_RLC(reg8* src)
 {
     // Shit to left 1 bit, storing original bit 7 into bit 0
-    src->value = (((src->value & 0x80) >> 7) & 0x01) | ((src->value << 1) & 0xfe);
+    src->value = ((((src->value & 0x80) >> 7) & 0x01) | ((src->value << 1) & 0xfe));
     // Store bit 0 (what was bit 7, into carry flag
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (src->value & 0x01));
     // If not RLCA, set zero flag

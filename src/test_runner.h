@@ -18,7 +18,20 @@ public:
     void test_02();
     void test_03();
     void test_04();
+
     void test_cb_00();
+    void test_cb_01();
+    void test_cb_02();
+    void test_cb_03();
+    
+    void test_cb_10();
+    void test_cb_11();
+    void test_cb_12();
+    void test_cb_13();
+
+    void test_RLC(reg8* reg, uint8_t op_code);
+    void test_RL(reg8* reg, uint8_t op_code);
+
 
     bool assert(bool outcome)
     {
