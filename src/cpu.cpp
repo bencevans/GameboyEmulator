@@ -11,12 +11,13 @@
 #define INTERUPT_DEBUG 1
 //#define STEPIN 0x0101
 //#define STEPIN 0x07f2
-#define STEPIN 0x0271 //0x029d
-#define DEBUG_POINT 0 //0x26c
+#define STEPIN 0 //0x06ef //0x0271 //0x029d
+#define DEBUG_POINT 0x086e //0x086f//0x02bd//0x0291 //0x26c
 // 0x9c9d19
 //#define STEPIN_AFTER 0x9c9bca
 
-#define STEPIN_AFTER 0 //0x2ca380
+// AF should be 10a0 PC: 086e
+#define STEPIN_AFTER 0//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
 //#define STEPIN_AFTER 0x2ca380
 //#define STEPIN_AFTER 0x2ca370
 #define DEBUG_EVERY 1
@@ -101,7 +102,10 @@ void CPU::tick() {
         }
         std::cout << std::endl << std::endl << "New Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;    
     } else if (DEBUG_POINT && this->r_pc.value == DEBUG_POINT)
+    {
         this->print_state_m();
+        std::cin.get();
+    }
     // If interupt state is either enabled or pending disable,
     // check interupts
     if (this->interupt_state == this->INTERUPT_STATE::ENABLED)
@@ -923,6 +927,12 @@ void CPU::execute_op_code(int op_val) {
             break;
         case 0xf8:
             this->op_Load(&this->r_hl, (uint16_t)(this->r_sp.value + this->get_inc_pc_val8s()));
+            // Special OP, set registers after load
+            this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, 0U);
+            this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+            // @TODO Verify these two
+            this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
+            this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, 0U);
             break;
         case 0xf9:
             this->op_Load(&this->r_a, this->get_inc_pc_val16());
@@ -1217,7 +1227,7 @@ void CPU::set_half_carry(uint16_t original_val, uint16_t input) {
         this->HALF_CARRY_FLAG_BIT,
         // XOR the original and new values' 5th BIT.
         // This means it will result in half carry if the value has changed.
-        (((original_val & 0xff) + (input & 0xff)) & 0x100) ? 1U : 0U);
+        (((original_val & 0x0fff) + (input & 0x0fff)) & 0x1000) ? 1U : 0U);
 }
 void CPU::set_half_carry_sub(uint8_t original_val, uint8_t input) {
     // @TODO Check this implimentation
@@ -1227,7 +1237,7 @@ void CPU::set_half_carry_sub(uint8_t original_val, uint8_t input) {
         // XOR the original and new values' 5th BIT.
         // This means it will result in half carry if the value has changed.
         //((0x10 & original_val) >> 4) ^ ((0x10 & input) >> 4));
-        (((original_val & 0xf) - (input & 0xf)) & 0x10) ? 1U : 0U);
+        ((input & 0x0f) > (original_val & 0x0f)) ? 1U : 0U);
 }
 void CPU::set_half_carry_sub(uint16_t original_val, uint16_t input) {
     // @TODO Check this implimentation
@@ -1236,7 +1246,7 @@ void CPU::set_half_carry_sub(uint16_t original_val, uint16_t input) {
         this->HALF_CARRY_FLAG_BIT,
         // XOR the original and new values' 5th BIT.
         // This means it will result in half carry if the value has changed.
-        (((original_val & 0xff) - (input & 0xff)) & 0x100) ? 1U : 0U);
+        ((input & 0xff) > (original_val & 0xff)) ? 1U : 0U);
 }
 
 // Get value from memory at PC and increment PC
@@ -1363,6 +1373,7 @@ void CPU::op_Load(combined_reg *dest) {
 }
 void CPU::op_Load(reg16 *dest) {
     dest->value = this->get_inc_pc_val16();
+    
 }
 void CPU::op_Load(uint16_t dest_addr, reg16 *source) {
     this->ram->set((int)dest_addr, source->value);
@@ -1394,11 +1405,11 @@ void CPU::op_Load(reg8 *dest, int source_addr) {
 
 ////////////////////////// General arithmatic OPs //////////////////////////
 void CPU::op_Add(reg8 *dest) {
-    uint16_t source = this->get_inc_pc_val8();
+    uint16_t source = (0x0000 | this->get_inc_pc_val8());
     this->op_Add(dest, source);
 }
 void CPU::op_Add(reg8 *dest, reg8 *src) {
-    this->op_Add(dest, (uint16_t)src->value);
+    this->op_Add(dest, (uint16_t)(src->value | 0x0000));
 }
 void CPU::op_Add(reg8 *dest, uint16_t src) {
     uint8_t original_val = dest->value;
@@ -1408,16 +1419,16 @@ void CPU::op_Add(reg8 *dest, uint16_t src) {
 
     this->data_conv.bit16[0] += src;
 
-    dest->value = this->data_conv.bit8[0];
     
-    this->set_zero_flag(dest->value);
+    this->set_zero_flag(this->data_conv.bit8[0]);
     this->set_half_carry(original_val, (uint8_t)src);
+    dest->value = this->data_conv.bit8[0];
 
     // Set subtract flag to 0, since this is add
-    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
-        (0x01 & this->data_conv.bit8[1]) >> 0);
+        (0x01 & this->data_conv.bit8[1]));
 
 }
 
@@ -1442,7 +1453,7 @@ void CPU::op_Add(combined_reg *dest, signed int src) {
     this->set_half_carry(original_val, (uint16_t)src);
 
     // Set subtract flag to 0, since this is add
-    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
         (0x01 & this->data_conv32.bit16[1]) >> 0);
@@ -1453,7 +1464,7 @@ void CPU::op_Add(combined_reg *dest, uint32_t src) {
     this->data_conv32.bit16[0] = dest->value();
     this->data_conv32.bit16[1] = 0;
 
-    this->data_conv32.bit32[0] += src;
+    this->data_conv32.bit32[0] += (0x00000000 | src);
 
     dest->lower->value = this->data_conv32.bit8[0];
     dest->upper->value = this->data_conv32.bit8[1];
@@ -1461,7 +1472,7 @@ void CPU::op_Add(combined_reg *dest, uint32_t src) {
     this->set_half_carry(original_val, src);
 
     // Set subtract flag to 0, since this is add
-    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0L);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
         (0x01 & this->data_conv32.bit16[1]) >> 0);
@@ -1498,7 +1509,7 @@ void CPU::op_Sub(uint16_t src) {
     this->set_half_carry_sub(original_val, (uint8_t)src);
 
     // Set subtract flag to 0, since this is add
-    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1L);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
         (0x01 & this->data_conv.bit8[1]) >> 0);
