@@ -23,10 +23,15 @@ void TestRunner::run_tests()
     this->test_cb_01();
     this->test_cb_02();
     this->test_cb_03();
+    this->test_cb_04();
+    this->test_cb_05();
 
     this->test_cb_10();
     this->test_cb_11();
     this->test_cb_12();
+    this->test_cb_13();
+    this->test_cb_14();
+    this->test_cb_15();
 
     std::cout << std::endl << "Completed tests" << std::endl;
 
@@ -240,6 +245,18 @@ void TestRunner::test_cb_03()
 
     this->test_RLC(&this->cpu_inst->r_e, 0x03);
 }
+void TestRunner::test_cb_04()
+{
+    std::cout << "0x104";
+
+    this->test_RLC(&this->cpu_inst->r_h, 0x04);
+}
+void TestRunner::test_cb_05()
+{
+    std::cout << "0x105";
+
+    this->test_RLC(&this->cpu_inst->r_l, 0x05);
+}
 
 void TestRunner::test_cb_10()
 {
@@ -258,6 +275,24 @@ void TestRunner::test_cb_12()
     std::cout << "0x112";
 
     this->test_RL(&this->cpu_inst->r_d, 0x12);
+}
+void TestRunner::test_cb_13()
+{
+    std::cout << "0x113";
+
+    this->test_RL(&this->cpu_inst->r_e, 0x13);
+}
+void TestRunner::test_cb_14()
+{
+    std::cout << "0x114";
+
+    this->test_RL(&this->cpu_inst->r_h, 0x14);
+}
+void TestRunner::test_cb_15()
+{
+    std::cout << "0x115";
+
+    this->test_RL(&this->cpu_inst->r_l, 0x15);
 }
 
 void TestRunner::test_RLC(reg8 *reg, uint8_t op_code)
