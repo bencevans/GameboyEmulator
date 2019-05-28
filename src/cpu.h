@@ -69,21 +69,21 @@ protected:
     bool halt_state;
     bool cb_state;
     bool stepped_in;
-    
+
 
     union {
         uint8_t bit8[2];
         uint16_t bit16[1];
     } data_conv;
-    
+
     union {
         uint8_t bit8[4];
         uint16_t bit16[2];
         uint32_t bit32[1];
     } data_conv32;
-    
+
     int temp_counter = 0;
-    
+
     // Bits for flag register
     // C flag
     const int CARRY_FLAG_BIT = 4;
@@ -106,12 +106,12 @@ protected:
     gen_reg r_e;
     gen_reg r_h;
     gen_reg r_l;
-    
+
     combined_reg r_bc;
     combined_reg r_de;
     combined_reg r_hl;
     combined_reg r_af;
-    
+
     // Stack pointer
     stack_pointer r_sp;
     // Program counter
@@ -123,14 +123,14 @@ protected:
     uint16_t get_register_value16(combined_reg *dest);
     void set_register_bit(reg8 *source, uint8_t bit_shift, unsigned int val);
     unsigned int get_register_bit(reg8 *source, unsigned int bit_shift);
-    
+
     void print_state_m();
-    
+
     void execute_op_code(int op_val);
     void execute_cb_code(int op_val);
-    
+
     void check_interupts();
-    
+
     void set_zero_flag(const uint8_t val);
     uint8_t get_zero_flag();
     void set_half_carry(uint8_t original_val, uint8_t input);
@@ -165,7 +165,7 @@ protected:
     void op_Sub(uint16_t src);
     void op_SBC(reg8 *src);
     void op_SBC(uint8_t src);
-    
+
     void op_Inc(reg8 *dest);
     void op_Inc(uint16_t mem_addr);
     uint8_t op_Inc(uint8_t val);
@@ -212,7 +212,7 @@ protected:
     void op_XOR(uint16_t mem_addr);
     void op_XOR(uint8_t val);
 
-    void op_AND();    
+    void op_AND();
     void op_AND(reg8 *comp);
     void op_AND(uint8_t comp);
 
@@ -235,7 +235,7 @@ protected:
     void op_EI();
     void op_DI();
     void op_Halt();
-    
+
     RAM *ram;
     VPU *vpu_inst;
     bool running;

@@ -50,7 +50,7 @@ void RAM::stack_push(uint16_t &sp_val, uint16_t pc_val) {
     // |     H|
     // |    LH|
     this->stack_push(sp_val, data_conv.bit8[1]);
-    this->stack_push(sp_val, data_conv.bit8[0]);    
+    this->stack_push(sp_val, data_conv.bit8[0]);
 }
 uint8_t RAM::stack_pop8(uint16_t &sp_val) {
     // Obtain value from stack and decrease SP value,
@@ -140,10 +140,10 @@ RamSubset RAM::get_high_ram() {
 }
 
 void RAM::load_bios(char *bios_path) {
-    // Open file  
-    std::ifstream infile(bios_path, std::ios::binary);  
+    // Open file
+    std::ifstream infile(bios_path, std::ios::binary);
 
-    // Iterate through bytes in file and store in memory  
+    // Iterate through bytes in file and store in memory
     size_t addr = 0;
     while (true) {
         uint8_t ch = infile.get();
@@ -158,17 +158,17 @@ void RAM::load_bios(char *bios_path) {
             std::cout << std::hex << (int)addr << " " << (int)ch << " " << (int)this->memory[addr] << std::endl;
         }
 
-        addr++;  
+        addr++;
     }
     infile.close();
     //std::cin.get();
 }
 
 void RAM::load_rom(char *rom_path) {
-    // Open file  
-    std::ifstream infile(rom_path, std::ios::binary);  
+    // Open file
+    std::ifstream infile(rom_path, std::ios::binary);
 
-    // Iterate through bytes in file and store in memory  
+    // Iterate through bytes in file and store in memory
     size_t addr = 0;
     while (true) {
         uint8_t ch = infile.get();
@@ -189,7 +189,7 @@ void RAM::load_rom(char *rom_path) {
 }
 void RAM::swap_boot_rom() {
     uint8_t temp;
-    
+
     for (unsigned int itx = 0; itx < this->BOOT_ROM_SIZE; itx ++) {
         temp = this->memory[itx];
         this->memory[itx] = this->memory_boot_swap[itx];

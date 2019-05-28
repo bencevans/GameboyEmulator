@@ -57,7 +57,7 @@ int main(int argc, char* args[])
     //if (arguments.valid == false) {
     //    return 1;
     //}
-    
+
     // create the window
 //    Display *di = XOpenDisplay(getenv("DISPLAY"));
 //    if (di == NULL) {

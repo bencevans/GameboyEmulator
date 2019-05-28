@@ -18,7 +18,7 @@ void TestRunner::run_tests()
     this->test_02();
     this->test_03();
     this->test_04();
-    
+
     this->test_cb_00();
     this->test_cb_01();
     this->test_cb_02();
@@ -32,7 +32,7 @@ void TestRunner::run_tests()
     this->test_cb_13();
     this->test_cb_14();
     this->test_cb_15();
-    
+
     this->test_cb_18();
     this->test_cb_19();
     this->test_cb_1a();
@@ -59,7 +59,7 @@ void TestRunner::test_00()
 
     this->ram_inst->memory[0x0000] = 0x00;
     this->cpu_inst->tick();
-    
+
     // Ensure that SP has moved on
     this->assert_equal(this->cpu_inst->r_pc.value, 0x0001);
 }
@@ -85,10 +85,10 @@ void TestRunner::test_01()
     this->assert_equal(this->cpu_inst->r_b.value, 0xab);
     this->assert_equal(this->cpu_inst->r_c.value, 0xcd);
     this->assert_equal(this->cpu_inst->r_bc.value(), 0xabcd);
-    
+
     // Ensure flags haven't changed
     this->assert_equal(this->cpu_inst->r_f.value, 0xff);
-    
+
     // Ensure that SP has moved on
     this->assert_equal(this->cpu_inst->r_pc.value, 0x0003);
 }
@@ -150,7 +150,7 @@ void TestRunner::test_03()
     this->assert_equal(this->cpu_inst->r_pc.value, 0x0001);
 
     // Test half-carry
-    
+
     // Setup memory
     this->cpu_inst->r_f.value = 0x00;
     this->ram_inst->memory[0x0001] = 0x03;
@@ -163,7 +163,7 @@ void TestRunner::test_03()
 
     // Ensure flags haven't changed
     this->assert_equal(this->cpu_inst->r_f.value, 0x00);
-    
+
 
     // Test Carry
     // Setup memory and run instruction
@@ -388,7 +388,7 @@ void TestRunner::test_cb_35()
 
 //void TestRunner::test_Inc(reg8 *reg, uint8_t)
 //{
-//    
+//
 //}
 
 void TestRunner::test_RLC(reg8 *reg, uint8_t op_code)
@@ -411,7 +411,7 @@ void TestRunner::test_RLC(reg8 *reg, uint8_t op_code)
 
     // Ensure that SP has moved on
     this->assert_equal(this->cpu_inst->r_pc.value, 0x0002);
-    
+
     // Test Moving 0 into carry flag
     reg->value = 0x02;
     this->ram_inst->memory[0x0002] = 0xcb;
@@ -427,7 +427,7 @@ void TestRunner::test_RLC(reg8 *reg, uint8_t op_code)
 
     // Ensure that SP has moved on
     this->assert_equal(this->cpu_inst->r_pc.value, 0x0004);
-    
+
     // Test where outcome is 0
     reg->value = 0x80;
     this->ram_inst->memory[0x0004] = 0xcb;
@@ -480,7 +480,7 @@ void TestRunner::test_RL(reg8 *reg, uint8_t op_code)
 
     // Ensure that SP has moved on
     this->assert_equal(this->cpu_inst->r_pc.value, 0x0004);
-    
+
     // Test where outcome is 0
     reg->value = 0x80;
     this->ram_inst->memory[0x0004] = 0xcb;
@@ -534,7 +534,7 @@ void TestRunner::test_RR(reg8 *reg, uint8_t op_code)
 
     // Ensure that SP has moved on
     this->assert_equal(this->cpu_inst->r_pc.value, 0x0004);
-    
+
     // Test where outcome is 0
     reg->value = 0x01;
     this->ram_inst->memory[0x0004] = 0xcb;
@@ -587,7 +587,7 @@ void TestRunner::test_SWAP(reg8 *reg, uint8_t op_code)
 
     // Ensure that SP has moved on
     this->assert_equal(this->cpu_inst->r_pc.value, 0x0004);
-    
+
     // Test where outcome is 0
     reg->value = 0x00;
     this->ram_inst->memory[0x0004] = 0xcb;

@@ -37,7 +37,7 @@ VPU::VPU(RAM *ram) {
     for (unsigned int x = 0; x < this->SCREEN_WIDTH; x++)
         for (unsigned int y = 0; y < this->SCREEN_HEIGHT; y++)
                 SDL_RenderDrawPoint(this->renderer, (int)y, (int)x);
-                
+
 
     SDL_SetRenderDrawColor(this->renderer, 0, 255, 0, 0);
     // Set all pixels to black
@@ -88,7 +88,7 @@ void VPU::reset_lx() {
 }
 
 void VPU::tick() {
-    
+
     // Check X position
     this->current_pixel_x ++;
     if (this->get_current_x() >= this->MAX_LX)
@@ -102,7 +102,7 @@ void VPU::tick() {
         this->reset_ly();
         current_y = 0;
     }
-    
+
     // Update timers and skip to next screen,
     // if required.
     this->update_mode_flag();
@@ -143,7 +143,7 @@ vec_2d VPU::get_pixel_tile_position() {
 }
 
 uint8_t VPU::get_pixel_color() {
-    
+
     vec_2d pos = this->get_pixel_tile_position();
     // Get byte index, by determining where pixel is in the byte (which contains half a line of colours)
     uint16_t byte_addr = (uint16_t)(
@@ -162,7 +162,7 @@ uint8_t VPU::get_pixel_color() {
     // Get nth (byte_index) bit from both bytes and use one as lsb and second as msb
     uint8_t colour_byte = ((uint8_t)((byte2 >> byte_index) & (uint8_t)(0x01)) |
                            (uint8_t)((byte1 >> byte_index) & (uint8_t)(0x01) << 1));
-    
+
     if (DEBUG && (unsigned int)this->get_current_tile_data_address() == 0x83a0) {
         std::cout << std::hex << "byte1: " << (unsigned int)byte1 << " byte2: " << (unsigned int)byte2 << std::endl;
         std::cout << std::hex << "Colour Byte index: " << byte_index <<
@@ -220,11 +220,11 @@ void VPU::process_pixel() {
     //    std::cout << std::hex << "Setting Pixel color: " << (unsigned int)this->get_current_x() << " " << (unsigned int)this->get_current_y() << " " << (int)color << std::endl;
 }
 
-// Return the on-screen X coornidate of the pixel being drawn 
+// Return the on-screen X coornidate of the pixel being drawn
 uint8_t VPU::get_current_x() {
     return this->current_pixel_x;
 }
-// Return the on-screen X coornidate of the pixel being drawn 
+// Return the on-screen X coornidate of the pixel being drawn
 uint8_t VPU::get_current_y() {
     return this->ram->get_val(this->ram->LCDC_LY_ADDR);
 }
@@ -257,7 +257,7 @@ uint16_t VPU::get_tile_data_address(uint8_t tile_number) {
     }
     else
         offset = tile_number;
-    
+
     //if ( (unsigned int)this->VRAM_TILE_DATA_TABLES[mode]) != 0x8800) {
 //    if (tile_number)
 //        std::cout << std::hex << (unsigned int)this->VRAM_TILE_DATA_TABLES[mode] << std::endl;
