@@ -32,9 +32,25 @@ public:
     void test_cb_13();
     void test_cb_14();
     void test_cb_15();
+    
+    void test_cb_18();
+    void test_cb_19();
+    void test_cb_1a();
+    void test_cb_1b();
+    void test_cb_1c();
+    void test_cb_1d();
+
+    void test_cb_30();
+    void test_cb_31();
+    void test_cb_32();
+    void test_cb_33();
+    void test_cb_34();
+    void test_cb_35();
 
     void test_RLC(reg8* reg, uint8_t op_code);
     void test_RL(reg8* reg, uint8_t op_code);
+    void test_RR(reg8* reg, uint8_t op_code);
+    void test_SWAP(reg8* reg, uint8_t op_code);
 
 
     bool assert(bool outcome)

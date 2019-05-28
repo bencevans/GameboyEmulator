@@ -7,6 +7,7 @@
     <File Name="src/ram_subset.cpp"/>
     <File Name="src/test_runner.cpp"/>
     <File Name="src/vpu.cpp"/>
+    <File Name="src/cpu.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <File Name="src/cpu.h"/>
@@ -15,7 +16,6 @@
     <File Name="src/ram_subset.h"/>
     <File Name="src/test_runner.h"/>
     <File Name="src/vpu.h"/>
-    <File Name="src/cpu.cpp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <Configuration Name="Release" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">

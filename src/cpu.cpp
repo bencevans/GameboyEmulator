@@ -13,7 +13,7 @@
 //#define STEPIN 0x07f2
 #define STEPIN 0//x0217//x075b
 //#define STEPIN 0 //0x06ef //0x0271 //0x029d
-#define DEBUG_POINT 0//x0870
+#define DEBUG_POINT 0x086f//x086f//x0870
 //0x086e //0x086f//0x02bd//0x0291 //0x26c
 // 0x9c9d19
 //#define STEPIN_AFTER 0x9c9bca
@@ -109,7 +109,7 @@ void CPU::tick() {
             this->print_state_m();
         }
         std::cout << std::endl << std::endl << "New Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;    
-    } else if (DEBUG_POINT && this->r_pc.value == DEBUG_POINT)
+    } else if (DEBUG_POINT && this->r_pc.value == DEBUG_POINT && this->r_de.value() == 0xd61a)
     {
         this->print_state_m();
         std::cin.get();
