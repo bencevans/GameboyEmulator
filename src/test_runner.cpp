@@ -25,6 +25,13 @@ void TestRunner::run_tests()
     this->test_83();
     this->test_84();
     this->test_85();
+    
+    this->test_90();
+    this->test_91();
+    this->test_92();
+    this->test_93();
+    this->test_94();
+    this->test_95();
 
     this->test_cb_00();
     this->test_cb_01();
@@ -278,6 +285,43 @@ void TestRunner::test_85()
 }
 
 
+void TestRunner::test_90()
+{
+    std::cout << "0x090";
+
+    this->test_Sub(&this->cpu_inst->r_b, 0x90);
+}
+void TestRunner::test_91()
+{
+    std::cout << "0x091";
+
+    this->test_Sub(&this->cpu_inst->r_c, 0x91);
+}
+void TestRunner::test_92()
+{
+    std::cout << "0x092";
+
+    this->test_Sub(&this->cpu_inst->r_d, 0x92);
+}
+void TestRunner::test_93()
+{
+    std::cout << "0x093";
+
+    this->test_Sub(&this->cpu_inst->r_e, 0x93);
+}
+void TestRunner::test_94()
+{
+    std::cout << "0x094";
+
+    this->test_Sub(&this->cpu_inst->r_h, 0x94);
+}
+void TestRunner::test_95()
+{
+    std::cout << "0x095";
+
+    this->test_Sub(&this->cpu_inst->r_l, 0x95);
+}
+
 // CB TESTS
 void TestRunner::test_cb_00()
 {
@@ -480,6 +524,52 @@ void TestRunner::test_Add(reg8 *reg, uint8_t op_code)
     this->assert_equal(reg->value, 0xff);
     this->assert_equal(this->cpu_inst->r_a.value, 0x00);
     this->assert_equal(this->cpu_inst->r_f.value, 0xb0);
+}
+
+void TestRunner::test_Sub(reg8 *reg, uint8_t op_code)
+{
+    this->cpu_inst->r_pc.value = 0x0000;
+    this->cpu_inst->r_f.value = 0xf0;
+    
+    // Test standard addition
+    this->cpu_inst->r_a.value = 0x06;
+    reg->value = 0x02;
+    this->ram_inst->memory[0x0000] = op_code;
+    this->cpu_inst->tick();
+    
+    this->assert_equal(reg->value, 0x02);
+    this->assert_equal(this->cpu_inst->r_a.value, 0x04);
+    this->assert_equal(this->cpu_inst->r_f.value, 0x40);
+
+    // Test half-carry
+    this->cpu_inst->r_a.value = 0x52;
+    reg->value = 0x1b;
+    this->ram_inst->memory[0x0001] = op_code;
+    this->cpu_inst->tick();
+    
+    this->assert_equal(reg->value, 0x1b);
+    this->assert_equal(this->cpu_inst->r_a.value, 0x37);
+    this->assert_equal(this->cpu_inst->r_f.value, 0x60);
+
+    // Test full carry
+    this->cpu_inst->r_a.value = 0x3f;
+    reg->value = 0x8b;
+    this->ram_inst->memory[0x0002] = op_code;
+    this->cpu_inst->tick();
+    
+    this->assert_equal(reg->value, 0x8b);
+    this->assert_equal(this->cpu_inst->r_a.value, 0xb4);
+    this->assert_equal(this->cpu_inst->r_f.value, 0x50);
+
+    // Test remove to zero, with half carry
+    reg->value = 0x60;
+    this->cpu_inst->r_a.value = 0x60;
+    this->ram_inst->memory[0x0003] = op_code;
+    this->cpu_inst->tick();
+    
+    this->assert_equal(reg->value, 0x60);
+    this->assert_equal(this->cpu_inst->r_a.value, 0x00);
+    this->assert_equal(this->cpu_inst->r_f.value, 0xc0);
 }
 
 void TestRunner::test_RLC(reg8 *reg, uint8_t op_code)
