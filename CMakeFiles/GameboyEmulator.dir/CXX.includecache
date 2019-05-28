@@ -107,6 +107,10 @@ iostream
 -
 string.h
 -
+algorithm
+-
+iterator
+-
 
 /home/matthew/w/g/gameboy-emulator/src/cpu.h
 memory

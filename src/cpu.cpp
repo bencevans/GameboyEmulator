@@ -7,6 +7,13 @@
 #include <iostream>
 #include <string.h>
 
+
+
+// TEMP
+#include <algorithm> // for std::find
+#include <iterator> // for std::begin, std::end
+//DONE
+
 #define DEBUG 0
 #define INTERUPT_DEBUG 1
 //#define STEPIN 0x0101
@@ -19,10 +26,10 @@
 //#define STEPIN_AFTER 0x9c9bca
 
 // AF should be 10a0 PC: 086e
-#define STEPIN_AFTER 0//x2C3D70//2c2c85//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
+#define STEPIN_AFTER 0x0000//x2C3D70//2c2c85//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
 //#define STEPIN_AFTER 0x2ca380
 //#define STEPIN_AFTER 0x2ca370
-#define DEBUG_EVERY 1
+#define DEBUG_EVERY 0x01
 
 
 // Look for FFC3 set to 7f
@@ -88,6 +95,10 @@ void CPU::reset_state()
 
     this->r_sp.value = 0xfffe;
     this->r_pc.value = 0;
+    
+
+    this->checked_op_codes_itx = 0;
+    this->checked_cb_codes_itx = 0;
 
     this->running = true;
     this->stepped_in = false;
@@ -111,7 +122,7 @@ void CPU::tick() {
             this->print_state_m();
         }
         std::cout << std::endl << std::endl << "New Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;
-    } else if (DEBUG_POINT && this->r_pc.value == DEBUG_POINT && this->r_de.value() == 0xd61a)
+    } else if (DEBUG_POINT && this->r_pc.value == DEBUG_POINT)
     {
         this->print_state_m();
         std::cin.get();
@@ -143,7 +154,30 @@ void CPU::tick() {
     }
 
     // Read value from memory
-    int op_val = (int)this->get_inc_pc_val8();
+    unsigned int op_val = (unsigned int)this->get_inc_pc_val8();
+
+    // TEMP CHECK ALL OPCODES
+    bool checking_this = false;
+    if ((!this->cb_state) && (! (std::find(std::begin(this->checked_op_codes), std::end(this->checked_op_codes), op_val) != std::end(this->checked_op_codes))))
+    {
+        this->checked_op_codes[this->checked_op_codes_itx] = op_val;
+        this->checked_op_codes_itx ++;
+        checking_this = true;
+    } else if (this->cb_state && (! (std::find(std::begin(this->checked_cb_codes), std::end(this->checked_cb_codes), op_val) != std::end(this->checked_cb_codes))))
+    {
+        this->checked_cb_codes[this->checked_cb_codes_itx] = op_val;
+        this->checked_cb_codes_itx ++;
+        checking_this = true;
+    }
+    checking_this = false;
+    if (checking_this)
+    {
+        std::cout << "CB: " << (int)this->cb_state << " Op Code: " << std::hex << op_val << std::endl;
+        this->print_state_m();
+
+    }
+    //DONE
+
 
     if (DEBUG || this->stepped_in)
         std::cout << "CB: " << (int)this->cb_state << " Op Code: " << std::hex << op_val << std::endl;
@@ -156,10 +190,16 @@ void CPU::tick() {
     }
 
     // Stop runnign when we hit the start of the ROM
-    int current_pc = (int)this->r_pc.value;
+    unsigned int current_pc = (unsigned int)this->r_pc.value;
     if ((current_pc == 0x0100) && STOP_BEFORE_ROM) {
         this->running = false;
         std::cout << "HIT the start of the ROM!" << std::endl;
+    }
+
+    if (checking_this) {
+        this->print_state_m();
+        checking_this = false;
+        std::cin.get();
     }
 
     if (this->stepped_in) {
@@ -255,7 +295,7 @@ void CPU::check_interupts() {
     }
 }
 
-void CPU::execute_op_code(int op_val) {
+void CPU::execute_op_code(unsigned int op_val) {
     switch(op_val) {
         case 0x0:
             // STOP
@@ -936,13 +976,13 @@ void CPU::execute_op_code(int op_val) {
             this->op_RST(0x0018);
             break;
         case 0xe0:
-            this->op_Load(0xff00 + this->get_inc_pc_val8(), &this->r_a);
+            this->op_Load((uint16_t)(0xff00 + this->get_inc_pc_val8()), &this->r_a);
             break;
         case 0xe1:
             this->op_Pop(&this->r_hl);
             break;
         case 0xe2:
-            this->op_Load(0xff00 + this->r_c.value, &this->r_a);
+            this->op_Load((uint16_t)(0xff00 + this->r_c.value), &this->r_a);
             break;
         case 0xe5:
             this->op_Push(&this->r_hl);
@@ -1012,7 +1052,7 @@ void CPU::execute_op_code(int op_val) {
             break;
 
         default:
-            std::cout << std::hex << ((int)this->r_pc.value - 1) << "Unknown op code: 0x";
+            std::cout << std::hex << ((unsigned int)this->r_pc.value - 1) << "Unknown op code: 0x";
             std::cout << std::setfill('0') << std::setw(2) << std::hex << op_val;
             std::cout << std::endl;
             if (STOP_ON_BAD_OPCODE) {
@@ -1023,7 +1063,7 @@ void CPU::execute_op_code(int op_val) {
     }
 }
 
-void CPU::execute_cb_code(int op_val) {
+void CPU::execute_cb_code(unsigned int op_val) {
     switch(op_val) {
         case 0x00:
             this->op_RLC(&this->r_b);
@@ -1314,7 +1354,7 @@ uint8_t CPU::get_inc_pc_val8()
 {
     uint8_t ori_val = this->ram->get_val(this->r_pc.value);
     if (DEBUG || this->stepped_in)
-        std::cout << "Got PC value from RAM: " << std::hex << (int)ori_val << " at " << (int)this->r_pc.value << std::endl;
+        std::cout << "Got PC value from RAM: " << std::hex << (unsigned int)ori_val << " at " << (unsigned int)this->r_pc.value << std::endl;
     uint8_t val;
     memcpy(&val, &ori_val, 1);
     this->r_pc.value ++;
@@ -1449,17 +1489,12 @@ void CPU::op_Load(unsigned int dest_addr, reg8 *source) {
 void CPU::op_Load(unsigned int dest_addr, uint8_t val) {
     this->ram->set(dest_addr, val);
 }
+// Copy data from source memory address to destination
 void CPU::op_Load(reg8 *dest, uint16_t source_addr) {
-    unsigned int source_addr_i = source_addr;
-    this->op_Load(dest, source_addr_i);
+    dest->value = this->ram->get_val(source_addr);
 }
 void CPU::op_Load(combined_reg *dest, uint16_t val) {
     dest->set_value(val);
-}
-
-// Copy data from source memory address to destination
-void CPU::op_Load(reg8 *dest, unsigned int source_addr) {
-    dest->value = this->ram->get_val(source_addr);
 }
 
 
@@ -1498,7 +1533,7 @@ void CPU::op_Add(combined_reg *dest, combined_reg *src) {
 void CPU::op_Add(combined_reg *dest, reg16 *src) {
     this->op_Add(dest, (uint32_t)src->value);
 }
-void CPU::op_Add(combined_reg *dest, signed int src) {
+void CPU::op_Add(combined_reg *dest, unsigned int src) {
     uint16_t original_val = dest->value();
 
     this->data_conv32.bit16[0] = dest->value();
@@ -1518,25 +1553,7 @@ void CPU::op_Add(combined_reg *dest, signed int src) {
         &this->r_f, this->CARRY_FLAG_BIT,
         (0x01 & this->data_conv32.bit16[1]) >> 0);
 }
-void CPU::op_Add(combined_reg *dest, uint32_t src) {
-    uint16_t original_val = dest->value();
 
-    this->data_conv32.bit16[0] = dest->value();
-    this->data_conv32.bit16[1] = 0;
-
-    this->data_conv32.bit32[0] += (0x00000000 | src);
-
-    dest->lower->value = this->data_conv32.bit8[0];
-    dest->upper->value = this->data_conv32.bit8[1];
-
-    this->set_half_carry(original_val, src);
-
-    // Set subtract flag to 0, since this is add
-    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
-    this->set_register_bit(
-        &this->r_f, this->CARRY_FLAG_BIT,
-        (0x01 & this->data_conv32.bit16[1]) >> 0);
-}
 void CPU::op_Add(reg16 *dest, signed int val) {
     // Add to value of dest
     uint32_t res = (0x00000000 | dest->value) + val;

@@ -127,10 +127,14 @@ protected:
 
     void print_state_m();
 
-    void execute_op_code(int op_val);
-    void execute_cb_code(int op_val);
+    void execute_op_code(unsigned int op_val);
+    void execute_cb_code(unsigned int op_val);
 
     void check_interupts();
+    int checked_op_codes[1000];
+    int checked_op_codes_itx;
+    int checked_cb_codes[1000];
+    int checked_cb_codes_itx;
     
     // Timer
     bool get_timer_state();
@@ -154,14 +158,12 @@ protected:
     void op_Load(combined_reg *dest, uint16_t val);
     void op_Load(unsigned int dest_addr, reg8 *source);
     void op_Load(unsigned dest_addr, uint8_t val);
-    void op_Load(reg8 *dest, unsigned source_addr);
     void op_Load(reg8 *dest, uint16_t source_addr);
 
     void op_Add(reg8 *dest);
     void op_Add(reg16 *dest);
     void op_Add(reg8 *dest, reg8 *src);
     void op_Add(reg8 *dest, uint16_t src);
-    void op_Add(combined_reg *dest, signed int src);
     void op_Add(combined_reg *dest, combined_reg *src);
     void op_Add(combined_reg *dest, reg16 *src);
     void op_Add(combined_reg *dest, uint32_t src);
