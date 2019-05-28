@@ -69,6 +69,7 @@ protected:
     bool halt_state;
     bool cb_state;
     bool stepped_in;
+    unsigned int timer_itx;
 
 
     union {
@@ -130,6 +131,11 @@ protected:
     void execute_cb_code(int op_val);
 
     void check_interupts();
+    
+    // Timer
+    bool get_timer_state();
+    void increment_timer();
+    bool timer_overflow;
 
     void set_zero_flag(const uint8_t val);
     uint8_t get_zero_flag();

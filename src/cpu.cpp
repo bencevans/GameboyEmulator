@@ -13,7 +13,7 @@
 //#define STEPIN 0x07f2
 #define STEPIN 0//x0217//x075b
 //#define STEPIN 0 //0x06ef //0x0271 //0x029d
-#define DEBUG_POINT 0x086f//x086f//x0870
+#define DEBUG_POINT 0//x086f//x086f//x0870
 //0x086e //0x086f//0x02bd//0x0291 //0x26c
 // 0x9c9d19
 //#define STEPIN_AFTER 0x9c9bca
@@ -81,6 +81,7 @@ void CPU::reset_state()
     this->r_l.value = 0;
 
     this->cb_state = false;
+    this->timer_itx = 0;
 
     this->interupt_state = this->INTERUPT_STATE::DISABLED;
     this->halt_state = false;
@@ -90,6 +91,7 @@ void CPU::reset_state()
 
     this->running = true;
     this->stepped_in = false;
+    this->timer_overflow = false;
 }
 
 bool CPU::is_running() {
@@ -114,6 +116,10 @@ void CPU::tick() {
         this->print_state_m();
         std::cin.get();
     }
+    
+    if (this->get_timer_state())
+        this->increment_timer();
+    
     // If interupt state is either enabled or pending disable,
     // check interupts
     if (this->interupt_state == this->INTERUPT_STATE::ENABLED)
@@ -162,6 +168,47 @@ void CPU::tick() {
     }
 }
 
+bool CPU::get_timer_state()
+{
+    return (this->ram->get_ram_bit(0xff07, 0x02) == 1U);
+}
+
+void CPU::increment_timer()
+{
+    unsigned int freq = 1;
+    switch (this->ram->get_val(0xff07) & 0x03)
+    {
+        case 0x00:
+            freq = 4096;
+            break;
+        case 0x01:
+            freq = 262144;
+            break;
+        case 0x10:
+            freq = 65536;
+            break;
+        case 0x11:
+            freq = 16384;
+            break;
+        default:
+            std::cout << "Invalid timer value!" << std::endl;
+    }
+    this->timer_itx ++;
+    
+    // If CPU count since last tick is greater/equal to CPU frequency/timer frequency
+    // increment timer in mem
+    if (this->timer_itx >= (4000000 / freq))
+    {
+        this->timer_itx = 0;
+        this->ram->inc(0xff05);
+        std::cout << "Timer tick!" << std::endl;
+        
+        // If memory has overflowed, then
+        // signal for an interupt
+        this->timer_overflow = true;
+    }
+}
+
 void CPU::print_state_m() {
     std::cout << std::hex <<
         "CPU Count: " << this->temp_counter << std::endl <<
@@ -200,6 +247,11 @@ void CPU::check_interupts() {
 
         // Do a straight jump to 0x0048
         this->r_pc.value = (uint8_t)0x0048;
+    }
+    if (this->timer_overflow)
+    {
+        this->ram->stack_push(this->r_sp.value, this->r_pc.value);
+        this->r_pc.value = this->ram->get_val(0xff06);
     }
 }
 
