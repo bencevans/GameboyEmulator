@@ -18,6 +18,13 @@ public:
     void test_02();
     void test_03();
     void test_04();
+    
+    void test_80();
+    void test_81();
+    void test_82();
+    void test_83();
+    void test_84();
+    void test_85();
 
     void test_cb_00();
     void test_cb_01();
@@ -47,6 +54,7 @@ public:
     void test_cb_34();
     void test_cb_35();
 
+    void test_Add(reg8 *reg, uint8_t op_code);
     void test_RLC(reg8* reg, uint8_t op_code);
     void test_RL(reg8* reg, uint8_t op_code);
     void test_RR(reg8* reg, uint8_t op_code);
