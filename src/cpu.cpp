@@ -488,6 +488,14 @@ void CPU::execute_op_code(unsigned int op_val) {
         case 0x37:
             this->op_SCF();
             break;
+        case 0x38:
+            if (this->get_carry_flag())
+                this->op_JR();
+            else
+                // If we don't perform the OP, pull
+                // data from ram to inc PC
+                this->get_inc_pc_val8();
+            break;
         case 0x39:
             this->op_Add(&this->r_hl, &this->r_sp);
             break;
