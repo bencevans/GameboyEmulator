@@ -20,7 +20,7 @@ uint8_t RAM::get_val(uint16_t address) {
     memcpy(&val, &this->memory[address], 1);
     if (DEBUG)
         std::cout << std::hex << "Got from RAM (" << address << "): "  << (int)val << std::endl;
-    return this->memory[address];
+    return val;
 }
 
 uint8_t* RAM::get_ref(uint16_t address) {
@@ -81,12 +81,12 @@ void RAM::set(uint16_t address, uint8_t val) {
         this->v_set(address, val);
 }
 void RAM::v_set(uint16_t address, uint8_t val) {
-    if (address < 0x4000) {
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-        std::cout << std::hex << "Forbidden RAM write: " << (int)val << " at " << (int)address << std::endl;
-        std::cin.get();
-        //raise(SIGSEGV);
-    }
+    //if (address < 0x4000) {
+    //    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    //    std::cout << std::hex << "Forbidden RAM write: " << (int)val << " at " << (int)address << std::endl;
+    //    std::cin.get();
+    //    //raise(SIGSEGV);
+    //}
 
     if (address == this->ROM_SWAP_ADDRESS && val)
         this->swap_boot_rom();

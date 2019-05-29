@@ -14,6 +14,8 @@
 #include <iterator> // for std::begin, std::end
 //DONE
 
+// TODO DEBUG -> CPU count: 2ccdee a == 0080 (should be 00c0) before add hl hl ?
+
 #define DEBUG 0
 #define INTERUPT_DEBUG 1
 //#define STEPIN 0x0101
@@ -162,14 +164,15 @@ void CPU::tick() {
     {
         this->checked_op_codes[this->checked_op_codes_itx] = op_val;
         this->checked_op_codes_itx ++;
-        checking_this = true;
+        if (this->r_pc.value > 0x100)
+            checking_this = true;
     } else if (this->cb_state && (! (std::find(std::begin(this->checked_cb_codes), std::end(this->checked_cb_codes), op_val) != std::end(this->checked_cb_codes))))
     {
         this->checked_cb_codes[this->checked_cb_codes_itx] = op_val;
         this->checked_cb_codes_itx ++;
-        checking_this = true;
+        if (this->r_pc.value > 0x100)
+            checking_this = true;
     }
-    checking_this = false;
     if (checking_this)
     {
         std::cout << "CB: " << (int)this->cb_state << " Op Code: " << std::hex << op_val << std::endl;
@@ -997,7 +1000,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_Add(&this->r_sp, this->get_inc_pc_val8s());
             break;
         case 0xe9:
-            this->op_JP();
+            this->op_JP(this->r_hl.value());
             break;
         case 0xea:
             this->op_Load(this->get_inc_pc_val16(), &this->r_a);
@@ -1242,12 +1245,11 @@ void CPU::op_XOR(reg8 *comp) {
 
 }
 void CPU::op_XOR(uint8_t val) {
-    uint8_t res = this->r_a.value ^ val;
-    this->r_a.value = res;
+    this->r_a.value = this->r_a.value ^ val;
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, 0U);
-    this->set_zero_flag(res);
+    this->set_zero_flag(this->r_a.value);
 }
 
 // AND operators - And with the A register value, set result to A
@@ -1259,9 +1261,8 @@ void CPU::op_AND(reg8 *comp) {
     this->op_AND(comp->value);
 }
 void CPU::op_AND(uint8_t comp) {
-    uint8_t res = this->r_a.value & comp;
-    this->r_a.value = res;
-    this->set_zero_flag(res);
+    this->r_a.value = this->r_a.value & comp;
+    this->set_zero_flag(this->r_a.value);
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 1U);
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, 0U);
@@ -1269,8 +1270,7 @@ void CPU::op_AND(uint8_t comp) {
 
 // OR operators - OR with the A register value, set result to A
 void CPU::op_OR() {
-    uint8_t comp = this->get_inc_pc_val8();
-    this->op_OR(comp);
+    this->op_OR(this->get_inc_pc_val8());
 }
 void CPU::op_OR(reg8 *comp) {
     this->op_OR(comp->value);
@@ -1556,7 +1556,7 @@ void CPU::op_Add(combined_reg *dest, unsigned int src) {
 
 void CPU::op_Add(reg16 *dest, signed int val) {
     // Add to value of dest
-    uint32_t res = (0x00000000 | dest->value) + val;
+    uint32_t res = (unsigned int)(0x00000000 | dest->value) + (signed int)val;
     // Reset subtract/zero flags
     this->set_zero_flag(0x00);
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
