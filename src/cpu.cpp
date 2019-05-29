@@ -22,16 +22,16 @@
 //#define STEPIN 0x07f2
 #define STEPIN 0//x0217//x075b
 //#define STEPIN 0 //0x06ef //0x0271 //0x029d
-#define DEBUG_POINT 0//x086f//x086f//x0870
+#define DEBUG_POINT 0//xc4a0//x02b7//x086f//x086f//x0870
 //0x086e //0x086f//0x02bd//0x0291 //0x26c
 // 0x9c9d19
 //#define STEPIN_AFTER 0x9c9bca
 
 // AF should be 10a0 PC: 086e
-#define STEPIN_AFTER 0//x308ac0//x2e8a00(write to 2000)//x2C3D70//2c2c85//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
+#define STEPIN_AFTER 0//x2f1000//x308ac0//x2e8a00(write to 2000)//x2C3D70//2c2c85//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
 //#define STEPIN_AFTER 0x2ca380
 //#define STEPIN_AFTER 0x2ca370
-#define DEBUG_EVERY 0x1
+#define DEBUG_EVERY 0x200
 
 
 // Look for FFC3 set to 7f
@@ -434,6 +434,9 @@ void CPU::execute_op_code(unsigned int op_val) {
         case 0x26:
             this->op_Load(&this->r_h);
             break;
+        case 0x27:
+            this->op_DAA();
+            break;
         case 0x28:
             if (this->get_zero_flag())
                 this->op_JR();
@@ -460,6 +463,9 @@ void CPU::execute_op_code(unsigned int op_val) {
         case 0x2e:
             this->op_Load(&this->r_l);
             break;
+        case 0x2f:
+            this->op_CPL();
+            break;
         case 0x30:
             if (! this->get_carry_flag())
                 this->op_JR();
@@ -475,6 +481,9 @@ void CPU::execute_op_code(unsigned int op_val) {
         case 0x32:
             // Get HL, dec and set
             this->op_Load_Dec(&this->r_hl, &this->r_a);
+            break;
+        case 0x33:
+            this->op_Inc(&this->r_sp);
             break;
         case 0x34:
             this->op_Inc(this->get_register_value16(&this->r_hl));
@@ -514,6 +523,9 @@ void CPU::execute_op_code(unsigned int op_val) {
             break;
         case 0x3e:
             this->op_Load(&this->r_a);
+            break;
+        case 0x3f:
+            this->op_CCF();
             break;
         case 0x40:
             this->op_Load(&this->r_b, &this->r_b);
@@ -800,6 +812,9 @@ void CPU::execute_op_code(unsigned int op_val) {
         case 0x9e:
             this->op_SBC(this->get_register_value16(&this->r_hl));
             break;
+        case 0x9f:
+            this->op_SBC(&this->r_a);
+            break;
         case 0xa0:
             this->op_AND(&this->r_b);
             break;
@@ -893,6 +908,9 @@ void CPU::execute_op_code(unsigned int op_val) {
             break;
         case 0xbe:
             this->op_CP(this->ram->get_val(this->r_hl.value()));
+            break;
+        case 0xbf:
+            this->op_CP(&this->r_a);
             break;
         case 0xc0:
             if (! this->get_zero_flag())
@@ -1126,6 +1144,30 @@ void CPU::execute_cb_code(unsigned int op_val) {
             break;
         case 0x07:
             this->op_RLC(&this->r_a);
+            break;
+        case 0x08:
+            this->op_RRC(&this->r_b);
+            break;
+        case 0x09:
+            this->op_RRC(&this->r_c);
+            break;
+        case 0x0a:
+            this->op_RRC(&this->r_d);
+            break;
+        case 0x0b:
+            this->op_RRC(&this->r_e);
+            break;
+        case 0x0c:
+            this->op_RRC(&this->r_h);
+            break;
+        case 0x0d:
+            this->op_RRC(&this->r_l);
+            break;
+        case 0x0e:
+            this->op_RRC(this->get_register_value16(&this->r_hl));
+            break;
+        case 0x0f:
+            this->op_RRC(&this->r_a);
             break;
         case 0x10:
             this->op_RL(&this->r_b);
@@ -1442,6 +1484,17 @@ void CPU::op_Load_Inc(reg8 *dest, combined_reg *source) {
     this->op_Inc(source);
 }
 
+void CPU::op_CPL()
+{
+    for (uint8_t itx = 0; itx < 8; itx ++)
+        this->set_register_bit(&this->r_a, itx, (this->r_a.value & (1U << itx)) ? 0UL : 1UL);
+}
+
+void CPU::op_CCF()
+{
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, this->get_carry_flag() ? 0UL : 1UL);
+}
+
 void CPU::op_Bit(reg8 *comp, unsigned int bit) {
     // Set flags accordinly before operation
     this->set_zero_flag(this->get_register_bit(comp, bit));
@@ -1452,6 +1505,30 @@ void CPU::op_Bit(reg8 *comp, unsigned int bit) {
 // Set single bit in a given register
 void CPU::op_Set(uint8_t bit, reg8 *dest) {
     this->set_register_bit(dest, bit, 1);
+}
+
+void CPU::op_DAA()
+{
+    uint16_t diff = 0x0000;
+    if (this->get_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT) || (this->r_a.value & 0x0f) > 0x09)
+    {
+        diff |= 0x06;
+    }
+
+    if (this->get_register_bit(&this->r_f, this->CARRY_FLAG_BIT) || (this->r_a.value & 0xf0) > 0x90)
+    {
+        diff |= 0x60;
+    }
+    
+    if (this->get_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT))
+        this->op_Sub(diff);
+    else
+        this->op_Add(&this->r_a, diff);
+
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (this->r_a.value > 0x99) ? 1U : 0U);
+        
+    this->set_zero_flag(this->r_a.value);
+    //this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
 
 // Add 8bit PC value and carry flag to A.
@@ -1690,6 +1767,12 @@ void CPU::op_Inc(combined_reg *dest) {
     dest->lower->value = data_conv.bit8[0];
     dest->upper->value = data_conv.bit8[1];
 }
+void CPU::op_Inc(reg16 *dest) {
+    this->data_conv32.bit16[0] = dest->value;
+    this->data_conv32.bit16[1] = 0;
+    this->data_conv32.bit32[0] = (uint32_t)((unsigned int)(this->data_conv32.bit32[0]) + 1);
+    dest->value = this->data_conv32.bit16[0];
+}
 void CPU::op_Dec(reg16 *dest) {
     this->data_conv32.bit16[0] = dest->value;
     this->data_conv32.bit16[1] = 0;
@@ -1894,6 +1977,7 @@ void CPU::op_RRC(reg8* src)
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
+
 void CPU::op_RRC(uint16_t mem_addr)
 {
     uint8_t val = this->ram->get_val(mem_addr);

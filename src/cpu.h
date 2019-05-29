@@ -173,11 +173,15 @@ protected:
     void op_Sub(uint16_t src);
     void op_SBC(reg8 *src);
     void op_SBC(uint8_t src);
+    void op_DAA();
+    void op_CPL();
+    void op_CCF();
 
     void op_Inc(reg8 *dest);
     void op_Inc(uint16_t mem_addr);
     uint8_t op_Inc(uint8_t val);
     void op_Inc(combined_reg *dest);
+    void op_Inc(reg16 *dest);
     void op_Dec(reg8 *dest);
     void op_Dec(uint16_t mem_addr);
     uint8_t op_Dec(uint8_t val);

@@ -79,7 +79,8 @@ int main(int argc, char* args[])
     // Load bios/RAM
     char bios_path[] = "./copyright/DMG_ROM.bin";
     //char rom_path[] = "./copyright/Tetris (JUE) (V1.1) [!].gb";
-    char rom_path[] = "./resources/test_roms/cpu_instrs/cpu_instrs.gb";
+    //char rom_path[] = "./resources/test_roms/cpu_instrs/cpu_instrs.gb";
+    char rom_path[] = "./resources/test_roms/cpu_instrs/individual/09-op r,r.gb";
     ram_inst->load_bios(bios_path);
     ram_inst->load_rom(rom_path);
 
