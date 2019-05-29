@@ -28,7 +28,7 @@
 //#define STEPIN_AFTER 0x9c9bca
 
 // AF should be 10a0 PC: 086e
-#define STEPIN_AFTER 0//x2e8a00(write to 2000)//x2C3D70//2c2c85//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
+#define STEPIN_AFTER 0//x308ac0//x2e8a00(write to 2000)//x2C3D70//2c2c85//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
 //#define STEPIN_AFTER 0x2ca380
 //#define STEPIN_AFTER 0x2ca370
 #define DEBUG_EVERY 0x1
@@ -1047,6 +1047,8 @@ void CPU::execute_op_code(unsigned int op_val) {
             break;
         case 0xf1:
             this->op_Pop(&this->r_af);
+            // Purge anything in the LSB nibble of the flag
+            this->r_f.value = (this->r_f.value & 0xf0);
             break;
         case 0xf3:
             // Disable interupts
