@@ -28,10 +28,10 @@
 //#define STEPIN_AFTER 0x9c9bca
 
 // AF should be 10a0 PC: 086e
-#define STEPIN_AFTER 0x0000//x2C3D70//2c2c85//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
+#define STEPIN_AFTER 0//x2e8a00(write to 2000)//x2C3D70//2c2c85//0x2cf51d//0x39a378//0x9c9d68//0x2ca378
 //#define STEPIN_AFTER 0x2ca380
 //#define STEPIN_AFTER 0x2ca370
-#define DEBUG_EVERY 0x01
+#define DEBUG_EVERY 0x1
 
 
 // Look for FFC3 set to 7f
@@ -173,6 +173,7 @@ void CPU::tick() {
         if (this->r_pc.value > 0x100)
             checking_this = true;
     }
+    checking_this = false;
     if (checking_this)
     {
         std::cout << "CB: " << (int)this->cb_state << " Op Code: " << std::hex << op_val << std::endl;
@@ -362,8 +363,14 @@ void CPU::execute_op_code(unsigned int op_val) {
         case 0x11:
             this->op_Load(&this->r_de);
             break;
+        case 0x12:
+            this->op_Load(this->r_de.value(), &this->r_a);
+            break;
         case 0x13:
             this->op_Inc(&this->r_de);
+            break;
+        case 0x14:
+            this->op_Inc(&this->r_d);
             break;
         case 0x15:
             this->op_Dec(&this->r_d);
@@ -858,8 +865,23 @@ void CPU::execute_op_code(unsigned int op_val) {
         case 0xb7:
             this->op_OR(&this->r_a);
             break;
+        case 0xb8:
+            this->op_CP(&this->r_b);
+            break;
         case 0xb9:
             this->op_CP(&this->r_c);
+            break;
+        case 0xba:
+            this->op_CP(&this->r_d);
+            break;
+        case 0xbb:
+            this->op_CP(&this->r_e);
+            break;
+        case 0xbc:
+            this->op_CP(&this->r_h);
+            break;
+        case 0xbd:
+            this->op_CP(&this->r_l);
             break;
         case 0xbe:
             this->op_CP(this->ram->get_val(this->r_hl.value()));
@@ -1024,6 +1046,9 @@ void CPU::execute_op_code(unsigned int op_val) {
             break;
         case 0xf5:
             this->op_Push(&this->r_af);
+            break;
+        case 0xf6:
+            this->op_OR();
             break;
         case 0xf7:
             this->op_RST(0x0030);
