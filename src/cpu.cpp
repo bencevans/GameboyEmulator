@@ -2157,6 +2157,9 @@ void CPU::op_Adc(reg8 *dest) {
 void CPU::op_Adc(reg8 *dest, reg8 *source) {
     this->op_Adc(dest, source->value);
 }
+void CPU::op_Adc(reg8 *dest, uint16_t mem_addr) {
+    this->op_Adc(dest, this->ram->get_val(mem_addr));
+}
 void CPU::op_Adc(reg8 *dest, uint8_t source) {
     union {
         uint8_t bit8[2];
@@ -2337,10 +2340,10 @@ void CPU::op_SBC(reg8 *src)
     this->op_Sub((uint16_t)(src->value + (uint8_t)this->get_carry_flag()));
 }
 
-void CPU::op_SBC(uint8_t src)
+void CPU::op_SBC(uint16_t mem_addr)
 {
     // Subtract src plus carry flag
-    this->op_Sub((uint16_t)(src + (uint8_t)this->get_carry_flag()));
+    this->op_Sub((uint16_t)(this->ram->get_val(mem_addr) + (uint8_t)this->get_carry_flag()));
 }
 
 void CPU::op_Inc(reg8 *src)

@@ -172,7 +172,7 @@ protected:
     void op_Sub(reg8 *src);
     void op_Sub(uint16_t src);
     void op_SBC(reg8 *src);
-    void op_SBC(uint8_t src);
+    void op_SBC(uint16_t mem_addr);
     void op_DAA();
     void op_CPL();
     void op_CCF();
@@ -252,6 +252,7 @@ protected:
 
     void op_Adc(reg8 *dest);
     void op_Adc(reg8 *dest, reg8 *source);
+    void op_Adc(reg8 *dest, uint16_t mem_addr);
     void op_Adc(reg8 *dest, uint8_t source);
 
     void op_EI();
