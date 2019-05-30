@@ -237,7 +237,8 @@ protected:
     void op_Load_Inc(combined_reg *dest, reg8 *source);
     void op_Load_Inc(reg8 *dest, combined_reg *source);
 
-    void op_Bit(reg8 *comp, unsigned int bit);
+    void op_Bit(unsigned int bit, reg8 *comp);
+    void op_Bit(unsigned int bit, uint16_t mem_addr);
     void op_Set(uint8_t bit, reg8 *dest);
 
     void op_Adc(reg8 *dest);

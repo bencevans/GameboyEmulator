@@ -1265,8 +1265,197 @@ void CPU::execute_cb_code(unsigned int op_val) {
         case 0x3f:
             this->op_SRL(&this->r_a);
             break;
+        case 0x40:
+            this->op_Bit(0, &this->r_b);
+            break;
+        case 0x41:
+            this->op_Bit(0, &this->r_c);
+            break;
+        case 0x42:
+            this->op_Bit(0, &this->r_d);
+            break;
+        case 0x43:
+            this->op_Bit(0, &this->r_e);
+            break;
+        case 0x44:
+            this->op_Bit(0, &this->r_h);
+            break;
+        case 0x45:
+            this->op_Bit(0, &this->r_l);
+            break;
+        case 0x46:
+            this->op_Bit(0, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x47:
+            this->op_Bit(0, &this->r_a);
+            break;
+        case 0x48:
+            this->op_Bit(1, &this->r_b);
+            break;
+        case 0x49:
+            this->op_Bit(1, &this->r_c);
+            break;
+        case 0x4a:
+            this->op_Bit(1, &this->r_d);
+            break;
+        case 0x4b:
+            this->op_Bit(1, &this->r_e);
+            break;
+        case 0x4c:
+            this->op_Bit(1, &this->r_h);
+            break;
+        case 0x4d:
+            this->op_Bit(1, &this->r_l);
+            break;
+        case 0x4e:
+            this->op_Bit(1, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x4f:
+            this->op_Bit(1, &this->r_a);
+            break;
+        case 0x50:
+            this->op_Bit(2, &this->r_b);
+            break;
+        case 0x51:
+            this->op_Bit(2, &this->r_c);
+            break;
+        case 0x52:
+            this->op_Bit(2, &this->r_d);
+            break;
+        case 0x53:
+            this->op_Bit(2, &this->r_e);
+            break;
+        case 0x54:
+            this->op_Bit(2, &this->r_h);
+            break;
+        case 0x55:
+            this->op_Bit(2, &this->r_l);
+            break;
+        case 0x56:
+            this->op_Bit(2, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x57:
+            this->op_Bit(2, &this->r_a);
+            break;
+        case 0x58:
+            this->op_Bit(3, &this->r_b);
+            break;
+        case 0x59:
+            this->op_Bit(3, &this->r_c);
+            break;
+        case 0x5a:
+            this->op_Bit(3, &this->r_d);
+            break;
+        case 0x5b:
+            this->op_Bit(3, &this->r_e);
+            break;
+        case 0x5c:
+            this->op_Bit(3, &this->r_h);
+            break;
+        case 0x5d:
+            this->op_Bit(3, &this->r_l);
+            break;
+        case 0x5e:
+            this->op_Bit(3, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x5f:
+            this->op_Bit(3, &this->r_a);
+            break;
+        case 0x60:
+            this->op_Bit(4, &this->r_b);
+            break;
+        case 0x61:
+            this->op_Bit(4, &this->r_c);
+            break;
+        case 0x62:
+            this->op_Bit(4, &this->r_d);
+            break;
+        case 0x63:
+            this->op_Bit(4, &this->r_e);
+            break;
+        case 0x64:
+            this->op_Bit(4, &this->r_h);
+            break;
+        case 0x65:
+            this->op_Bit(4, &this->r_l);
+            break;
+        case 0x66:
+            this->op_Bit(4, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x67:
+            this->op_Bit(4, &this->r_a);
+            break;
+        case 0x68:
+            this->op_Bit(5, &this->r_b);
+            break;
+        case 0x69:
+            this->op_Bit(5, &this->r_c);
+            break;
+        case 0x6a:
+            this->op_Bit(5, &this->r_d);
+            break;
+        case 0x6b:
+            this->op_Bit(5, &this->r_e);
+            break;
+        case 0x6c:
+            this->op_Bit(5, &this->r_h);
+            break;
+        case 0x6d:
+            this->op_Bit(5, &this->r_l);
+            break;
+        case 0x6e:
+            this->op_Bit(5, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x6f:
+            this->op_Bit(5, &this->r_a);
+            break;
+        case 0x70:
+            this->op_Bit(6, &this->r_b);
+            break;
+        case 0x71:
+            this->op_Bit(6, &this->r_c);
+            break;
+        case 0x72:
+            this->op_Bit(6, &this->r_d);
+            break;
+        case 0x73:
+            this->op_Bit(6, &this->r_e);
+            break;
+        case 0x74:
+            this->op_Bit(6, &this->r_h);
+            break;
+        case 0x75:
+            this->op_Bit(6, &this->r_l);
+            break;
+        case 0x76:
+            this->op_Bit(6, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x77:
+            this->op_Bit(6, &this->r_a);
+            break;
+        case 0x78:
+            this->op_Bit(7, &this->r_b);
+            break;
+        case 0x79:
+            this->op_Bit(7, &this->r_c);
+            break;
+        case 0x7a:
+            this->op_Bit(7, &this->r_d);
+            break;
+        case 0x7b:
+            this->op_Bit(7, &this->r_e);
+            break;
         case 0x7c:
-            this->op_Bit(&this->r_h, 7);
+            this->op_Bit(7, &this->r_h);
+            break;
+        case 0x7d:
+            this->op_Bit(7, &this->r_l);
+            break;
+        case 0x7e:
+            this->op_Bit(7, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x7f:
+            this->op_Bit(7, &this->r_a);
             break;
         case 0xcd:
             this->op_Set(1, &this->r_l);
@@ -1495,9 +1684,16 @@ void CPU::op_CCF()
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, this->get_carry_flag() ? 0UL : 1UL);
 }
 
-void CPU::op_Bit(reg8 *comp, unsigned int bit) {
+void CPU::op_Bit(unsigned int bit, reg8 *comp) {
     // Set flags accordinly before operation
     this->set_zero_flag(this->get_register_bit(comp, bit));
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 1U);
+}
+
+void CPU::op_Bit(unsigned int bit, uint16_t mem_addr) {
+    // Set flags accordinly before operation
+    this->set_zero_flag(this->ram->get_ram_bit(mem_addr, bit));
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 1U);
 }
