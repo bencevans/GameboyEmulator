@@ -1457,8 +1457,365 @@ void CPU::execute_cb_code(unsigned int op_val) {
         case 0x7f:
             this->op_Bit(7, &this->r_a);
             break;
+        case 0x80:
+            this->op_Res(0, &this->r_b);
+            break;
+        case 0x81:
+            this->op_Res(0, &this->r_c);
+            break;
+        case 0x82:
+            this->op_Res(0, &this->r_d);
+            break;
+        case 0x83:
+            this->op_Res(0, &this->r_e);
+            break;
+        case 0x84:
+            this->op_Res(0, &this->r_h);
+            break;
+        case 0x85:
+            this->op_Res(0, &this->r_l);
+            break;
+        case 0x86:
+            this->op_Res(0, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x87:
+            this->op_Res(0, &this->r_a);
+            break;
+        case 0x88:
+            this->op_Res(1, &this->r_b);
+            break;
+        case 0x89:
+            this->op_Res(1, &this->r_c);
+            break;
+        case 0x8a:
+            this->op_Res(1, &this->r_d);
+            break;
+        case 0x8b:
+            this->op_Res(1, &this->r_e);
+            break;
+        case 0x8c:
+            this->op_Res(1, &this->r_h);
+            break;
+        case 0x8d:
+            this->op_Res(1, &this->r_l);
+            break;
+        case 0x8e:
+            this->op_Res(1, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x8f:
+            this->op_Res(1, &this->r_a);
+            break;
+        case 0x90:
+            this->op_Res(2, &this->r_b);
+            break;
+        case 0x91:
+            this->op_Res(2, &this->r_c);
+            break;
+        case 0x92:
+            this->op_Res(2, &this->r_d);
+            break;
+        case 0x93:
+            this->op_Res(2, &this->r_e);
+            break;
+        case 0x94:
+            this->op_Res(2, &this->r_h);
+            break;
+        case 0x95:
+            this->op_Res(2, &this->r_l);
+            break;
+        case 0x96:
+            this->op_Res(2, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x97:
+            this->op_Res(2, &this->r_a);
+            break;
+        case 0x98:
+            this->op_Res(3, &this->r_b);
+            break;
+        case 0x99:
+            this->op_Res(3, &this->r_c);
+            break;
+        case 0x9a:
+            this->op_Res(3, &this->r_d);
+            break;
+        case 0x9b:
+            this->op_Res(3, &this->r_e);
+            break;
+        case 0x9c:
+            this->op_Res(3, &this->r_h);
+            break;
+        case 0x9d:
+            this->op_Res(3, &this->r_l);
+            break;
+        case 0x9e:
+            this->op_Res(3, this->get_register_value16(&this->r_hl));
+            break;
+        case 0x9f:
+            this->op_Res(3, &this->r_a);
+            break;
+        case 0xa0:
+            this->op_Res(4, &this->r_b);
+            break;
+        case 0xa1:
+            this->op_Res(4, &this->r_c);
+            break;
+        case 0xa2:
+            this->op_Res(4, &this->r_d);
+            break;
+        case 0xa3:
+            this->op_Res(4, &this->r_e);
+            break;
+        case 0xa4:
+            this->op_Res(4, &this->r_h);
+            break;
+        case 0xa5:
+            this->op_Res(4, &this->r_l);
+            break;
+        case 0xa6:
+            this->op_Res(4, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xa7:
+            this->op_Res(4, &this->r_a);
+            break;
+        case 0xa8:
+            this->op_Res(5, &this->r_b);
+            break;
+        case 0xa9:
+            this->op_Res(5, &this->r_c);
+            break;
+        case 0xaa:
+            this->op_Res(5, &this->r_d);
+            break;
+        case 0xab:
+            this->op_Res(5, &this->r_e);
+            break;
+        case 0xac:
+            this->op_Res(5, &this->r_h);
+            break;
+        case 0xad:
+            this->op_Res(5, &this->r_l);
+            break;
+        case 0xae:
+            this->op_Res(5, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xaf:
+            this->op_Res(5, &this->r_a);
+            break;
+        case 0xb0:
+            this->op_Res(6, &this->r_b);
+            break;
+        case 0xb1:
+            this->op_Res(6, &this->r_c);
+            break;
+        case 0xb2:
+            this->op_Res(6, &this->r_d);
+            break;
+        case 0xb3:
+            this->op_Res(6, &this->r_e);
+            break;
+        case 0xb4:
+            this->op_Res(6, &this->r_h);
+            break;
+        case 0xb5:
+            this->op_Res(6, &this->r_l);
+            break;
+        case 0xb6:
+            this->op_Res(6, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xb7:
+            this->op_Res(6, &this->r_a);
+            break;
+        case 0xb8:
+            this->op_Res(7, &this->r_b);
+            break;
+        case 0xb9:
+            this->op_Res(7, &this->r_c);
+            break;
+        case 0xba:
+            this->op_Res(7, &this->r_d);
+            break;
+        case 0xbb:
+            this->op_Res(7, &this->r_e);
+            break;
+        case 0xbc:
+            this->op_Res(7, &this->r_h);
+            break;
+        case 0xbd:
+            this->op_Res(7, &this->r_l);
+            break;
+        case 0xbe:
+            this->op_Res(7, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xbf:
+            this->op_Res(7, &this->r_a);
+            break;
+        case 0xc0:
+            this->op_Set(0, &this->r_b);
+            break;
+        case 0xc1:
+            this->op_Set(0, &this->r_c);
+            break;
+        case 0xc2:
+            this->op_Set(0, &this->r_d);
+            break;
+        case 0xc3:
+            this->op_Set(0, &this->r_e);
+            break;
+        case 0xc4:
+            this->op_Set(0, &this->r_h);
+            break;
+        case 0xc5:
+            this->op_Set(0, &this->r_l);
+            break;
+        case 0xc6:
+            this->op_Set(0, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xc7:
+            this->op_Set(0, &this->r_a);
+            break;
+        case 0xc8:
+            this->op_Set(1, &this->r_b);
+            break;
+        case 0xc9:
+            this->op_Set(1, &this->r_c);
+            break;
+        case 0xca:
+            this->op_Set(1, &this->r_d);
+            break;
+        case 0xcb:
+            this->op_Set(1, &this->r_e);
+            break;
+        case 0xcc:
+            this->op_Set(1, &this->r_h);
+            break;
         case 0xcd:
             this->op_Set(1, &this->r_l);
+            break;
+        case 0xce:
+            this->op_Set(1, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xcf:
+            this->op_Set(1, &this->r_a);
+            break;
+        case 0xd0:
+            this->op_Set(2, &this->r_b);
+            break;
+        case 0xd1:
+            this->op_Set(2, &this->r_c);
+            break;
+        case 0xd2:
+            this->op_Set(2, &this->r_d);
+            break;
+        case 0xd3:
+            this->op_Set(2, &this->r_e);
+            break;
+        case 0xd4:
+            this->op_Set(2, &this->r_h);
+            break;
+        case 0xd5:
+            this->op_Set(2, &this->r_l);
+            break;
+        case 0xd6:
+            this->op_Set(2, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xd7:
+            this->op_Set(2, &this->r_a);
+            break;
+        case 0xd8:
+            this->op_Set(3, &this->r_b);
+            break;
+        case 0xd9:
+            this->op_Set(3, &this->r_c);
+            break;
+        case 0xda:
+            this->op_Set(3, &this->r_d);
+            break;
+        case 0xdb:
+            this->op_Set(3, &this->r_e);
+            break;
+        case 0xdc:
+            this->op_Set(3, &this->r_h);
+            break;
+        case 0xdd:
+            this->op_Set(3, &this->r_l);
+            break;
+        case 0xde:
+            this->op_Set(3, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xdf:
+            this->op_Set(3, &this->r_a);
+            break;
+        case 0xe0:
+            this->op_Set(4, &this->r_b);
+            break;
+        case 0xe1:
+            this->op_Set(4, &this->r_c);
+            break;
+        case 0xe2:
+            this->op_Set(4, &this->r_d);
+            break;
+        case 0xe3:
+            this->op_Set(4, &this->r_e);
+            break;
+        case 0xe4:
+            this->op_Set(4, &this->r_h);
+            break;
+        case 0xe5:
+            this->op_Set(4, &this->r_l);
+            break;
+        case 0xe6:
+            this->op_Set(4, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xe7:
+            this->op_Set(4, &this->r_a);
+            break;
+        case 0xe8:
+            this->op_Set(5, &this->r_b);
+            break;
+        case 0xe9:
+            this->op_Set(5, &this->r_c);
+            break;
+        case 0xea:
+            this->op_Set(5, &this->r_d);
+            break;
+        case 0xeb:
+            this->op_Set(5, &this->r_e);
+            break;
+        case 0xec:
+            this->op_Set(5, &this->r_h);
+            break;
+        case 0xed:
+            this->op_Set(5, &this->r_l);
+            break;
+        case 0xee:
+            this->op_Set(5, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xef:
+            this->op_Set(5, &this->r_a);
+            break;
+        case 0xf0:
+            this->op_Set(6, &this->r_b);
+            break;
+        case 0xf1:
+            this->op_Set(6, &this->r_c);
+            break;
+        case 0xf2:
+            this->op_Set(6, &this->r_d);
+            break;
+        case 0xf3:
+            this->op_Set(6, &this->r_e);
+            break;
+        case 0xf4:
+            this->op_Set(6, &this->r_h);
+            break;
+        case 0xf5:
+            this->op_Set(6, &this->r_l);
+            break;
+        case 0xf6:
+            this->op_Set(6, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xf7:
+            this->op_Set(6, &this->r_a);
             break;
         case 0xf8:
             this->op_Set(7, &this->r_b);
@@ -1477,6 +1834,12 @@ void CPU::execute_cb_code(unsigned int op_val) {
             break;
         case 0xfd:
             this->op_Set(7, &this->r_l);
+            break;
+        case 0xfe:
+            this->op_Set(7, this->get_register_value16(&this->r_hl));
+            break;
+        case 0xff:
+            this->op_Set(7, &this->r_a);
             break;
         default:
             std::cout << "Unknown CB op code: ";
@@ -1699,9 +2062,19 @@ void CPU::op_Bit(unsigned int bit, uint16_t mem_addr) {
 }
 
 // Set single bit in a given register
-void CPU::op_Set(uint8_t bit, reg8 *dest) {
-    this->set_register_bit(dest, bit, 1);
+void CPU::op_Res(uint8_t bit, reg8 *dest) {
+    this->set_register_bit(dest, bit, 0U);
 }
+void CPU::op_Res(uint8_t bit, uint16_t mem_addr) {
+    this->ram->set_ram_bit(mem_addr, bit, 0U);
+}
+void CPU::op_Set(uint8_t bit, reg8 *dest) {
+    this->set_register_bit(dest, bit, 1U);
+}
+void CPU::op_Set(uint8_t bit, uint16_t mem_addr) {
+    this->ram->set_ram_bit(mem_addr, bit, 1U);
+}
+
 
 void CPU::op_DAA()
 {

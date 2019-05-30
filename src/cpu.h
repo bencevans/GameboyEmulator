@@ -239,7 +239,10 @@ protected:
 
     void op_Bit(unsigned int bit, reg8 *comp);
     void op_Bit(unsigned int bit, uint16_t mem_addr);
+    void op_Res(uint8_t bit, reg8 *dest);
+    void op_Res(uint8_t bit, uint16_t mem_addr);
     void op_Set(uint8_t bit, reg8 *dest);
+    void op_Set(uint8_t bit, uint16_t mem_addr);
 
     void op_Adc(reg8 *dest);
     void op_Adc(reg8 *dest, reg8 *source);
