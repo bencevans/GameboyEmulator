@@ -205,6 +205,12 @@ protected:
     void op_RLC(uint16_t mem_addr);
     void op_RRC(reg8* src);
     void op_RRC(uint16_t mem_addr);
+    void op_SLA(reg8 *src);
+    void op_SLA(uint16_t mem_addr);
+    uint8_t op_SLA(uint8_t val);
+    void op_SRA(reg8 *src);
+    void op_SRA(uint16_t mem_addr);
+    uint8_t op_SRA(uint8_t val);
 
     void op_Call();
     void op_Return();

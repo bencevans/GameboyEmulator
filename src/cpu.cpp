@@ -1217,6 +1217,55 @@ void CPU::execute_cb_code(unsigned int op_val) {
         case 0x1f:
             this->op_RR(&this->r_a);
             break;
+        case 0x20:
+            this->op_SLA(&this->r_b);
+            break;
+        case 0x21:
+            this->op_SLA(&this->r_c);
+            break;
+        case 0x22:
+            this->op_SLA(&this->r_d);
+            break;
+        case 0x23:
+            this->op_SLA(&this->r_e);
+            break;
+        case 0x24:
+            this->op_SLA(&this->r_h);
+            break;
+        case 0x25:
+            this->op_SLA(&this->r_l);
+            break;
+        case 0x26:
+            this->op_SLA(this->get_register_value16(&this->r_hl));
+            break;
+        case 0x27:
+            this->op_SLA(&this->r_a);
+            break;
+        case 0x28:
+            this->op_SRA(&this->r_b);
+            break;
+        case 0x29:
+            this->op_SRA(&this->r_c);
+            break;
+        case 0x2a:
+            this->op_SRA(&this->r_d);
+            break;
+        case 0x2b:
+            this->op_SRA(&this->r_e);
+            break;
+        case 0x2c:
+            this->op_SRA(&this->r_h);
+            break;
+        case 0x2d:
+            this->op_SRA(&this->r_l);
+            break;
+        case 0x2e:
+            this->op_SRA(this->get_register_value16(&this->r_hl));
+            break;
+        case 0x2f:
+            this->op_SRA(&this->r_a);
+            break;
+
         case 0x30:
             this->op_Swap(&this->r_b);
             break;
@@ -2453,6 +2502,36 @@ void CPU::op_SRL(reg8 *src)
     // Reset subtract and half-carry bits
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+}
+
+void CPU::op_SLA(reg8 *src) {
+    src->value = this->op_SLA(src->value);
+}
+void CPU::op_SLA(uint16_t mem_addr) {
+    this->ram->set(mem_addr, this->op_SLA(this->ram->get_val(mem_addr)));
+}
+uint8_t CPU::op_SLA(uint8_t val) {
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, ((val & 0x80) >> 7));
+    val = (uint8_t)((val << 1) & 0xfe);
+    this->set_zero_flag(val);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+    return val;
+}
+
+void CPU::op_SRA(reg8 *src) {
+    src->value = this->op_SLA(src->value);
+}
+void CPU::op_SRA(uint16_t mem_addr) {
+    this->ram->set(mem_addr, this->op_SLA(this->ram->get_val(mem_addr)));
+}
+uint8_t CPU::op_SRA(uint8_t val) {
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (val & 0x01));
+    val = (uint8_t)(((val >> 1) & 0x7f) | (val & 0x80));
+    this->set_zero_flag(val);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+    return val;
 }
 
 void CPU::op_RL(reg8 *src) {
