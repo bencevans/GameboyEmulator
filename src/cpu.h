@@ -151,65 +151,69 @@ protected:
 
     void op_Load(reg8 *dest);
     void op_Load(reg16 *dest);
-    void op_Load(uint16_t dest);
-    void op_Load(uint16_t dest_addr, reg16 *source);
+    void opm_Load(uint16_t dest);
+    void opm_Load(uint16_t dest_addr, reg16 *source);
     void op_Load(reg8 *dest, reg8 *source);
     void op_Load(combined_reg *dest);
     void op_Load(combined_reg *dest, uint16_t val);
-    void op_Load(unsigned int dest_addr, reg8 *source);
-    void op_Load(unsigned dest_addr, uint8_t val);
-    void op_Load(reg8 *dest, uint16_t source_addr);
+    void opm_Load(uint16_t dest_addr, reg8 *source);
+    void opm_Load(uint16_t dest_addr, uint8_t val);
+    void op_Load(reg16 *dest, combined_reg *src);
+    void opm_Load(reg8 *dest, uint16_t source_addr);
 
     void op_Add(reg8 *dest);
     void op_Add(reg16 *dest);
     void op_Add(reg8 *dest, reg8 *src);
-    void op_Add(reg8 *dest, uint16_t src);
+    void opm_Add(reg8 *dest, uint16_t mem_addr);
     void op_Add(combined_reg *dest, combined_reg *src);
     void op_Add(combined_reg *dest, reg16 *src);
+    void op_Add(reg8 *dest, uint16_t src);
     void op_Add(combined_reg *dest, uint32_t src);
-    void op_Add(reg16 *dest, signed int val);
+    void op_Add(reg16 *dest, unsigned int val);
     void op_Sub();
     void op_Sub(reg8 *src);
+    void opm_Sub(uint16_t mem_addr);
     void op_Sub(uint16_t src);
     void op_SBC(reg8 *src);
-    void op_SBC(uint16_t mem_addr);
+    void opm_SBC(uint16_t mem_addr);
     void op_DAA();
     void op_CPL();
     void op_CCF();
 
     void op_Inc(reg8 *dest);
-    void op_Inc(uint16_t mem_addr);
+    void opm_Inc(uint16_t mem_addr);
     uint8_t op_Inc(uint8_t val);
     void op_Inc(combined_reg *dest);
     void op_Inc(reg16 *dest);
     void op_Dec(reg8 *dest);
-    void op_Dec(uint16_t mem_addr);
+    void opm_Dec(uint16_t mem_addr);
     uint8_t op_Dec(uint8_t val);
     void op_Dec(reg16 *dest);
     void op_Dec(combined_reg *dest);
 
     void op_CP();
     void op_CP(reg8 *in);
+    void opm_CP(uint16_t mem_addr);
     void op_CP(uint8_t in);
 
     void op_SCF();
     void op_Swap(reg8 *dest);
-    void op_Swap(uint16_t mem_addr);
+    void opm_Swap(uint16_t mem_addr);
     void op_SRL(reg8 *src);
-    void op_SRL(uint16_t mem_addr);
+    void opm_SRL(uint16_t mem_addr);
     void op_RL(reg8 *src);
-    void op_RL(uint16_t mem_addr);
+    void opm_RL(uint16_t mem_addr);
     void op_RR(reg8 *src);
-    void op_RR(uint16_t mem_addr);
+    void opm_RR(uint16_t mem_addr);
     void op_RLC(reg8* src);
-    void op_RLC(uint16_t mem_addr);
+    void opm_RLC(uint16_t mem_addr);
     void op_RRC(reg8* src);
-    void op_RRC(uint16_t mem_addr);
+    void opm_RRC(uint16_t mem_addr);
     void op_SLA(reg8 *src);
-    void op_SLA(uint16_t mem_addr);
+    void opm_SLA(uint16_t mem_addr);
     uint8_t op_SLA(uint8_t val);
     void op_SRA(reg8 *src);
-    void op_SRA(uint16_t mem_addr);
+    void opm_SRA(uint16_t mem_addr);
     uint8_t op_SRA(uint8_t val);
 
     void op_Call();
@@ -227,15 +231,17 @@ protected:
     uint16_t op_Pop();
 
     void op_XOR(reg8 *comp);
-    void op_XOR(uint16_t mem_addr);
+    void opm_XOR(uint16_t mem_addr);
     void op_XOR(uint8_t val);
 
     void op_AND();
+    void opm_AND(uint16_t mem_addr);
     void op_AND(reg8 *comp);
     void op_AND(uint8_t comp);
 
     void op_OR();
     void op_OR(reg8 *comp);
+    void opm_OR(uint16_t mem_addr);
     void op_OR(uint8_t comp);
 
     void op_Load_Dec(combined_reg *dest, reg8 *source);
@@ -244,15 +250,15 @@ protected:
     void op_Load_Inc(reg8 *dest, combined_reg *source);
 
     void op_Bit(unsigned int bit, reg8 *comp);
-    void op_Bit(unsigned int bit, uint16_t mem_addr);
+    void opm_Bit(unsigned int bit, uint16_t mem_addr);
     void op_Res(uint8_t bit, reg8 *dest);
-    void op_Res(uint8_t bit, uint16_t mem_addr);
+    void opm_Res(uint8_t bit, uint16_t mem_addr);
     void op_Set(uint8_t bit, reg8 *dest);
-    void op_Set(uint8_t bit, uint16_t mem_addr);
+    void opm_Set(uint8_t bit, uint16_t mem_addr);
 
     void op_Adc(reg8 *dest);
     void op_Adc(reg8 *dest, reg8 *source);
-    void op_Adc(reg8 *dest, uint16_t mem_addr);
+    void opm_Adc(reg8 *dest, uint16_t mem_addr);
     void op_Adc(reg8 *dest, uint8_t source);
 
     void op_EI();
