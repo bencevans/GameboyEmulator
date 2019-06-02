@@ -2172,21 +2172,16 @@ void CPU::opm_Adc(reg8 *dest, uint16_t mem_addr) {
     this->op_Adc(dest, this->ram->get_val(mem_addr));
 }
 void CPU::op_Adc(reg8 *dest, uint8_t source) {
-    union {
-        uint8_t bit8[2];
-        uint16_t bit16[1];
-    } data_conv;
 
     // Always work with r_a
-    uint8_t original_val;
-    memcpy(&original_val, &dest->value, 1);
-    memcpy(&data_conv.bit8[0], &source, 1);
-    data_conv.bit8[1] = 0;
-    data_conv.bit16[0] += dest->value;
-    dest->value = data_conv.bit8[0];
+    uint8_t original_val = dest->value;
+    uint16_t val = (uint16_t)dest->value & 0x00ff;
+    val += ((uint16_t)source & 0x00ff);
+    val += ((uint16_t)this->get_carry_flag() & 0x01);
+    dest->value = (uint8_t)(val & 0x00ff);
 
     // Set carry flag, based on 1st bit of second byte
-    uint8_t carry_flag = (0x01 & data_conv.bit8[1]) >> 0;
+    uint8_t carry_flag = (val & 0x0100) >> 8;
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, carry_flag);
 
     // Set zero flag
