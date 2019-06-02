@@ -123,7 +123,7 @@ protected:
     uint16_t get_inc_pc_val16();
     uint16_t get_register_value16(combined_reg *dest);
     void set_register_bit(reg8 *source, uint8_t bit_shift, unsigned int val);
-    unsigned int get_register_bit(reg8 *source, unsigned int bit_shift);
+    uint8_t get_register_bit(reg8 *source, unsigned int bit_shift);
 
     void print_state_m();
 
@@ -144,9 +144,9 @@ protected:
     void set_zero_flag(const uint8_t val);
     uint8_t get_zero_flag();
     void set_half_carry(uint8_t original_val, uint8_t input);
-    void set_half_carry(uint16_t original_val, uint16_t input);
+    void set_half_carry16(uint16_t original_val, uint16_t input);
     void set_half_carry_sub(uint8_t original_val, uint8_t input);
-    void set_half_carry_sub(uint16_t original_val, uint16_t input);
+    void set_half_carry_sub16(uint16_t original_val, uint16_t input);
     uint8_t get_carry_flag();
 
     void op_Load(reg8 *dest);
@@ -175,6 +175,7 @@ protected:
     void opm_Sub(uint16_t mem_addr);
     void op_Sub(uint16_t src);
     void op_SBC(reg8 *src);
+    void op_SBC();
     void opm_SBC(uint16_t mem_addr);
     void op_DAA();
     void op_CPL();

@@ -1023,6 +1023,9 @@ void CPU::execute_op_code(unsigned int op_val) {
                 // data from ram to inc PC
                 this->get_inc_pc_val16();
             break;
+        case 0xde:
+            this->op_SBC();
+            break;
         case 0xdf:
             this->op_RST(0x0018);
             break;
@@ -1982,8 +1985,8 @@ void CPU::set_register_bit(reg8 *source, uint8_t bit_shift, unsigned int val) {
 }
 
 // Obtain the value of a given bit of a given register
-unsigned int CPU::get_register_bit(reg8 *source, unsigned int bit_shift) {
-    return ((source->value & (1U  << bit_shift)) >> bit_shift);
+uint8_t CPU::get_register_bit(reg8 *source, unsigned int bit_shift) {
+    return (uint8_t)((source->value & (1U  << bit_shift)) >> bit_shift);
 }
 
 // Set zero flag, based on the value of a given register
@@ -2009,7 +2012,7 @@ void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
         //((0x10 & original_val) >> 4) ^ ((0x10 & input) >> 4));
         (((original_val & 0x0f) + (input & 0x0f)) & 0x10) ? 1U : 0U);
 }
-void CPU::set_half_carry(uint16_t original_val, uint16_t input) {
+void CPU::set_half_carry16(uint16_t original_val, uint16_t input) {
     // @TODO Check this implimentation
     this->set_register_bit(
         &this->r_f,
@@ -2028,7 +2031,7 @@ void CPU::set_half_carry_sub(uint8_t original_val, uint8_t input) {
         //((0x10 & original_val) >> 4) ^ ((0x10 & input) >> 4));
         ((input & 0x0f) > (original_val & 0x0f)) ? 1U : 0U);
 }
-void CPU::set_half_carry_sub(uint16_t original_val, uint16_t input) {
+void CPU::set_half_carry_sub16(uint16_t original_val, uint16_t input) {
     // @TODO Check this implimentation
     this->set_register_bit(
         &this->r_f,
@@ -2098,8 +2101,7 @@ void CPU::op_Load_Inc(reg8 *dest, combined_reg *source) {
 
 void CPU::op_CPL()
 {
-    for (uint8_t itx = 0; itx < 8; itx ++)
-        this->set_register_bit(&this->r_a, itx, (this->r_a.value & (1U << itx)) ? 0UL : 1UL);
+    this->r_a.value = (this->r_a.value ^ 0xff);
 }
 
 void CPU::op_CCF()
@@ -2175,14 +2177,11 @@ void CPU::op_Adc(reg8 *dest, uint8_t source) {
 
     // Always work with r_a
     uint8_t original_val = dest->value;
-    uint16_t val = (uint16_t)dest->value & 0x00ff;
-    val += ((uint16_t)source & 0x00ff);
-    val += ((uint16_t)this->get_carry_flag() & 0x01);
-    dest->value = (uint8_t)(val & 0x00ff);
-
-    // Set carry flag, based on 1st bit of second byte
-    uint8_t carry_flag = (val & 0x0100) >> 8;
-    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, carry_flag);
+    this->data_conv.bit8[0] = dest->value;
+    this->data_conv.bit8[1] = 0;
+    this->data_conv.bit16[0] += source;
+    this->data_conv.bit16[0] += this->get_carry_flag();
+    dest->value = this->data_conv.bit8[0];
 
     // Set zero flag
     this->set_zero_flag(dest->value);
@@ -2191,7 +2190,11 @@ void CPU::op_Adc(reg8 *dest, uint8_t source) {
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
 
     // Determine half carry flag based on 5th bit of first byte
-    this->set_half_carry(original_val, source);
+    this->set_half_carry(original_val, (source + this->get_carry_flag()));
+
+    // Set carry flag, based on 1st bit of second byte
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, this->data_conv.bit8[1] & 0x01);
+
 }
 
 
@@ -2290,7 +2293,7 @@ inline void CPU::op_Add(combined_reg *dest, uint32_t src) {
     dest->upper->value = this->data_conv32.bit8[1];
 
     // @TODO: Ensure that the carry still works with a signed value!
-    this->set_half_carry(original_val, (uint16_t)src);
+    this->set_half_carry16(original_val, (uint16_t)src);
 
     // Set subtract flag to 0, since this is add
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
@@ -2308,7 +2311,7 @@ void CPU::op_Add(reg16 *dest, unsigned int val) {
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
         (0x00010000 & res) >> 16);
-    this->set_half_carry(dest->value, val);
+    this->set_half_carry16(dest->value, val);
     dest->value = res & 0x0000ffff;
 }
 void CPU::op_Add(reg16 *dest) {
@@ -2353,6 +2356,11 @@ void CPU::op_SBC(reg8 *src)
 {
     // Subtract src plus carry flag
     this->op_Sub((uint16_t)(src->value + (uint8_t)this->get_carry_flag()));
+}
+void CPU::op_SBC()
+{
+    // Subtract src plus carry flag
+    this->op_Sub((uint16_t)(this->get_inc_pc_val8() + (uint8_t)this->get_carry_flag()));
 }
 
 void CPU::opm_SBC(uint16_t mem_addr)

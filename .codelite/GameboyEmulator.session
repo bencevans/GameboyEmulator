@@ -5,22 +5,22 @@
   <TabInfoArray Name="TabInfoArray">
     <TabInfo>
       <wxString Value="/home/matthew/w/g/gameboy-emulator/src/cpu.cpp" Name="FileName"/>
-      <int Value="2530" Name="FirstVisibleLine"/>
-      <int Value="2547" Name="CurrentLine"/>
-      <wxArrayString Name="Bookmarks"/>
-      <IntVector Name="CollapsedFolds"/>
-    </TabInfo>
-    <TabInfo>
-      <wxString Value="/home/matthew/w/g/gameboy-emulator/src/cpu.h" Name="FileName"/>
-      <int Value="200" Name="FirstVisibleLine"/>
-      <int Value="223" Name="CurrentLine"/>
+      <int Value="2081" Name="FirstVisibleLine"/>
+      <int Value="2096" Name="CurrentLine"/>
       <wxArrayString Name="Bookmarks"/>
       <IntVector Name="CollapsedFolds"/>
     </TabInfo>
     <TabInfo>
       <wxString Value="/home/matthew/w/g/gameboy-emulator/src/Main.cpp" Name="FileName"/>
-      <int Value="63" Name="FirstVisibleLine"/>
-      <int Value="0" Name="CurrentLine"/>
+      <int Value="72" Name="FirstVisibleLine"/>
+      <int Value="77" Name="CurrentLine"/>
+      <wxArrayString Name="Bookmarks"/>
+      <IntVector Name="CollapsedFolds"/>
+    </TabInfo>
+    <TabInfo>
+      <wxString Value="/home/matthew/w/g/gameboy-emulator/src/cpu.h" Name="FileName"/>
+      <int Value="50" Name="FirstVisibleLine"/>
+      <int Value="75" Name="CurrentLine"/>
       <wxArrayString Name="Bookmarks"/>
       <IntVector Name="CollapsedFolds"/>
     </TabInfo>
