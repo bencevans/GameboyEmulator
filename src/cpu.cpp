@@ -396,7 +396,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_RR(&this->r_a);
             break;
         case 0x20:
-            if (! this->get_zero_flag())
+            if (this->get_zero_flag() == (uint8_t)0x00)
                 this->op_JR();
             else
                 // If we don't perform the OP, pull
@@ -426,7 +426,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_DAA();
             break;
         case 0x28:
-            if (this->get_zero_flag())
+            if (this->get_zero_flag() == (uint8_t)0x01)
                 this->op_JR();
             else
                 // If we don't perform the OP, pull
@@ -455,7 +455,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_CPL();
             break;
         case 0x30:
-            if (! this->get_carry_flag())
+            if (this->get_carry_flag() == (uint8_t)0x00)
                 this->op_JR();
             else
                 // If we don't perform the OP, pull
@@ -486,7 +486,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_SCF();
             break;
         case 0x38:
-            if (this->get_carry_flag())
+            if (this->get_carry_flag() == (uint8_t)0x01)
                 this->op_JR();
             else
                 // If we don't perform the OP, pull
@@ -901,14 +901,14 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_CP(&this->r_a);
             break;
         case 0xc0:
-            if (! this->get_zero_flag())
+            if (this->get_zero_flag() == (uint8_t)0x00)
                 this->op_Return();
             break;
         case 0xc1:
             this->op_Pop(&this->r_bc);
             break;
         case 0xc2:
-            if (! this->get_zero_flag())
+            if (this->get_zero_flag() == (uint8_t)0x00)
                 this->op_JP();
             else
                 // If we don't perform the OP, pull
@@ -919,7 +919,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_JP();
             break;
         case 0xc4:
-            if (! this->get_zero_flag())
+            if (this->get_zero_flag() == (uint8_t)0x00)
                 this->op_Call();
             else
                 // If we don't perform the OP, pull
@@ -936,14 +936,14 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_RST(0x0000);
             break;
         case 0xc8:
-            if (this->get_zero_flag())
+            if (this->get_zero_flag() == (uint8_t)0x01)
                 this->op_Return();
             break;
         case 0xc9:
             this->op_Return();
             break;
         case 0xca:
-            if (this->get_zero_flag())
+            if (this->get_zero_flag() == (uint8_t)0x01)
                 this->op_JP();
             else
                 // If we don't perform the OP, pull
@@ -955,7 +955,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->cb_state = true;
             break;
         case 0xcc:
-            if (this->get_zero_flag())
+            if (this->get_zero_flag() == (uint8_t)0x01)
                 this->op_Call();
             else
                 // If we don't perform the OP, pull
@@ -972,14 +972,14 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_RST(0x0008);
             break;
         case 0xd0:
-            if (! this->get_carry_flag())
+            if (this->get_carry_flag() == (uint8_t)0x00)
                 this->op_Return();
             break;
         case 0xd1:
             this->op_Pop(&this->r_de);
             break;
         case 0xd2:
-            if (! this->get_carry_flag())
+            if (this->get_carry_flag() == (uint8_t)0x00)
                 this->op_JP();
             else
                 // If we don't perform the OP, pull
@@ -987,7 +987,7 @@ void CPU::execute_op_code(unsigned int op_val) {
                 this->get_inc_pc_val16();
             break;
         case 0xd4:
-            if (! this->get_carry_flag())
+            if (this->get_carry_flag() == (uint8_t)0x00)
                 this->op_Call();
             else
                 this->get_inc_pc_val16();
@@ -1002,11 +1002,11 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_RST(0x0010);
             break;
         case 0xd8:
-            if (this->get_carry_flag())
+            if (this->get_carry_flag() == (uint8_t)0x01)
                 this->op_Return();
             break;
         case 0xda:
-            if (this->get_carry_flag())
+            if (this->get_carry_flag() == (uint8_t)0x01)
                 this->op_JP();
             else
                 // If we don't perform the OP, pull
@@ -2169,8 +2169,8 @@ void CPU::op_Adc(reg8 *dest, uint8_t source) {
     uint8_t original_val = dest->value;
     this->data_conv.bit8[0] = dest->value;
     this->data_conv.bit8[1] = 0;
-    this->data_conv.bit16[0] += source;
-    this->data_conv.bit16[0] += this->get_carry_flag();
+    this->data_conv.bit16[0] += (uint16_t)source;
+    this->data_conv.bit16[0] += (uint16_t)this->get_carry_flag();
     dest->value = this->data_conv.bit8[0];
 
     // Set zero flag
@@ -2179,11 +2179,16 @@ void CPU::op_Adc(reg8 *dest, uint8_t source) {
     // Set subtract flag to 0
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
 
-    // Determine half carry flag based on 5th bit of first byte
-    this->set_half_carry(original_val, (source + this->get_carry_flag()));
+    // Handle edge-case where source is ffff and carry flag is set,
+    // since adding these in the parameters will overflow into 0x00
+    if ((source & 0x0f) == (uint8_t)0x0f && this->get_carry_flag() == (uint8_t)0x01)
+        this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, (uint8_t)0x01);
+    else
+        // Determine half carry flag based on 5th bit of first byte
+        this->set_half_carry(original_val, ((uint8_t)(source + this->get_carry_flag())));
 
     // Set carry flag, based on 1st bit of second byte
-    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, this->data_conv.bit8[1] & 0x01);
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (this->data_conv.bit8[1] & 0x01));
 
 }
 
