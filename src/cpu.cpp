@@ -218,7 +218,7 @@ void CPU::tick() {
 
 bool CPU::get_timer_state()
 {
-    return (this->ram->get_ram_bit(0xff07, 0x02) == 1U);
+    return (this->ram->get_ram_bit(this->TIMER_CONTROL_MEM_ADDR, 0x02) == 1U);
 }
 
 void CPU::increment_timer()
@@ -341,6 +341,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             break;
         case 0x0f:
             this->op_RRC(&this->r_a);
+            this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, 0U);
             break;
         case 0x10:
             //this->op_Stop();
@@ -988,6 +989,8 @@ void CPU::execute_op_code(unsigned int op_val) {
         case 0xd4:
             if (! this->get_carry_flag())
                 this->op_Call();
+            else
+                this->get_inc_pc_val16();
             break;
         case 0xd5:
             this->op_Push(&this->r_de);
@@ -1017,13 +1020,13 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_RST(0x0018);
             break;
         case 0xe0:
-            this->opm_Load((uint16_t)(0xff00 + this->get_inc_pc_val8()), &this->r_a);
+            this->opm_Load((uint16_t)((uint16_t)0xff00 + this->get_inc_pc_val8()), &this->r_a);
             break;
         case 0xe1:
             this->op_Pop(&this->r_hl);
             break;
         case 0xe2:
-            this->opm_Load((uint16_t)(0xff00 + this->r_c.value), &this->r_a);
+            this->opm_Load((uint16_t)((uint16_t)0xff00 + this->r_c.value), &this->r_a);
             break;
         case 0xe5:
             this->op_Push(&this->r_hl);
@@ -1051,7 +1054,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_RST(0x0028);
             break;
         case 0xf0:
-            this->opm_Load(&this->r_a, (unsigned int)(0xff00 + this->get_inc_pc_val8()));
+            this->opm_Load(&this->r_a, (uint16_t)(0xff00 + this->get_inc_pc_val8()));
             break;
         case 0xf1:
             this->op_Pop(&this->r_af);
@@ -2536,10 +2539,10 @@ uint8_t CPU::op_SLA(uint8_t val) {
 }
 
 void CPU::op_SRA(reg8 *src) {
-    src->value = this->op_SLA(src->value);
+    src->value = this->op_SRA(src->value);
 }
 void CPU::opm_SRA(uint16_t mem_addr) {
-    this->ram->set(mem_addr, this->op_SLA(this->ram->get_val(mem_addr)));
+    this->ram->set(mem_addr, this->op_SRA(this->ram->get_val(mem_addr)));
 }
 uint8_t CPU::op_SRA(uint8_t val) {
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (val & 0x01));
@@ -2631,10 +2634,10 @@ void CPU::opm_RLC(uint16_t mem_addr)
 
 void CPU::op_RRC(reg8* src)
 {
+    // Store bit 0 in carry flag
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (src->value & 0x01));
     // Shit to right 1 bit, storing original bit 0 into bit 7
-    src->value = (src->value & 0x01) | (((src->value & 0x80) >> 7) & 0x01);
-    // Store bit 7 (what was bit 0, into carry flag
-    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (src->value & 0x80) >> 7);
+    src->value = (((src->value & 0x01) << 7) | ((src->value >> 1) & 0x7f));
     // If not RRCA, set zero flag
     if (this->cb_state)
         this->set_zero_flag(src->value);
@@ -2646,10 +2649,11 @@ void CPU::opm_RRC(uint16_t mem_addr)
 {
     uint8_t val = this->ram->get_val(mem_addr);
 
+    // Store bit 0 in carry flag
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (val & 0x01));
+
     // Shit to left 1 bit, storing original bit 7 into bit 0
-    val = (val & 0x01) | (((val & 0x80) >> 7) & 0x01);
-    // Store bit 0 (what was bit 7, into carry flag
-    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (val & 0x80) >> 7);
+    val = (((val & 0x01) << 7) | ((val >> 1) & 0x7f));
 
     // Store value into memory
     this->ram->set(mem_addr, val);
@@ -2715,7 +2719,7 @@ void CPU::op_JR() {
         std::cout << "Jump from " << std::hex << (int)this->r_pc.value << " by " << (int)jp;
     // @TODO Verify that this jumps by the value AFTER the pc increment
     // for this instruction.
-    this->r_pc.value += jp;
+    this->r_pc.value = (uint16_t)((unsigned int)this->r_pc.value + jp);
     //this->r_pc.value --;
     if (DEBUG || this->stepped_in)
         std::cout << " to " << std::hex << (int)this->r_pc.value << std::endl;

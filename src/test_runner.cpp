@@ -19,6 +19,8 @@ void TestRunner::run_tests()
     this->test_03();
     this->test_04();
     
+    this->test_2f();
+    
     this->test_80();
     this->test_81();
     this->test_82();
@@ -242,6 +244,17 @@ void TestRunner::test_04()
 
     // Ensure flags haven't changed
     assert_equal(this->cpu_inst->r_f.value, 0xa0);
+}
+
+void TestRunner::test_2f()
+{
+    std::cout << "0x02f";
+    this->cpu_inst->r_a.value = 0x9a;
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x2f;
+    this->cpu_inst->tick();
+    
+    assert_equal(this->cpu_inst->r_a.value, 0x65);
 }
 
 
