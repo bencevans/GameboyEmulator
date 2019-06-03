@@ -83,7 +83,7 @@ protected:
         uint32_t bit32[1];
     } data_conv32;
 
-    int temp_counter = 0;
+    int tick_counter = 0;
 
     // Bits for flag register
     // C flag
@@ -94,6 +94,13 @@ protected:
     const int SUBTRACT_FLAG_BIT = 6;
     // Z flag
     const int ZERO_FLAG_BIT = 7;
+
+    const int CPU_FREQ = 4000000;
+
+    // Timer config
+    const int TIMER_FREQ[4] = {4096, 262144, 65536, 16384};
+    const uint16_t TIMER_CONTROL_MEM_ADDR = 0xff07;
+    const uint16_t TIMER_INTERUPT_PTR_ADDR = 0xff06;
 
     // Registers
     //  Accumulator

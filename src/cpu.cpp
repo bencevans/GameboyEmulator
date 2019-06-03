@@ -112,11 +112,11 @@ bool CPU::is_running() {
 }
 
 void CPU::tick() {
-    this->temp_counter ++;
-    if (DEBUG_EVERY != 1 && this->temp_counter % DEBUG_EVERY == 0)
-        std::cout << this->temp_counter << " Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;
+    this->tick_counter ++;
+    if (DEBUG_EVERY != 1 && this->tick_counter % DEBUG_EVERY == 0)
+        std::cout << this->tick_counter << " Tick: " << std::hex << this->r_pc.value << ", SP: " << this->r_sp.value << std::endl;
         //this->running = false;
-    if (STEPIN_AFTER && (! this->stepped_in) && this->temp_counter >= STEPIN_AFTER)
+    if (STEPIN_AFTER && (! this->stepped_in) && this->tick_counter >= STEPIN_AFTER)
         this->stepped_in = true;
 
     if (DEBUG || this->stepped_in) {
@@ -149,9 +149,13 @@ void CPU::tick() {
         return;
 
     // Determine stepped-in before PC is incremented
-    if ((STEPIN == 1 || (STEPIN + 1) == this->r_pc.value || STEPIN == this->r_pc.value) && STEPIN != 0)
+    if ((STEPIN == 1 || (STEPIN + 1) == this->r_pc.value ||
+        STEPIN == this->r_pc.value) && STEPIN != 0)
     {
-        std::cout << std::hex << (unsigned int)this->ram->get_val((uint16_t)0x8010) << (unsigned int)this->ram->get_val(0x8011) << (unsigned int)this->ram->get_val(0x8012) << (unsigned int)this->ram->get_val(0x8013) << std::endl;
+        std::cout << std::hex << (unsigned int)this->ram->get_val((uint16_t)0x8010) <<
+                                 (unsigned int)this->ram->get_val(0x8011) <<
+                                 (unsigned int)this->ram->get_val(0x8012) <<
+                                 (unsigned int)this->ram->get_val(0x8013) << std::endl;
         this->stepped_in = true;
     }
 
@@ -219,29 +223,12 @@ bool CPU::get_timer_state()
 
 void CPU::increment_timer()
 {
-    unsigned int freq = 1;
-    switch (this->ram->get_val(0xff07) & 0x03)
-    {
-        case 0x00:
-            freq = 4096;
-            break;
-        case 0x01:
-            freq = 262144;
-            break;
-        case 0x10:
-            freq = 65536;
-            break;
-        case 0x11:
-            freq = 16384;
-            break;
-        default:
-            std::cout << "Invalid timer value!" << std::endl;
-    }
+    unsigned int freq = this->TIMER_FREQ[this->ram->get_val(this->TIMER_CONTROL_MEM_ADDR) & 0x03];
     this->timer_itx ++;
     
     // If CPU count since last tick is greater/equal to CPU frequency/timer frequency
     // increment timer in mem
-    if (this->timer_itx >= (4000000 / freq))
+    if (this->timer_itx >= (this->CPU_FREQ / freq))
     {
         this->timer_itx = 0;
         this->ram->inc(0xff05);
@@ -255,7 +242,7 @@ void CPU::increment_timer()
 
 void CPU::print_state_m() {
     std::cout << std::hex <<
-        "CPU Count: " << this->temp_counter << std::endl <<
+        "CPU Count: " << this->tick_counter << std::endl <<
         //"a : " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_a.value << std::endl <<
         //" f: " << std::setfill('0') << std::setw(2) << (unsigned int)this->r_f.value << std::endl <<
         "af: " << std::setfill('0') << std::setw(4) << this->r_af.value() << std::endl <<
@@ -295,7 +282,7 @@ void CPU::check_interupts() {
     if (this->timer_overflow)
     {
         this->ram->stack_push(this->r_sp.value, this->r_pc.value);
-        this->r_pc.value = this->ram->get_val(0xff06);
+        this->r_pc.value = this->ram->get_val(this->TIMER_INTERUPT_PTR_ADDR);
     }
 }
 
