@@ -20,7 +20,7 @@
 #define INTERUPT_DEBUG 1
 //#define STEPIN 0x0101
 //#define STEPIN 0x07f2
-#define STEPIN 0//x0217//x075b
+#define STEPIN 0xd28d//x0217//x075b
 //#define STEPIN 0 //0x06ef //0x0271 //0x029d
 #define DEBUG_POINT 0//xc4a0//x02b7//x086f//x086f//x0870
 //0x086e //0x086f//0x02bd//0x0291 //0x26c
@@ -702,7 +702,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_Load(&this->r_a, &this->r_l);
             break;
         case 0x7e:
-            this->opm_Load(&this->r_a, this->r_hl.value());
+            this->opm_Load(&this->r_a, this->get_register_value16(&this->r_hl));
             break;
         case 0x7f:
             this->op_Load(&this->r_a, &this->r_a);
@@ -780,16 +780,16 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_Sub(&this->r_a);
             break;
         case 0x98:
-            this->op_SBC(&this->r_a);
-            break;
-        case 0x99:
             this->op_SBC(&this->r_b);
             break;
-        case 0x9a:
+        case 0x99:
             this->op_SBC(&this->r_c);
             break;
-        case 0x9b:
+        case 0x9a:
             this->op_SBC(&this->r_d);
+            break;
+        case 0x9b:
+            this->op_SBC(&this->r_e);
             break;
         case 0x9c:
             this->op_SBC(&this->r_h);
@@ -2130,26 +2130,29 @@ void CPU::opm_Set(uint8_t bit, uint16_t mem_addr) {
 
 void CPU::op_DAA()
 {
-    uint16_t diff = 0x0000;
+    uint8_t diff = 0x00;
     if (this->get_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT) || (this->r_a.value & 0x0f) > 0x09)
     {
-        diff |= 0x06;
+        diff |= (uint8_t)0x06;
     }
 
     if (this->get_register_bit(&this->r_f, this->CARRY_FLAG_BIT) || (this->r_a.value & 0xf0) > 0x90)
     {
-        diff |= 0x60;
+        diff |= (uint8_t)0x60;
     }
     
-    if (this->get_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT))
-        this->op_Sub(diff);
-    else
-        this->op_Add(&this->r_a, diff);
+    if ((unsigned int)diff > 0x00)
+    {
+        if (this->get_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT) == (uint8_t)0x01)
+            this->op_Sub(diff);
+        else
+            this->op_Add(&this->r_a, diff);
+    }
 
-    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (this->r_a.value > 0x99) ? 1U : 0U);
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (((unsigned int)this->r_a.value > (unsigned int)0x99) ? 1U : 0U));
         
     this->set_zero_flag(this->r_a.value);
-    //this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
 
 // Add 8bit PC value and carry flag to A.
@@ -2330,38 +2333,41 @@ void CPU::op_Sub(uint16_t src) {
     uint8_t original_val = this->r_a.value;
 
     this->data_conv.bit8[0] = this->r_a.value;
-    this->data_conv.bit8[1] = 0;
+    this->data_conv.bit8[1] = 0xff;
 
     this->data_conv.bit16[0] -= src;
 
     this->r_a.value = this->data_conv.bit8[0];
 
     this->set_zero_flag(this->r_a.value);
-    this->set_half_carry_sub(original_val, (uint8_t)src);
+    if (src > 0x00ff)
+        this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 1U);
+    else
+        this->set_half_carry_sub(original_val, (uint8_t)src);
 
     // Set subtract flag to 0, since this is add
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
-        (0x01 & this->data_conv.bit8[1]) >> 0);
+        (((unsigned int)original_val < (unsigned int)src) ? 1U : 0U));
 
 }
 
 void CPU::op_SBC(reg8 *src)
 {
     // Subtract src plus carry flag
-    this->op_Sub((uint16_t)(src->value + (uint8_t)this->get_carry_flag()));
+    this->op_Sub((uint16_t)(src->value + this->get_carry_flag()));
 }
 void CPU::op_SBC()
 {
     // Subtract src plus carry flag
-    this->op_Sub((uint16_t)(this->get_inc_pc_val8() + (uint8_t)this->get_carry_flag()));
+    this->op_Sub((uint16_t)(this->get_inc_pc_val8() + this->get_carry_flag()));
 }
 
 void CPU::opm_SBC(uint16_t mem_addr)
 {
     // Subtract src plus carry flag
-    this->op_Sub((uint16_t)(this->ram->get_val(mem_addr) + (uint8_t)this->get_carry_flag()));
+    this->op_Sub((uint16_t)(this->ram->get_val(mem_addr) + this->get_carry_flag()));
 }
 
 void CPU::op_Inc(reg8 *src)

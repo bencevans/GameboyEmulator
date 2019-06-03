@@ -94,7 +94,7 @@ int main(int argc, char* args[])
     // 10-bit ops.gb -- passed
     // 11-op a,(hl).gb
 
-    char rom_path[] = "./resources/test_roms/cpu_instrs/individual/09-op r,r.gb";
+    char rom_path[] = "./resources/test_roms/cpu_instrs/individual/11-op a,(hl).gb";
     ram_inst->load_bios(bios_path);
     ram_inst->load_rom(rom_path);
 
