@@ -72,12 +72,13 @@ int main(int argc, char* args[])
     //StaticState::cpu_inst = cpu_inst;
 
     // Run tests
-    TestRunner *rt = new TestRunner(vpu_inst, cpu_inst, ram_inst);
-    rt->run_tests();
+    //TestRunner *rt = new TestRunner(vpu_inst, cpu_inst, ram_inst);
+    //rt->run_tests();
     cpu_inst->reset_state();
 
     // Load bios/RAM
-    char bios_path[] = "./copyright/DMG_ROM.bin";
+    //char bios_path[] = "./copyright/DMG_ROM.bin";
+    char bios_path[] = "./matt-test-daa.rom";
     //char rom_path[] = "./copyright/Tetris (JUE) (V1.1) [!].gb";
     //char rom_path[] = "./resources/test_roms/cpu_instrs/cpu_instrs.gb";
     

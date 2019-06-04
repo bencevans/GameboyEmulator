@@ -20,7 +20,7 @@
 #define INTERUPT_DEBUG 1
 //#define STEPIN 0x0101
 //#define STEPIN 0x07f2
-#define STEPIN 0xd28d//x0217//x075b
+#define STEPIN 0x01//x0217//x075b
 //#define STEPIN 0 //0x06ef //0x0271 //0x029d
 #define DEBUG_POINT 0//xc4a0//x02b7//x086f//x086f//x0870
 //0x086e //0x086f//0x02bd//0x0291 //0x26c
@@ -2149,7 +2149,7 @@ void CPU::op_DAA()
             this->op_Add(&this->r_a, diff);
     }
 
-    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (((unsigned int)this->r_a.value > (unsigned int)0x99) ? 1U : 0U));
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, ((diff == 0x66) ? 1U : 0U));
         
     this->set_zero_flag(this->r_a.value);
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
