@@ -80,12 +80,12 @@ int main(int argc, char* args[])
     while (cpu_inst->is_running())
     {
         cpu_inst->tick();
-        if (! DISABLE_VPU)
-	{
+        if (DISABLE_VPU == 0)
+        {
             if (to_vpu_tick)
-	    {
+            {
                 vpu_inst->tick();
-	    }
+            }
             to_vpu_tick = ! to_vpu_tick;
         }
 
