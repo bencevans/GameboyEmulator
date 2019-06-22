@@ -1,3 +1,8 @@
+// Copyright (C) Dock Studios Ltd, Inc - All Rights Reserved
+// Unauthorized copying of this file, via any medium is strictly prohibited
+// Proprietary and confidential
+// Written by Matt Comben <matthew@dockstudios.co.uk>, May 2019
+
 #include "cpu.h"
 
 // Used for printing hex
@@ -20,7 +25,7 @@
 #define INTERUPT_DEBUG 1
 //#define STEPIN 0x0101
 //#define STEPIN 0x07f2
-#define STEPIN 0x01//x0217//x075b
+#define STEPIN 0x00//x0217//x075b
 //#define STEPIN 0 //0x06ef //0x0271 //0x029d
 #define DEBUG_POINT 0//xc4a0//x02b7//x086f//x086f//x0870
 //0x086e //0x086f//0x02bd//0x0291 //0x26c
@@ -97,7 +102,6 @@ void CPU::reset_state()
 
     this->r_sp.value = 0xfffe;
     this->r_pc.value = 0;
-    
 
     this->checked_op_codes_itx = 0;
     this->checked_cb_codes_itx = 0;
@@ -168,16 +172,16 @@ void CPU::tick() {
     {
         this->checked_op_codes[this->checked_op_codes_itx] = op_val;
         this->checked_op_codes_itx ++;
-        if (this->r_pc.value > 0x100)
+        if (this->ram->boot_rom_swapped || this->r_pc.value > 0x100)
             checking_this = true;
     } else if (this->cb_state && (! (std::find(std::begin(this->checked_cb_codes), std::end(this->checked_cb_codes), op_val) != std::end(this->checked_cb_codes))))
     {
         this->checked_cb_codes[this->checked_cb_codes_itx] = op_val;
         this->checked_cb_codes_itx ++;
-        if (this->r_pc.value > 0x100)
+        if (this->ram->boot_rom_swapped || this->r_pc.value > 0x100)
             checking_this = true;
     }
-    checking_this = false;
+    //checking_this = false;
     if (checking_this)
     {
         std::cout << "CB: " << (int)this->cb_state << " Op Code: " << std::hex << op_val << std::endl;
@@ -2019,7 +2023,7 @@ void CPU::set_half_carry_sub(uint8_t original_val, uint8_t input) {
         // XOR the original and new values' 5th BIT.
         // This means it will result in half carry if the value has changed.
         //((0x10 & original_val) >> 4) ^ ((0x10 & input) >> 4));
-        ((input & 0x0f) > (original_val & 0x0f)) ? 1U : 0U);
+        ((unsigned int)(input & 0x0f) > (unsigned int)(original_val & 0x0f)) ? 1U : 0U);
 }
 void CPU::set_half_carry_sub16(uint16_t original_val, uint16_t input) {
     // @TODO Check this implimentation
@@ -2335,7 +2339,7 @@ void CPU::op_Sub(uint16_t src) {
     this->data_conv.bit8[0] = this->r_a.value;
     this->data_conv.bit8[1] = 0xff;
 
-    this->data_conv.bit16[0] -= src;
+    this->data_conv.bit16[0] = (uint16_t)(this->data_conv.bit16[0] - src);
 
     this->r_a.value = this->data_conv.bit8[0];
 
@@ -2343,13 +2347,12 @@ void CPU::op_Sub(uint16_t src) {
     if (src > 0x00ff)
         this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 1U);
     else
-        this->set_half_carry_sub(original_val, (uint8_t)src);
+        this->set_half_carry_sub(original_val, (uint8_t)(src & 0x00ff));
 
-    // Set subtract flag to 0, since this is add
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
-        (((unsigned int)original_val < (unsigned int)src) ? 1U : 0U));
+        ((original_val < src) ? 1U : 0U));
 
 }
 
@@ -2468,10 +2471,11 @@ void CPU::opm_CP(uint16_t mem_addr) {
     this->op_CP(this->ram->get_val(mem_addr));
 }
 void CPU::op_CP(uint8_t in) {
-    unsigned int res = (unsigned int)this->r_a.value - (unsigned int)in;
+    //unsigned int res = (unsigned int)this->r_a.value - (unsigned int)in;
 
     // Set zero flag based on the result
-    this->set_zero_flag((uint8_t)res);
+    this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, (this->r_a.value == in) ? 1U : 0U);
+    //this->set_zero_flag((uint8_t)res);
     // Always sert subtract flag (since that is what we're doing!)
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
     this->set_half_carry_sub(this->r_a.value, in);

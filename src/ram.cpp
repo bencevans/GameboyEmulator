@@ -1,3 +1,8 @@
+// Copyright (C) Dock Studios Ltd, Inc - All Rights Reserved
+// Unauthorized copying of this file, via any medium is strictly prohibited
+// Proprietary and confidential
+// Written by Matt Comben <matthew@dockstudios.co.uk>, May 2019
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -13,6 +18,8 @@ RAM::RAM() {
     // internal and high RAM should be left as random values.
     for (int me = 0; me < this->memory_max; me ++)
         this->memory[me] = 0;
+        
+    this->boot_rom_swapped = false;
 }
 
 uint8_t RAM::get_val(uint16_t address) {
@@ -189,6 +196,8 @@ void RAM::load_rom(char *rom_path) {
 }
 void RAM::swap_boot_rom() {
     uint8_t temp;
+    std::cout << "Swapping boot rom" << std::endl;
+    this->boot_rom_swapped = true;
 
     for (unsigned int itx = 0; itx < this->BOOT_ROM_SIZE; itx ++) {
         temp = this->memory[itx];

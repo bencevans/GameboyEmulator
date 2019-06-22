@@ -1,3 +1,8 @@
+// Copyright (C) Dock Studios Ltd, Inc - All Rights Reserved
+// Unauthorized copying of this file, via any medium is strictly prohibited
+// Proprietary and confidential
+// Written by Matt Comben <matthew@dockstudios.co.uk>, May 2019
+
 #pragma once
 
 #include <memory>
@@ -34,6 +39,7 @@ public:
     RamSubset get_high_ram();
     void load_bios(char *bios_path);
     void load_rom(char *rom_path);
+    bool boot_rom_swapped;
 
     unsigned int get_ram_bit(uint16_t address, unsigned int bit_shift);
     uint8_t set_ram_bit(uint16_t address, uint8_t bit_shift, unsigned int val);
