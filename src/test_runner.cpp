@@ -22,6 +22,7 @@ void TestRunner::run_tests()
     this->test_02();
     this->test_03();
     this->test_04();
+    this->test_0f();
     
     this->test_2f();
     
@@ -73,7 +74,7 @@ void TestRunner::run_tests()
 
 void TestRunner::test_00()
 {
-    std::cout << "0x00";
+    std::cout << "0x000";
     // Ensure that SP is 0
     this->assert_equal(this->cpu_inst->r_pc.value, 0x0000);
 
@@ -86,7 +87,7 @@ void TestRunner::test_00()
 
 void TestRunner::test_01()
 {
-    std::cout << "0x01";
+    std::cout << "0x001";
 
     this->cpu_inst->r_pc.value = 0x0000;
     this->cpu_inst->r_f.value = 0xff;
@@ -115,7 +116,7 @@ void TestRunner::test_01()
 
 void TestRunner::test_02()
 {
-    std::cout << "0x02";
+    std::cout << "0x002";
     this->cpu_inst->r_pc.value = 0x0000;
     this->cpu_inst->r_f.value = 0xff;
 
@@ -148,7 +149,7 @@ void TestRunner::test_02()
 
 void TestRunner::test_03()
 {
-    std::cout << "0x03";
+    std::cout << "0x003";
 
     // Test standard increment
     this->cpu_inst->r_pc.value = 0x0000;
@@ -203,7 +204,7 @@ void TestRunner::test_03()
 
 void TestRunner::test_04()
 {
-    std::cout << "0x04";
+    std::cout << "0x004";
     // Test standard increment
     this->cpu_inst->r_pc.value = 0x0000;
     this->cpu_inst->r_f.value = 0xf0;
@@ -212,14 +213,14 @@ void TestRunner::test_04()
     this->cpu_inst->tick();
 
     // Assert that registers were unchanged
-    assert_equal(this->cpu_inst->r_b.value, 0x59);
+    this->assert_equal(this->cpu_inst->r_b.value, 0x59);
 
     // Ensure zero, subtract and half-carry flags have been unset
     // Carry has been left
-    assert_equal(this->cpu_inst->r_f.value, 0x10);
+    this->assert_equal(this->cpu_inst->r_f.value, 0x10);
 
     // Ensure that SP has moved on
-    assert_equal(this->cpu_inst->r_pc.value, 0x0001);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x0001);
 
     // Test half-carry
 
@@ -230,10 +231,10 @@ void TestRunner::test_04()
     this->cpu_inst->tick();
 
     // Assert that registers were unchanged
-    assert_equal(this->cpu_inst->r_b.value, 0x60);
+    this->assert_equal(this->cpu_inst->r_b.value, 0x60);
 
     // Ensure half carry has been set
-    assert_equal(this->cpu_inst->r_f.value, 0x20);
+    this->assert_equal(this->cpu_inst->r_f.value, 0x20);
 
 
     // Test Carry
@@ -244,10 +245,44 @@ void TestRunner::test_04()
     this->cpu_inst->tick();
 
     // Assert that registers were unchanged
-    assert_equal(this->cpu_inst->r_b.value, 0x00);
+    this->assert_equal(this->cpu_inst->r_b.value, 0x00);
 
     // Ensure flags haven't changed
-    assert_equal(this->cpu_inst->r_f.value, 0xa0);
+    this->assert_equal(this->cpu_inst->r_f.value, 0xa0);
+}
+
+void TestRunner::test_0f()
+{
+    std::cout << "0x00f";
+    // Set A to 1011 0110
+    this->cpu_inst->r_a.value = 0xb6;
+    
+    // Set all flgs
+    this->cpu_inst->r_f.value = 0xff;
+    this->cpu_inst->r_pc.value = 0x0;
+    this->ram_inst->memory[0x0000] = 0x0f;
+    this->cpu_inst->tick();
+    
+    // Ensure that A has been rotated right
+    // i.e. 0101 1011
+    this->assert_equal(this->cpu_inst->r_a.value, 0x5b);
+    // Ensure that carry flag is set to 0, as well as all other flags
+    this->assert_equal(this->cpu_inst->r_f.value, 0x00);
+    
+    // Set A to 1000 0011
+    this->cpu_inst->r_a.value = 0x83;
+    
+    // Set reset flgs
+    this->cpu_inst->r_f.value = 0x00;
+    this->cpu_inst->r_pc.value = 0x00;
+    this->ram_inst->memory[0x0000] = 0x0f;
+    this->cpu_inst->tick();
+    
+    // Ensure that A has been rotated right
+    // i.e. 1100 0001
+    this->assert_equal(this->cpu_inst->r_a.value, 0xc1);
+    // Ensure that carry flag is set to 0, as well as all other flags
+    this->assert_equal(this->cpu_inst->r_f.value, 0x10);
 }
 
 void TestRunner::test_2f()
@@ -258,7 +293,7 @@ void TestRunner::test_2f()
     this->ram_inst->memory[0x0000] = 0x2f;
     this->cpu_inst->tick();
     
-    assert_equal(this->cpu_inst->r_a.value, 0x65);
+    this->assert_equal(this->cpu_inst->r_a.value, 0x65);
 }
 
 
