@@ -258,7 +258,7 @@ void TestRunner::test_0f()
     this->cpu_inst->r_a.value = 0xb6;
     
     // Set all flgs
-    this->cpu_inst->r_f.value = 0xff;
+    this->cpu_inst->r_f.value = 0xf0;
     this->cpu_inst->r_pc.value = 0x0;
     this->ram_inst->memory[0x0000] = 0x0f;
     this->cpu_inst->tick();

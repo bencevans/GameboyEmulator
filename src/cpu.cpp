@@ -2476,7 +2476,7 @@ void CPU::op_CP(uint8_t in) {
     // Set zero flag based on the result
     this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, (this->r_a.value == in) ? 1U : 0U);
     //this->set_zero_flag((uint8_t)res);
-    // Always sert subtract flag (since that is what we're doing!)
+    // Always set subtract flag (since that is what we're doing!)
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
     this->set_half_carry_sub(this->r_a.value, in);
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, ((unsigned int)this->r_a.value < (unsigned int)in) ? 1U : 0U);
