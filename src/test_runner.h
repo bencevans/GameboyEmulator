@@ -28,6 +28,7 @@ public:
     
     void test_18();
     
+    void test_20();
     void test_2f();
     
     void test_80();
