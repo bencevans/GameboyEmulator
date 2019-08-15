@@ -29,7 +29,11 @@ public:
     void test_18();
     
     void test_20();
+    void test_28();
     void test_2f();
+    
+    void test_30();
+    void test_38();
     
     void test_80();
     void test_81();

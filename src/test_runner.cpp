@@ -28,7 +28,11 @@ void TestRunner::run_tests()
     this->test_18();
     
     this->test_20();
+    this->test_28();
     this->test_2f();
+
+    this->test_30();
+    this->test_38();
     
     this->test_80();
     this->test_81();
@@ -438,6 +442,57 @@ void TestRunner::test_20()
     this->assert_equal(this->cpu_inst->r_pc.value, 0x101);
 }
 
+void TestRunner::test_28()
+{
+    std::cout << "0x028";
+
+    // Check jump of 0
+    // Test with zero reset
+    this->cpu_inst->r_f.value = 0x00;
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x28;
+    this->ram_inst->memory[0x0001] = 0x00;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x02);
+    
+    // Check jump of 2
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x28;
+    this->ram_inst->memory[0x0001] = 0x02;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x02);
+    
+    // Test jump of -1
+    this->cpu_inst->r_pc.value = 0x100;
+    this->ram_inst->memory[0x0100] = 0x28;
+    this->ram_inst->memory[0x0101] = 0xff;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x0102);
+    
+    // Check jump of 0
+    // Test with zero set
+    this->cpu_inst->r_f.value = 0x80;
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x28;
+    this->ram_inst->memory[0x0001] = 0x00;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x02);
+    
+    // Check jump of 2
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x28;
+    this->ram_inst->memory[0x0001] = 0x02;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x04);
+    
+    // Test jump of -1
+    this->cpu_inst->r_pc.value = 0x100;
+    this->ram_inst->memory[0x0100] = 0x28;
+    this->ram_inst->memory[0x0101] = 0xff;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x101);
+}
+
 
 void TestRunner::test_2f()
 {
@@ -450,6 +505,107 @@ void TestRunner::test_2f()
     this->assert_equal(this->cpu_inst->r_a.value, 0x65);
 }
 
+void TestRunner::test_30()
+{
+    std::cout << "0x030";
+
+    // Check jump of 0
+    // Test with zero set
+    this->cpu_inst->r_f.value = 0x10;
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x30;
+    this->ram_inst->memory[0x0001] = 0x00;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x02);
+    
+    // Check jump of 2
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x30;
+    this->ram_inst->memory[0x0001] = 0x02;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x02);
+    
+    // Test jump of -1
+    this->cpu_inst->r_pc.value = 0x100;
+    this->ram_inst->memory[0x0100] = 0x30;
+    this->ram_inst->memory[0x0101] = 0xff;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x0102);
+    
+    // Check jump of 0
+    // Test with zero reset
+    this->cpu_inst->r_f.value = 0x00;
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x30;
+    this->ram_inst->memory[0x0001] = 0x00;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x02);
+    
+    // Check jump of 2
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x30;
+    this->ram_inst->memory[0x0001] = 0x02;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x04);
+    
+    // Test jump of -1
+    this->cpu_inst->r_pc.value = 0x100;
+    this->ram_inst->memory[0x0100] = 0x30;
+    this->ram_inst->memory[0x0101] = 0xff;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x101);
+}
+
+void TestRunner::test_38()
+{
+    std::cout << "0x038";
+
+    // Check jump of 0
+    // Test with zero reset
+    this->cpu_inst->r_f.value = 0x00;
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x38;
+    this->ram_inst->memory[0x0001] = 0x00;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x02);
+    
+    // Check jump of 2
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x38;
+    this->ram_inst->memory[0x0001] = 0x02;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x02);
+    
+    // Test jump of -1
+    this->cpu_inst->r_pc.value = 0x100;
+    this->ram_inst->memory[0x0100] = 0x38;
+    this->ram_inst->memory[0x0101] = 0xff;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x0102);
+    
+    // Check jump of 0
+    // Test with zero set
+    this->cpu_inst->r_f.value = 0x10;
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x38;
+    this->ram_inst->memory[0x0001] = 0x00;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x02);
+    
+    // Check jump of 2
+    this->cpu_inst->r_pc.value = 0;
+    this->ram_inst->memory[0x0000] = 0x38;
+    this->ram_inst->memory[0x0001] = 0x02;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x04);
+    
+    // Test jump of -1
+    this->cpu_inst->r_pc.value = 0x100;
+    this->ram_inst->memory[0x0100] = 0x38;
+    this->ram_inst->memory[0x0101] = 0xff;
+    this->cpu_inst->tick();
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x101);
+}
 
 
 
