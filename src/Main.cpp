@@ -61,7 +61,7 @@ int main(int argc, char* args[])
     char bios_path[] = "./copyright/DMG_ROM.bin";
     //char bios_path[] = "./matt-test-daa.rom";
     //char rom_path[] = "./copyright/Tetris (JUE) (V1.1) [!].gb";
-    char rom_path[] = "./resources/test_roms/cpu_instrs/cpu_instrs.gb";
+    //char rom_path[] = "./resources/test_roms/cpu_instrs/cpu_instrs.gb";
     
     // Tests
     // 01-special.gb
@@ -74,9 +74,9 @@ int main(int argc, char* args[])
     // 08-misc instrs.gb
     // 09-op r,r.gb
     // 10-bit ops.gb -- passed
-    // 11-op a,(hl).gb
+    // 11-op a,(hl).gb - (9e 27 failed)
 
-    //char rom_path[] = "./resources/test_roms/cpu_instrs/individual/03-op sp,hl.gb";
+    char rom_path[] = "./resources/test_roms/cpu_instrs/individual/03-op sp,hl.gb";
     ram_inst->load_bios(bios_path);
     ram_inst->load_rom(rom_path);
 
