@@ -345,7 +345,6 @@ void CPU::execute_op_code(unsigned int op_val) {
             break;
         case 0x0f:
             this->op_RRC(&this->r_a);
-            this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, 0U);
             break;
         case 0x10:
             //this->op_Stop();
@@ -2628,6 +2627,8 @@ void CPU::op_RLC(reg8* src)
     // If not RLCA, set zero flag
     if (this->cb_state)
         this->set_zero_flag(src->value);
+    else
+        this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
@@ -2656,6 +2657,8 @@ void CPU::op_RRC(reg8* src)
     // If not RRCA, set zero flag
     if (this->cb_state)
         this->set_zero_flag(src->value);
+    else
+        this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
 }
