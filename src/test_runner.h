@@ -23,6 +23,8 @@ public:
     void test_02();
     void test_03();
     void test_04();
+    void test_07();
+    
     void test_0f();
     
     void test_2f();

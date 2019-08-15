@@ -22,6 +22,7 @@ void TestRunner::run_tests()
     this->test_02();
     this->test_03();
     this->test_04();
+    this->test_07();
     this->test_0f();
     
     this->test_2f();
@@ -249,6 +250,40 @@ void TestRunner::test_04()
 
     // Ensure flags haven't changed
     this->assert_equal(this->cpu_inst->r_f.value, 0xa0);
+}
+
+void TestRunner::test_07()
+{
+    std::cout << "0x007";
+    // Set A to 0110 1011
+    this->cpu_inst->r_a.value = 0x6b;
+    
+    // Set all flgs
+    this->cpu_inst->r_f.value = 0xf0;
+    this->cpu_inst->r_pc.value = 0x0;
+    this->ram_inst->memory[0x0000] = 0x07;
+    this->cpu_inst->tick();
+    
+    // Ensure that A has been rotated left
+    // i.e. 1101 0110
+    this->assert_equal(this->cpu_inst->r_a.value, 0xd6);
+    // Ensure that carry flag is set to 0, as well as all other flags
+    this->assert_equal(this->cpu_inst->r_f.value, 0x00);
+    
+    // Set A to 1000 0011
+    this->cpu_inst->r_a.value = 0x83;
+    
+    // Set reset flgs
+    this->cpu_inst->r_f.value = 0x00;
+    this->cpu_inst->r_pc.value = 0x00;
+    this->ram_inst->memory[0x0000] = 0x07;
+    this->cpu_inst->tick();
+    
+    // Ensure that A has been rotated right
+    // i.e. 1010 1101
+    this->assert_equal(this->cpu_inst->r_a.value, 0xad);
+    // Ensure that carry flag is set to 0, as well as all other flags
+    this->assert_equal(this->cpu_inst->r_f.value, 0x10);
 }
 
 void TestRunner::test_0f()
