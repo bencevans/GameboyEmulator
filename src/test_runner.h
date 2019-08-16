@@ -48,6 +48,9 @@ public:
     void test_93();
     void test_94();
     void test_95();
+    
+    void test_c0();
+    void test_cd();
 
     void test_cb_00();
     void test_cb_01();

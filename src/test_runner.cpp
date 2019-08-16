@@ -47,6 +47,9 @@ void TestRunner::run_tests()
     this->test_93();
     this->test_94();
     this->test_95();
+    
+    this->test_c0();
+    this->test_cd();
 
     this->test_cb_00();
     this->test_cb_01();
@@ -682,6 +685,77 @@ void TestRunner::test_95()
     std::cout << "0x095";
 
     this->test_Sub(&this->cpu_inst->r_l, 0x95);
+}
+
+
+void TestRunner::test_c0()
+{
+    std::cout << "0x0c0";
+    
+    // Check with not zero
+    this->cpu_inst->r_pc.value = 0x1234;
+    this->cpu_inst->r_f.value = 0x00;
+    
+    this->ram_inst->memory[0x1234] = 0xc0;
+    this->ram_inst->memory[0x5003] = 0xff;
+    this->ram_inst->memory[0x5002] = 0x56;
+    this->ram_inst->memory[0x5001] = 0x79;
+    this->cpu_inst->r_sp.value = 0x5001;
+
+    this->cpu_inst->tick();
+
+    this->assert_equal(this->cpu_inst->r_sp.value, 0x5003);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x5679);
+    this->assert_equal(this->ram_inst->memory[0x5003], 0xff);
+    this->assert_equal(this->ram_inst->memory[0x5002], 0x56);
+    this->assert_equal(this->ram_inst->memory[0x5001], 0x79);
+    
+    
+    // Test with zero flag set
+    this->cpu_inst->r_pc.value = 0x1234;
+    this->cpu_inst->r_f.value = 0x80;
+    
+    this->ram_inst->memory[0x1234] = 0xc0;
+    this->ram_inst->memory[0x5003] = 0xff;
+    this->ram_inst->memory[0x5002] = 0x56;
+    this->ram_inst->memory[0x5001] = 0x79;
+    this->cpu_inst->r_sp.value = 0x5001;
+
+    this->cpu_inst->tick();
+
+    this->assert_equal(this->cpu_inst->r_sp.value, 0x5001);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x1235);
+    this->assert_equal(this->ram_inst->memory[0x5003], 0xff);
+    this->assert_equal(this->ram_inst->memory[0x5002], 0x56);
+    this->assert_equal(this->ram_inst->memory[0x5001], 0x79);
+}
+
+void TestRunner::test_cd()
+{
+    std::cout << "0x0cd";
+    
+    this->cpu_inst->r_pc.value = 0x5678;
+    this->cpu_inst->r_f.value = 0xf0;
+    
+    this->ram_inst->memory[0x5678] = 0xcd;
+    // Read in the LSB of the call address first
+    this->ram_inst->memory[0x5679] = 0x34;
+    // Read in the MSB second
+    this->ram_inst->memory[0x567a] = 0x12;
+    this->ram_inst->memory[0x5003] = 0xff;
+    this->ram_inst->memory[0x5002] = 0xff;
+    this->ram_inst->memory[0x5001] = 0xff;
+    this->cpu_inst->r_sp.value = 0x5003;
+
+    this->cpu_inst->tick();
+
+    this->assert_equal(this->cpu_inst->r_sp.value, 0x5001);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x1234);
+    this->assert_equal(this->ram_inst->memory[0x5003], 0xff);
+    // Store MSB at top of stack
+    this->assert_equal(this->ram_inst->memory[0x5002], 0x56);
+    // Store LSB at bottom of stack
+    this->assert_equal(this->ram_inst->memory[0x5001], 0x7b);
 }
 
 // CB TESTS

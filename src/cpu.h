@@ -281,4 +281,8 @@ protected:
     RAM *ram;
     VPU *vpu_inst;
     bool running;
+    
+    void debug_op_codes(unsigned int op_val);
+    void debug_post_tick();
+    bool debug_opcode;
 };

@@ -34,7 +34,7 @@ uint8_t* RAM::get_ref(uint16_t address) {
     uint8_t *mem_ptr = this->memory;
     return mem_ptr + address;
 }
-void RAM::stack_push(uint16_t &sp_val, uint8_t pc_val) {
+void RAM::stack_push8(uint16_t &sp_val, uint8_t pc_val) {
     // Decrease SP value, then store pc_val into the memory location
     // of sp
     sp_val --;
@@ -56,8 +56,8 @@ void RAM::stack_push(uint16_t &sp_val, uint16_t pc_val) {
     // |      |
     // |     H|
     // |    LH|
-    this->stack_push(sp_val, data_conv.bit8[1]);
-    this->stack_push(sp_val, data_conv.bit8[0]);
+    this->stack_push8(sp_val, data_conv.bit8[1]);
+    this->stack_push8(sp_val, data_conv.bit8[0]);
 }
 uint8_t RAM::stack_pop8(uint16_t &sp_val) {
     // Obtain value from stack and decrease SP value,

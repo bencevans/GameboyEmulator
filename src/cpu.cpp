@@ -166,33 +166,7 @@ void CPU::tick() {
     // Read value from memory
     unsigned int op_val = (unsigned int)this->get_inc_pc_val8();
 
-    // TEMP CHECK ALL OPCODES
-    bool checking_this = false;
-    if ((!this->cb_state) && (! (std::find(std::begin(this->checked_op_codes), std::end(this->checked_op_codes), op_val) != std::end(this->checked_op_codes))))
-    {
-        this->checked_op_codes[this->checked_op_codes_itx] = op_val;
-        this->checked_op_codes_itx ++;
-        if (this->ram->boot_rom_swapped || this->r_pc.value > 0x100)
-            checking_this = true;
-    } else if (this->cb_state && (! (std::find(std::begin(this->checked_cb_codes), std::end(this->checked_cb_codes), op_val) != std::end(this->checked_cb_codes))))
-    {
-        this->checked_cb_codes[this->checked_cb_codes_itx] = op_val;
-        this->checked_cb_codes_itx ++;
-        if (this->ram->boot_rom_swapped || this->r_pc.value > 0x100)
-            checking_this = true;
-    }
-    //checking_this = false;
-    if (checking_this)
-    {
-        std::cout << "CB: " << (int)this->cb_state << " Op Code: " << std::hex << op_val << std::endl;
-        this->print_state_m();
-
-    }
-    //DONE
-
-
-    if (DEBUG || this->stepped_in)
-        std::cout << "CB: " << (int)this->cb_state << " Op Code: " << std::hex << op_val << std::endl;
+    //this->debug_op_codes(op_val);
 
     if (this->cb_state) {
         this->execute_cb_code(op_val);
@@ -208,9 +182,43 @@ void CPU::tick() {
         std::cout << "HIT the start of the ROM!" << std::endl;
     }
 
-    if (checking_this) {
+    this->debug_post_tick();
+}
+
+void CPU::debug_op_codes(unsigned int op_val)
+{
+    // TEMP CHECK ALL OPCODES
+    this->debug_opcode = false;
+    if ((!this->cb_state) && (! (std::find(std::begin(this->checked_op_codes), std::end(this->checked_op_codes), op_val) != std::end(this->checked_op_codes))))
+    {
+        this->checked_op_codes[this->checked_op_codes_itx] = op_val;
+        this->checked_op_codes_itx ++;
+        if (this->ram->boot_rom_swapped || this->r_pc.value > 0x100)
+            this->debug_opcode = true;
+    } else if (this->cb_state && (! (std::find(std::begin(this->checked_cb_codes), std::end(this->checked_cb_codes), op_val) != std::end(this->checked_cb_codes))))
+    {
+        this->checked_cb_codes[this->checked_cb_codes_itx] = op_val;
+        this->checked_cb_codes_itx ++;
+        if (this->ram->boot_rom_swapped || this->r_pc.value > 0x100)
+            this->debug_opcode = true;
+    }
+    //this->debug_opcode = false;
+    if (this->debug_opcode)
+    {
+        std::cout << "CB: " << (int)this->cb_state << " Op Code: " << std::hex << op_val << std::endl;
         this->print_state_m();
-        checking_this = false;
+
+    }
+    if (DEBUG || this->stepped_in)
+        std::cout << "CB: " << (int)this->cb_state << " Op Code: " << std::hex << op_val << std::endl;
+    //DONE
+}
+
+void CPU::debug_post_tick()
+{
+    if (this->debug_opcode) {
+        this->print_state_m();
+        this->debug_opcode = false;
         std::cin.get();
     }
 

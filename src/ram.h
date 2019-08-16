@@ -24,7 +24,7 @@ public:
     uint8_t dec(uint16_t address);
     uint8_t inc(uint16_t address);
     uint8_t v_inc(uint16_t address);
-    void stack_push(uint16_t &sp_val, uint8_t pc_val);
+    void stack_push8(uint16_t &sp_val, uint8_t pc_val);
     void stack_push(uint16_t &sp_val, uint16_t pc_val);
     uint8_t stack_pop8(uint16_t &sp_val);
     uint16_t stack_pop(uint16_t &sp_val);
