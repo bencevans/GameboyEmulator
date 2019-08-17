@@ -50,6 +50,8 @@ public:
     void test_95();
     
     void test_c0();
+    void test_c4();
+    void test_cc();
     void test_cd();
 
     void test_cb_00();
