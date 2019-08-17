@@ -1024,6 +1024,12 @@ void CPU::execute_op_code(unsigned int op_val) {
                 // data from ram to inc PC
                 this->get_inc_pc_val16();
             break;
+        case 0xdc:
+            if (this->get_carry_flag() != (uint8_t)0x00)
+                this->op_Call();
+            else
+                this->get_inc_pc_val16();
+            break;
         case 0xde:
             this->op_SBC();
             break;

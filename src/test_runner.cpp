@@ -878,7 +878,7 @@ void TestRunner::test_d4()
     // Call with zero reset
     this->cpu_inst->r_f.value = 0xe0;
     
-    this->ram_inst->memory[0x5678] = 0x4;
+    this->ram_inst->memory[0x5678] = 0xd4;
     // Read in the LSB of the call address first
     this->ram_inst->memory[0x5679] = 0x34;
     // Read in the MSB second
