@@ -1016,6 +1016,11 @@ void CPU::execute_op_code(unsigned int op_val) {
             if (this->get_carry_flag() == (uint8_t)0x01)
                 this->op_Return();
             break;
+        case 0xd9:
+            this->op_Return();
+            // Re-enable interupts
+            this->op_EI();
+            break;
         case 0xda:
             if (this->get_carry_flag() == (uint8_t)0x01)
                 this->op_JP();

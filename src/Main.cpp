@@ -12,12 +12,10 @@
 #include "./cpu.h"
 #include "./test_runner.h"
 
-#define SCREEN_WIDTH 144
-#define SCREEN_HEIGHT 160
 #define APP_NAME "GameBoy Emulator"
 
+#define RUN_TESTS 0
 #define DISABLE_VPU 0
-#define DEBUG 0
 
 struct arguments_t
 {
@@ -52,9 +50,11 @@ int main(int argc, char* args[])
     //CPU cpu_inst = *cpu_inst_ptr;
     //StaticState::cpu_inst = cpu_inst;
 
+#if RUN_TESTS==1
     // Run tests
     TestRunner *rt = new TestRunner(vpu_inst, cpu_inst, ram_inst);
     rt->run_tests();
+#endif
     cpu_inst->reset_state();
 
     // Load bios/RAM
@@ -77,24 +77,27 @@ int main(int argc, char* args[])
     // 11-op a,(hl).gb - (9e 27 failed)
 
     char rom_path[] = "./resources/test_roms/cpu_instrs/individual/03-op sp,hl.gb";
+    //char rom_path[] = "./copyright/dmg_test_prog_ver1.gb";
     ram_inst->load_bios(bios_path);
     ram_inst->load_rom(rom_path);
 
-   // run the program as long as the window is open
+#if DISABLE_VPU==0
     bool to_vpu_tick = true;
+#endif
+
+    // run the program as long as the window is open
     while (cpu_inst->is_running())
     {
         cpu_inst->tick();
-        if (DISABLE_VPU == 0)
-        {
-            if (to_vpu_tick)
-            {
-                vpu_inst->tick();
-            }
-            to_vpu_tick = ! to_vpu_tick;
-        }
 
-        //vpu_inst->process_events();
+#if DISABLE_VPU==0
+        if (to_vpu_tick)
+        {
+            vpu_inst->tick();
+        }
+        to_vpu_tick = ! to_vpu_tick;
+#endif
+
     }
 
     std::cin.get();
