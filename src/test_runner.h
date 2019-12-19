@@ -51,10 +51,13 @@ public:
     
     void test_c0();
     void test_c4();
+    void test_c8();
     void test_cc();
     void test_cd();
     
+    void test_d0();
     void test_d4();
+    void test_d8();
     void test_dc();
 
     void test_cb_00();

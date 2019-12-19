@@ -50,10 +50,13 @@ void TestRunner::run_tests()
     
     this->test_c0();
     this->test_c4();
+    this->test_c8();
     this->test_cc();
     this->test_cd();
     
+    this->test_d0();
     this->test_d4();
+    this->test_d8();
     this->test_dc();
 
     this->test_cb_00();
@@ -697,9 +700,9 @@ void TestRunner::test_c0()
 {
     std::cout << "0x0c0";
     
-    // Check with not zero
+    // Check with flag reset
     this->cpu_inst->r_pc.value = 0x1234;
-    this->cpu_inst->r_f.value = 0x00;
+    this->cpu_inst->r_f.value = 0x70;
     
     this->ram_inst->memory[0x1234] = 0xc0;
     this->ram_inst->memory[0x5003] = 0xff;
@@ -788,6 +791,48 @@ void TestRunner::test_c4()
     this->assert_equal(this->ram_inst->memory[0x5001], 0xff);
 }
 
+void TestRunner::test_c8()
+{
+    std::cout << "0x0c8";
+    
+    // Check with not zero
+    this->cpu_inst->r_pc.value = 0x1234;
+    this->cpu_inst->r_f.value = 0x80;
+    
+    this->ram_inst->memory[0x1234] = 0xc8;
+    this->ram_inst->memory[0x5003] = 0xff;
+    this->ram_inst->memory[0x5002] = 0x56;
+    this->ram_inst->memory[0x5001] = 0x79;
+    this->cpu_inst->r_sp.value = 0x5001;
+
+    this->cpu_inst->tick();
+
+    this->assert_equal(this->cpu_inst->r_sp.value, 0x5003);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x5679);
+    this->assert_equal(this->ram_inst->memory[0x5003], 0xff);
+    this->assert_equal(this->ram_inst->memory[0x5002], 0x56);
+    this->assert_equal(this->ram_inst->memory[0x5001], 0x79);
+    
+    
+    // Test with zero flag set
+    this->cpu_inst->r_pc.value = 0x1234;
+    this->cpu_inst->r_f.value = 0x70;
+    
+    this->ram_inst->memory[0x1234] = 0xc8;
+    this->ram_inst->memory[0x5003] = 0xff;
+    this->ram_inst->memory[0x5002] = 0x56;
+    this->ram_inst->memory[0x5001] = 0x79;
+    this->cpu_inst->r_sp.value = 0x5001;
+
+    this->cpu_inst->tick();
+
+    this->assert_equal(this->cpu_inst->r_sp.value, 0x5001);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x1235);
+    this->assert_equal(this->ram_inst->memory[0x5003], 0xff);
+    this->assert_equal(this->ram_inst->memory[0x5002], 0x56);
+    this->assert_equal(this->ram_inst->memory[0x5001], 0x79);
+}
+
 void TestRunner::test_cc()
 {
     std::cout << "0x0cc";
@@ -869,6 +914,48 @@ void TestRunner::test_cd()
     this->assert_equal(this->ram_inst->memory[0x5001], 0x7b);
 }
 
+void TestRunner::test_d0()
+{
+    std::cout << "0x0d0";
+    
+    // Check with flag reset
+    this->cpu_inst->r_pc.value = 0x1234;
+    this->cpu_inst->r_f.value = 0xe0;
+    
+    this->ram_inst->memory[0x1234] = 0xd0;
+    this->ram_inst->memory[0x5003] = 0xff;
+    this->ram_inst->memory[0x5002] = 0x56;
+    this->ram_inst->memory[0x5001] = 0x79;
+    this->cpu_inst->r_sp.value = 0x5001;
+
+    this->cpu_inst->tick();
+
+    this->assert_equal(this->cpu_inst->r_sp.value, 0x5003);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x5679);
+    this->assert_equal(this->ram_inst->memory[0x5003], 0xff);
+    this->assert_equal(this->ram_inst->memory[0x5002], 0x56);
+    this->assert_equal(this->ram_inst->memory[0x5001], 0x79);
+    
+    
+    // Test with zero flag set
+    this->cpu_inst->r_pc.value = 0x1234;
+    this->cpu_inst->r_f.value = 0x10;
+    
+    this->ram_inst->memory[0x1234] = 0xd0;
+    this->ram_inst->memory[0x5003] = 0xff;
+    this->ram_inst->memory[0x5002] = 0x56;
+    this->ram_inst->memory[0x5001] = 0x79;
+    this->cpu_inst->r_sp.value = 0x5001;
+
+    this->cpu_inst->tick();
+
+    this->assert_equal(this->cpu_inst->r_sp.value, 0x5001);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x1235);
+    this->assert_equal(this->ram_inst->memory[0x5003], 0xff);
+    this->assert_equal(this->ram_inst->memory[0x5002], 0x56);
+    this->assert_equal(this->ram_inst->memory[0x5001], 0x79);
+}
+
 
 void TestRunner::test_d4()
 {
@@ -921,6 +1008,48 @@ void TestRunner::test_d4()
     this->assert_equal(this->ram_inst->memory[0x5003], 0xff);
     this->assert_equal(this->ram_inst->memory[0x5002], 0xff);
     this->assert_equal(this->ram_inst->memory[0x5001], 0xff);
+}
+
+void TestRunner::test_d8()
+{
+    std::cout << "0x0d8";
+    
+    // Check with flag reset
+    this->cpu_inst->r_pc.value = 0x1234;
+    this->cpu_inst->r_f.value = 0x10;
+    
+    this->ram_inst->memory[0x1234] = 0xd8;
+    this->ram_inst->memory[0x5003] = 0xff;
+    this->ram_inst->memory[0x5002] = 0x56;
+    this->ram_inst->memory[0x5001] = 0x79;
+    this->cpu_inst->r_sp.value = 0x5001;
+
+    this->cpu_inst->tick();
+
+    this->assert_equal(this->cpu_inst->r_sp.value, 0x5003);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x5679);
+    this->assert_equal(this->ram_inst->memory[0x5003], 0xff);
+    this->assert_equal(this->ram_inst->memory[0x5002], 0x56);
+    this->assert_equal(this->ram_inst->memory[0x5001], 0x79);
+    
+    
+    // Test with zero flag set
+    this->cpu_inst->r_pc.value = 0x1234;
+    this->cpu_inst->r_f.value = 0xe0;
+    
+    this->ram_inst->memory[0x1234] = 0xd8;
+    this->ram_inst->memory[0x5003] = 0xff;
+    this->ram_inst->memory[0x5002] = 0x56;
+    this->ram_inst->memory[0x5001] = 0x79;
+    this->cpu_inst->r_sp.value = 0x5001;
+
+    this->cpu_inst->tick();
+
+    this->assert_equal(this->cpu_inst->r_sp.value, 0x5001);
+    this->assert_equal(this->cpu_inst->r_pc.value, 0x1235);
+    this->assert_equal(this->ram_inst->memory[0x5003], 0xff);
+    this->assert_equal(this->ram_inst->memory[0x5002], 0x56);
+    this->assert_equal(this->ram_inst->memory[0x5001], 0x79);
 }
 
 void TestRunner::test_dc()
