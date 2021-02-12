@@ -94,6 +94,9 @@ void CPU::reset_state()
     this->r_h.value = 0;
     this->r_l.value = 0;
 
+    this->h_blank_executed = false;
+    this->v_blank_executed = false;
+
     this->cb_state = false;
     this->timer_itx = 0;
 
@@ -275,26 +278,56 @@ void CPU::check_interupts() {
     // Check VPU V-Blank interupt
     if ((this->ram->get_val(this->ram->LCDC_STATUS_ADDR) & (uint8_t)0x11))
     {
-        if (INTERUPT_DEBUG || DEBUG || this->stepped_in)
-            std::cout << std::hex << "Got v-blank interupt at: " << (unsigned int)this->r_pc.value << std::endl;
+        if (! this->v_blank_executed)
+        {
+            if (true || INTERUPT_DEBUG || DEBUG || this->stepped_in)
+                std::cout << std::hex << "Got v-blank interupt at: " << (unsigned int)this->r_pc.value << std::endl;
 
-        // Store PC on the stack
-        this->ram->stack_push(this->r_sp.value, this->r_pc.value);
-        // Jump to 0x0040
-        this->r_pc.value = (uint8_t)0x0040;
+            // Store PC on the stack
+            this->ram->stack_push(this->r_sp.value, this->r_pc.value);
+            // Jump to 0x0040
+            this->r_pc.value = (uint8_t)0x0040;
+            
+            // Mark interupt for h_blank as being executed
+            this->v_blank_executed = true;
+            
+            // Return to ensure no other interupts are processed.
+            return;
+        }
     }
-    else if ((this->ram->get_val(this->ram->LCDC_STATUS_ADDR) & (uint8_t)0x08))
+    else
     {
-        if (INTERUPT_DEBUG || DEBUG || this->stepped_in)
-            std::cout << std::hex << "Got h-blank interupt at: " << (unsigned int)this->r_pc.value << std::endl;
-
-        // Do a straight jump to 0x0048
-        this->r_pc.value = (uint8_t)0x0048;
+        this->v_blank_executed = false;
     }
+
+    if ((this->ram->get_val(this->ram->LCDC_STATUS_ADDR) & (uint8_t)0x08))
+    {
+        if (! this->h_blank_executed)
+        {
+            if (true || INTERUPT_DEBUG || DEBUG || this->stepped_in)
+                std::cout << std::hex << "Got h-blank interupt at: " << (unsigned int)this->r_pc.value << std::endl;
+
+            // Do a straight jump to 0x0048
+            this->r_pc.value = (uint8_t)0x0048;
+        
+            // Mark interupt for h_blank as being executed
+            this->h_blank_executed = true;
+
+            // Return to ensure no other interupts are processed.
+            return;
+        }
+    }
+    else
+    {
+        // Reset, since we're out of the h_blank period
+        this->h_blank_executed = false;
+    }
+
     if (this->timer_overflow)
     {
         this->ram->stack_push(this->r_sp.value, this->r_pc.value);
         this->r_pc.value = this->ram->get_val(this->TIMER_INTERUPT_PTR_ADDR);
+        return;
     }
 }
 
@@ -791,7 +824,10 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_Sub(&this->r_a);
             break;
         case 0x98:
+            std::cout << "running 0x98" << std::endl;
             this->op_SBC(&this->r_b);
+            //int nope;
+            //std::cin >> nope;
             break;
         case 0x99:
             this->op_SBC(&this->r_c);
@@ -1998,7 +2034,7 @@ void CPU::set_register_bit(reg8 *source, uint8_t bit_shift, unsigned int val) {
 
 // Obtain the value of a given bit of a given register
 uint8_t CPU::get_register_bit(reg8 *source, unsigned int bit_shift) {
-    return (uint8_t)((source->value & (1U  << bit_shift)) >> bit_shift);
+    return ((uint8_t)((source->value & (1U  << bit_shift)) >> bit_shift) & 0x01);
 }
 
 // Set zero flag, based on the value of a given register
@@ -2012,6 +2048,22 @@ uint8_t CPU::get_zero_flag() {
 
 uint8_t CPU::get_carry_flag() {
     return this->get_register_bit(&this->r_f, this->CARRY_FLAG_BIT);
+}
+
+uint8_t CPU::get_half_carry_flag() {
+    return this->get_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT);
+}
+
+uint8_t CPU::get_subtract_flag() {
+    return this->get_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT);
+}
+
+void CPU::flip_carry_flag() {
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, this->get_carry_flag() ? 0UL : 1UL);
+}
+
+void CPU::flip_half_carry_flag() {
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, this->get_half_carry_flag() ? 0UL : 1UL);
 }
 
 void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
@@ -2035,13 +2087,18 @@ void CPU::set_half_carry16(uint16_t original_val, uint16_t input) {
 }
 void CPU::set_half_carry_sub(uint8_t original_val, uint8_t input) {
     // @TODO Check this implimentation
+    // Create Test-bed, which sets up half-byte (lower half-byte) of data.
+    // Remove original value and determine if the uppper nibble of data is affected.
+    uint8_t test = 0xf0 | original_val;
+    test = test - (input & 0x0f);
     this->set_register_bit(
         &this->r_f,
         this->HALF_CARRY_FLAG_BIT,
         // XOR the original and new values' 5th BIT.
         // This means it will result in half carry if the value has changed.
         //((0x10 & original_val) >> 4) ^ ((0x10 & input) >> 4));
-        ((unsigned int)(input & 0x0f) > (unsigned int)(original_val & 0x0f)) ? 1U : 0U);
+        //(test < 0xf0) ? 1U : 0U);
+        ((((int)original_val & 0xF) - ((int)input & 0xF)) < 0) ? 1U : 0U);
 }
 void CPU::set_half_carry_sub16(uint16_t original_val, uint16_t input) {
     // @TODO Check this implimentation
@@ -2114,10 +2171,14 @@ void CPU::op_Load_Inc(reg8 *dest, combined_reg *source) {
 void CPU::op_CPL()
 {
     this->r_a.value = (this->r_a.value ^ 0xff);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 1U);
 }
 
 void CPU::op_CCF()
 {
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0UL);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0UL);
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, this->get_carry_flag() ? 0UL : 1UL);
 }
 
@@ -2346,49 +2407,62 @@ void CPU::op_Sub() {
     this->op_Sub(source);
 }
 void CPU::op_Sub(reg8 *src) {
-    this->op_Sub((uint16_t)src->value);
+    this->op_Sub((uint16_t)src->value & 0x00ff);
 }
 void CPU::opm_Sub(uint16_t mem_addr) {
     this->op_Sub(this->ram->get_val(mem_addr));
 }
 void CPU::op_Sub(uint16_t src) {
     uint8_t original_val = this->r_a.value;
+    std::cout << std::hex << "subtracting " << (int)src << " from " << (int)this->r_a.value << std::endl;
 
     this->data_conv.bit8[0] = this->r_a.value;
     this->data_conv.bit8[1] = 0xff;
 
-    this->data_conv.bit16[0] = (uint16_t)(this->data_conv.bit16[0] - src);
+    this->data_conv.bit16[0] = this->data_conv.bit16[0] - ((uint16_t)src & 0x00ff);
 
     this->r_a.value = this->data_conv.bit8[0];
 
     this->set_zero_flag(this->r_a.value);
-    if (src > 0x00ff)
-        this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 1U);
-    else
+//    if (src > 0x00ff)
+//        this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 1U);
+//    else
         this->set_half_carry_sub(original_val, (uint8_t)(src & 0x00ff));
 
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
         ((original_val < src) ? 1U : 0U));
-
 }
 
 void CPU::op_SBC(reg8 *src)
 {
     // Subtract src plus carry flag
-    this->op_Sub((uint16_t)(src->value + this->get_carry_flag()));
+    this->op_Sub((uint16_t)((uint16_t)src->value + this->get_carry_flag()));
+    //this->flip_carry_flag();
+    //this->flip_half_carry_flag();
+
+    std::cout << std::hex << "output value: " << (int)this->r_a.value << std::endl;
+    std::cout << std::hex << "carry: " << (int)this->get_carry_flag() << std::endl;
+    std::cout << std::hex << "hary-carry: " << (int)this->get_half_carry_flag() << std::endl;
+    std::cout << std::hex << "zero: " << (int)this->get_zero_flag() << std::endl;
+    std::cout << std::hex << "subbtract: " << (int)this->get_subtract_flag() << std::endl;
 }
+
 void CPU::op_SBC()
 {
     // Subtract src plus carry flag
     this->op_Sub((uint16_t)(this->get_inc_pc_val8() + this->get_carry_flag()));
+    this->flip_carry_flag();
+    this->flip_half_carry_flag();
 }
 
 void CPU::opm_SBC(uint16_t mem_addr)
 {
     // Subtract src plus carry flag
     this->op_Sub((uint16_t)(this->ram->get_val(mem_addr) + this->get_carry_flag()));
+    this->flip_carry_flag();
+    this->flip_half_carry_flag();
 }
 
 void CPU::op_Inc(reg8 *src)

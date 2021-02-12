@@ -152,6 +152,9 @@ protected:
     bool get_timer_state();
     void increment_timer();
     bool timer_overflow;
+    
+    bool h_blank_executed;
+    bool v_blank_executed;
 
     void set_zero_flag(const uint8_t val);
     uint8_t get_zero_flag();
@@ -160,6 +163,10 @@ protected:
     void set_half_carry_sub(uint8_t original_val, uint8_t input);
     void set_half_carry_sub16(uint16_t original_val, uint16_t input);
     uint8_t get_carry_flag();
+    uint8_t get_half_carry_flag();
+    uint8_t get_subtract_flag();
+    void flip_half_carry_flag();
+    void flip_carry_flag();
 
     void op_Load(reg8 *dest);
     void op_Load(reg16 *dest);

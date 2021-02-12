@@ -24,6 +24,8 @@ RAM::RAM() {
 
 uint8_t RAM::get_val(uint16_t address) {
     uint8_t val;
+    if (address > this->memory_max)
+        std::cout << std::hex << "ERROR: Got from outside RAM (" << address << "): " << std::endl;
     memcpy(&val, &this->memory[address], 1);
     if (DEBUG)
         std::cout << std::hex << "Got from RAM (" << address << "): "  << (int)val << std::endl;
