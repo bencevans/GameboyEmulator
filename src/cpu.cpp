@@ -2480,8 +2480,8 @@ uint8_t CPU::op_Inc(uint8_t val) {
     } data_conv;
 
     uint8_t original_val = val;
-    data_conv.bit8[0] = val;
-    data_conv.bit16[0] = (uint16_t)((int)(data_conv.bit16[0]) + 1);
+    data_conv.bit16[0] = 0x00ff | val;
+    data_conv.bit16[0] ++;
     val = data_conv.bit8[0];
 
     // Set zero flag
@@ -2491,7 +2491,7 @@ uint8_t CPU::op_Inc(uint8_t val) {
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
 
     // Determine half carry flag based on 5th bit of first byte
-    this->set_half_carry(original_val, 0x01);
+    this->set_half_carry(original_val, val);
     return val;
 }
 void CPU::op_Inc(combined_reg *dest) {
