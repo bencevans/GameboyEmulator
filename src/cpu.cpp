@@ -2422,9 +2422,9 @@ void CPU::op_Sub(uint16_t src) {
     //std::cout << std::hex << "subtracting " << (int)src << " from " << (int)this->r_a.value << std::endl;
 
     this->data_conv.bit8[0] = this->r_a.value;
-    this->data_conv.bit8[1] = 0xff;
+    this->data_conv.bit8[1] = 0;
 
-    this->data_conv.bit16[0] = this->data_conv.bit16[0] - ((uint16_t)src & 0x00ff);
+    this->data_conv.bit16[0] -= src;
 
     this->r_a.value = this->data_conv.bit8[0];
 
@@ -2432,7 +2432,8 @@ void CPU::op_Sub(uint16_t src) {
 //    if (src > 0x00ff)
 //        this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 1U);
 //    else
-        this->set_half_carry_sub(original_val, (uint8_t)(src & 0x00ff));
+        uint16_t orig16 = original_val & 0x00ff;
+        this->set_half_carry_sub16(orig16, src);
 
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
     this->set_register_bit(
@@ -2444,7 +2445,8 @@ void CPU::op_SBC(reg8 *src)
 {
     // Subtract src plus carry flag
     // @TODO Confirm if the addition is performed as an 8 bit or 16 bit value, (e.g. 0xff + carry flag = 0x100 or 0x00)
-    this->op_Sub((uint16_t)((uint16_t)src->value + this->get_carry_flag()));
+    uint16_t value_to_sub = (uint16_t)src->value + this->get_carry_flag();
+    this->op_Sub(value_to_sub);
     // @TODO confirm if flip should not be performed
     //this->flip_carry_flag();
     //this->flip_half_carry_flag();
