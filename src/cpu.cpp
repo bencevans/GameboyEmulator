@@ -2419,7 +2419,7 @@ void CPU::opm_Sub(uint16_t mem_addr) {
 }
 void CPU::op_Sub(uint16_t src) {
     uint8_t original_val = this->r_a.value;
-    std::cout << std::hex << "subtracting " << (int)src << " from " << (int)this->r_a.value << std::endl;
+    //std::cout << std::hex << "subtracting " << (int)src << " from " << (int)this->r_a.value << std::endl;
 
     this->data_conv.bit8[0] = this->r_a.value;
     this->data_conv.bit8[1] = 0xff;
@@ -2474,10 +2474,12 @@ void CPU::opm_SBC(uint16_t mem_addr)
 
 void CPU::op_Inc(reg8 *src)
 {
+    // Calls op_Inc(uint8_t)
     src->value = this->op_Inc(src->value);
 }
 void CPU::opm_Inc(uint16_t mem_addr)
 {
+    // Calls op_Inc(uint8_t)
     this->ram->set(mem_addr, this->op_Inc(this->ram->get_val(mem_addr)));
 }
 uint8_t CPU::op_Inc(uint8_t val) {
@@ -2487,8 +2489,9 @@ uint8_t CPU::op_Inc(uint8_t val) {
     } data_conv;
 
     uint8_t original_val = val;
+    data_conv.bit16[0] = 0;
     data_conv.bit8[0] = val;
-    data_conv.bit16[0] = (uint16_t)((int)(data_conv.bit16[0]) + 1);
+    data_conv.bit16[0] ++;
     val = data_conv.bit8[0];
 
     // Set zero flag
@@ -2501,6 +2504,8 @@ uint8_t CPU::op_Inc(uint8_t val) {
     this->set_half_carry(original_val, 0x01);
     return val;
 }
+
+
 void CPU::op_Inc(combined_reg *dest) {
     union {
         uint8_t bit8[4];
@@ -2513,8 +2518,10 @@ void CPU::op_Inc(combined_reg *dest) {
     data_conv.bit32[0] = (uint32_t)((unsigned int)(data_conv.bit32[0]) + 1);
     dest->lower->value = data_conv.bit8[0];
     dest->upper->value = data_conv.bit8[1];
+    std::cout << "BUNNNNN" << std::endl;
 }
 void CPU::op_Inc(reg16 *dest) {
+    std::cout << "RUNNNNN" << std::endl;
     this->data_conv32.bit16[0] = dest->value;
     this->data_conv32.bit16[1] = 0;
     this->data_conv32.bit32[0] = (uint32_t)((unsigned int)(this->data_conv32.bit32[0]) + 1);
