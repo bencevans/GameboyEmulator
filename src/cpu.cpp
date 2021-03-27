@@ -2408,7 +2408,7 @@ void CPU::op_Add(reg16 *dest) {
 }
 
 void CPU::op_Sub() {
-    uint16_t source = this->get_inc_pc_val8();
+    uint16_t source = 0x00ff & this->get_inc_pc_val8();
     this->op_Sub(source);
 }
 void CPU::op_Sub(reg8 *src) {
@@ -2433,12 +2433,20 @@ void CPU::op_Sub(uint16_t src) {
 //        this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 1U);
 //    else
         uint16_t orig16 = original_val & 0x00ff;
-        this->set_half_carry_sub16(orig16, src);
 
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
+    
+    // @RULE AS per GCPUMan P83:
+    // H - Set if no borrow from bit 4.
+    // C - Set if no borrow.
+    // Use sub half_carry method and
+    // reverse logic in setting carry flag
+    //this->set_half_carry_sub16(orig16, src);
+    this->set_half_carry16(orig16, src);
+    this->flip_half_carry_flag();
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
-        ((original_val < src) ? 1U : 0U));
+        ((original_val < src) ? 0U : 1U));
 }
 
 void CPU::op_SBC(reg8 *src)
@@ -2462,16 +2470,23 @@ void CPU::op_SBC()
 {
     // Subtract src plus carry flag
     this->op_Sub((uint16_t)(this->get_inc_pc_val8() + this->get_carry_flag()));
-    this->flip_carry_flag();
-    this->flip_half_carry_flag();
+    //this->flip_carry_flag();
+    //this->flip_half_carry_flag();
+
+
+    std::cout << std::hex << "output value: " << (int)this->r_a.value << std::endl;
+    std::cout << std::hex << "carry: " << (int)this->get_carry_flag() << std::endl;
+    std::cout << std::hex << "hary-carry: " << (int)this->get_half_carry_flag() << std::endl;
+    std::cout << std::hex << "zero: " << (int)this->get_zero_flag() << std::endl;
+    std::cout << std::hex << "subbtract: " << (int)this->get_subtract_flag() << std::endl;
 }
 
 void CPU::opm_SBC(uint16_t mem_addr)
 {
     // Subtract src plus carry flag
     this->op_Sub((uint16_t)(this->ram->get_val(mem_addr) + this->get_carry_flag()));
-    this->flip_carry_flag();
-    this->flip_half_carry_flag();
+    //this->flip_carry_flag();
+    //this->flip_half_carry_flag();
 }
 
 void CPU::op_Inc(reg8 *src)
@@ -2520,10 +2535,10 @@ void CPU::op_Inc(combined_reg *dest) {
     data_conv.bit32[0] = (uint32_t)((unsigned int)(data_conv.bit32[0]) + 1);
     dest->lower->value = data_conv.bit8[0];
     dest->upper->value = data_conv.bit8[1];
-    std::cout << "BUNNNNN" << std::endl;
+    //std::cout << "BUNNNNN" << std::endl;
 }
 void CPU::op_Inc(reg16 *dest) {
-    std::cout << "RUNNNNN" << std::endl;
+    //std::cout << "RUNNNNN" << std::endl;
     this->data_conv32.bit16[0] = dest->value;
     this->data_conv32.bit16[1] = 0;
     this->data_conv32.bit32[0] = (uint32_t)((unsigned int)(this->data_conv32.bit32[0]) + 1);
