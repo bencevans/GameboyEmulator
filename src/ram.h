@@ -46,13 +46,13 @@ public:
 
     // Video addresses
     const uint16_t LCDC_CONTROL_ADDR = (uint16_t)0xff40; // LCD Control
-    const uint16_t LCDC_STATUS_ADDR = (uint16_t)0xff41; // LCD status
-    const uint16_t LCDC_SCY = (uint16_t)0xff42; // Background Scroll Y
-    const uint16_t LCDC_SCX = (uint16_t)0xff43; // Background Scroll X
-    const uint16_t LCDC_LY_ADDR = (uint16_t)0xff44; // Current line draw iterator
-    const uint16_t LCDC_LYC_ADDR = (uint16_t)0xff45; // Custom location for interupt if LY equals this
-    const uint16_t LCDC_WY_ADDR = (uint16_t)0xff4a; // Window y position
-    const uint16_t LCDC_WX_ADDR = (uint16_t)0xff4b; // Window x position
+    const uint16_t LCDC_STATUS_ADDR  = (uint16_t)0xff41; // LCD status
+    const uint16_t LCDC_SCY          = (uint16_t)0xff42; // Background Scroll Y
+    const uint16_t LCDC_SCX          = (uint16_t)0xff43; // Background Scroll X
+    const uint16_t LCDC_LY_ADDR      = (uint16_t)0xff44; // Current line draw iterator
+    const uint16_t LCDC_LYC_ADDR     = (uint16_t)0xff45; // Custom location for interupt if LY equals this
+    const uint16_t LCDC_WY_ADDR      = (uint16_t)0xff4a; // Window y position
+    const uint16_t LCDC_WX_ADDR      = (uint16_t)0xff4b; // Window x position
 
 private:
     // @TODO Reduce this to exclude mappings to other

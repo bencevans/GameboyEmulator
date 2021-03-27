@@ -3,7 +3,7 @@
 // Proprietary and confidential
 // Written by Matt Comben <matthew@dockstudios.co.uk>, May 2019
 
-    #include <iostream>
+#include <iostream>
 #include <string>
 #include <signal.h>
 #include "./helper.h"
@@ -50,7 +50,7 @@ int main(int argc, char* args[])
     //CPU cpu_inst = *cpu_inst_ptr;
     //StaticState::cpu_inst = cpu_inst;
 
-#if RUN_TESTS==1
+#if RUN_TESTS
     // Run tests
     TestRunner *rt = new TestRunner(vpu_inst, cpu_inst, ram_inst);
     rt->run_tests();
@@ -76,12 +76,12 @@ int main(int argc, char* args[])
     // 10-bit ops.gb -- passed
     // 11-op a,(hl).gb - (9e 27 failed)
 
-    char rom_path[] = "./resources/test_roms/cpu_instrs/individual/09-op r,r.gb";
+    char rom_path[] = "./resources/test_roms/cpu_instrs/individual/10-bit ops.gb";
     //char rom_path[] = "./copyright/dmg_test_prog_ver1.gb";
     ram_inst->load_bios(bios_path);
     ram_inst->load_rom(rom_path);
 
-#if DISABLE_VPU==0
+#if ! DISABLE_VPU
     bool to_vpu_tick = true;
 #endif
 
@@ -90,7 +90,7 @@ int main(int argc, char* args[])
     {
         cpu_inst->tick();
 
-#if DISABLE_VPU==0
+#if ! DISABLE_VPU
         if (to_vpu_tick)
         {
             vpu_inst->tick();

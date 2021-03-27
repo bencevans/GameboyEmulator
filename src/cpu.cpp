@@ -2027,19 +2027,24 @@ void CPU::op_OR(uint8_t comp) {
 // Set single bit of a given register to a given value
 void CPU::set_register_bit(reg8 *source, uint8_t bit_shift, unsigned int val) {
     if (val == 1)
+        // OR the register with bit shifted 1
         source->value |= (1 << bit_shift);
     else
+        // XOR 0xff with bit to be unset.
+        // AND register with this value, meaning only
+        // specified bit is masked.
         source->value &= (0xff ^ (1 << bit_shift));
 }
 
 // Obtain the value of a given bit of a given register
 uint8_t CPU::get_register_bit(reg8 *source, unsigned int bit_shift) {
-    return ((uint8_t)((source->value & (1U  << bit_shift)) >> bit_shift) & 0x01);
+    // Bit shift 1 by bit to retrieve and AND with register value.
+    return ((source->value & (1  << bit_shift)) >> bit_shift);
 }
 
 // Set zero flag, based on the value of a given register
 void CPU::set_zero_flag(const uint8_t val) {
-    this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, ((val == (uint8_t)0x00) ? 1U : 0U));
+    this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, ((val == 0) ? 1U : 0U));
 }
 
 uint8_t CPU::get_zero_flag() {
@@ -2059,11 +2064,11 @@ uint8_t CPU::get_subtract_flag() {
 }
 
 void CPU::flip_carry_flag() {
-    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, this->get_carry_flag() ? 0UL : 1UL);
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, this->get_carry_flag() ? 0U : 1U);
 }
 
 void CPU::flip_half_carry_flag() {
-    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, this->get_half_carry_flag() ? 0UL : 1UL);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, this->get_half_carry_flag() ? 0U : 1U);
 }
 
 void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
@@ -2177,9 +2182,9 @@ void CPU::op_CPL()
 
 void CPU::op_CCF()
 {
-    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0UL);
-    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0UL);
-    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, this->get_carry_flag() ? 0UL : 1UL);
+    this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 0U);
+    this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
+    this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, this->get_carry_flag() ? 0U : 1U);
 }
 
 void CPU::op_Bit(unsigned int bit, reg8 *comp) {
@@ -2253,10 +2258,10 @@ void CPU::op_Adc(reg8 *dest, uint8_t source) {
 
     // Always work with r_a
     uint8_t original_val = dest->value;
+    this->data_conv.bit16[0] = 0;
     this->data_conv.bit8[0] = dest->value;
-    this->data_conv.bit8[1] = 0;
-    this->data_conv.bit16[0] += (uint16_t)source;
-    this->data_conv.bit16[0] += (uint16_t)this->get_carry_flag();
+    this->data_conv.bit16[0] += source;
+    this->data_conv.bit16[0] += this->get_carry_flag();
     dest->value = this->data_conv.bit8[0];
 
     // Set zero flag
@@ -2267,11 +2272,11 @@ void CPU::op_Adc(reg8 *dest, uint8_t source) {
 
     // Handle edge-case where source is ffff and carry flag is set,
     // since adding these in the parameters will overflow into 0x00
-    if ((source & 0x0f) == (uint8_t)0x0f && this->get_carry_flag() == (uint8_t)0x01)
-        this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, (uint8_t)0x01);
+    if ((source & 0x0f) == 0x0f && this->get_carry_flag() == 0x01)
+        this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0x01);
     else
         // Determine half carry flag based on 5th bit of first byte
-        this->set_half_carry(original_val, ((uint8_t)(source + this->get_carry_flag())));
+        this->set_half_carry(original_val, source + this->get_carry_flag());
 
     // Set carry flag, based on 1st bit of second byte
     this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, (this->data_conv.bit8[1] & 0x01));
@@ -2438,7 +2443,9 @@ void CPU::op_Sub(uint16_t src) {
 void CPU::op_SBC(reg8 *src)
 {
     // Subtract src plus carry flag
+    // @TODO Confirm if the addition is performed as an 8 bit or 16 bit value, (e.g. 0xff + carry flag = 0x100 or 0x00)
     this->op_Sub((uint16_t)((uint16_t)src->value + this->get_carry_flag()));
+    // @TODO confirm if flip should not be performed
     //this->flip_carry_flag();
     //this->flip_half_carry_flag();
 
@@ -2562,12 +2569,12 @@ void CPU::op_CP(reg8 *in) {
 void CPU::opm_CP(uint16_t mem_addr) {
     this->op_CP(this->ram->get_val(mem_addr));
 }
+// Compare 8 bit value against value in register a
 void CPU::op_CP(uint8_t in) {
-    //unsigned int res = (unsigned int)this->r_a.value - (unsigned int)in;
 
-    // Set zero flag based on the result
+    // Set zero flag based on the result of comparison
     this->set_register_bit(&this->r_f, this->ZERO_FLAG_BIT, (this->r_a.value == in) ? 1U : 0U);
-    //this->set_zero_flag((uint8_t)res);
+
     // Always set subtract flag (since that is what we're doing!)
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
     this->set_half_carry_sub(this->r_a.value, in);
