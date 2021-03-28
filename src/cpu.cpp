@@ -167,15 +167,15 @@ void CPU::tick() {
     }
 
     // Read value from memory
-    unsigned int op_val = (unsigned int)this->get_inc_pc_val8();
+    this->op_val = (unsigned int)this->get_inc_pc_val8();
 
-    //this->debug_op_codes(op_val);
+    //this->debug_op_codes(op_this->val);
 
     if (this->cb_state) {
-        this->execute_cb_code(op_val);
+        this->execute_cb_code(this->op_val);
         this->cb_state = false;
     } else {
-        this->execute_op_code(op_val);
+        this->execute_op_code(this->op_val);
     }
 
     // Stop runnign when we hit the start of the ROM
@@ -2071,7 +2071,7 @@ void CPU::flip_half_carry_flag() {
     this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, this->get_half_carry_flag() ? 0U : 1U);
 }
 
-void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
+void CPU::set_half_carry(uint16_t original_val, uint16_t input) {
     // @TODO Check this implimentation
     this->set_register_bit(
         &this->r_f,
@@ -2079,7 +2079,7 @@ void CPU::set_half_carry(uint8_t original_val, uint8_t input) {
         // XOR the original and new values' 5th BIT.
         // This means it will result in half carry if the value has changed.
         //((0x10 & original_val) >> 4) ^ ((0x10 & input) >> 4));
-        (((original_val & 0x0f) + (input & 0x0f)) & 0x10) ? 1U : 0U);
+        (((original_val & 0x000f) + (input & 0x000f)) & 0x0010) == 0x0010 ? 1U : 0U);
 }
 void CPU::set_half_carry16(uint16_t original_val, uint16_t input) {
     // @TODO Check this implimentation
@@ -2104,6 +2104,21 @@ void CPU::set_half_carry_sub(uint8_t original_val, uint8_t input) {
         //((0x10 & original_val) >> 4) ^ ((0x10 & input) >> 4));
         //(test < 0xf0) ? 1U : 0U);
         ((((int)original_val & 0xF) - ((int)input & 0xF)) < 0) ? 1U : 0U);
+}
+void CPU::set_half_carry_sub2(uint16_t original_val, uint16_t input) {
+    // @TODO Check this implimentation
+    // Create Test-bed, which sets up half-byte (lower half-byte) of data.
+    // Remove original value and determine if the uppper nibble of data is affected.
+    uint16_t test = 0xfff0 | original_val;
+    test -= (input & 0x000f);
+    this->set_register_bit(
+        &this->r_f,
+        this->HALF_CARRY_FLAG_BIT,
+        // Check if the top 3 nibbles of test value have been changed.
+        // If they have, a borrow has occured. Set register based on this.
+        // If a borrow has occured, set to 0, else 1 
+        ((test & 0xfff0) != 0xfff0) ? 1U : 0U);
+        //((((int)original_val & 0xF) - ((int)input & 0xF)) < 0) ? 1U : 0U);
 }
 void CPU::set_half_carry_sub16(uint16_t original_val, uint16_t input) {
     // @TODO Check this implimentation
@@ -2435,18 +2450,30 @@ void CPU::op_Sub(uint16_t src) {
         uint16_t orig16 = original_val & 0x00ff;
 
     this->set_register_bit(&this->r_f, this->SUBTRACT_FLAG_BIT, 1U);
-    
+
     // @RULE AS per GCPUMan P83:
     // H - Set if no borrow from bit 4.
     // C - Set if no borrow.
     // Use sub half_carry method and
     // reverse logic in setting carry flag
-    //this->set_half_carry_sub16(orig16, src);
-    this->set_half_carry16(orig16, src);
-    this->flip_half_carry_flag();
+    // TESTED USING 09-op r,r.gb
+    this->set_half_carry_sub2(orig16, src);
     this->set_register_bit(
         &this->r_f, this->CARRY_FLAG_BIT,
-        ((original_val < src) ? 0U : 1U));
+        ((original_val < src) ? 1U : 0U));
+
+    if (this->op_val == 0x90) {
+    std::cout << std::endl;
+    std::cout << std::hex << "original value: " << (unsigned int)original_val << std::endl;
+
+    std::cout << std::hex << "value to remove: " << (unsigned int)src << std::endl;
+
+    std::cout << std::hex << "output value: " << (unsigned int)this->r_a.value << std::endl;
+    std::cout << std::hex << "carry: " << (unsigned int)this->get_carry_flag() << std::endl;
+    std::cout << std::hex << "hary-carry: " << (unsigned int)this->get_half_carry_flag() << std::endl;
+    std::cout << std::hex << "zero: " << (unsigned int)this->get_zero_flag() << std::endl;
+    std::cout << std::hex << "subbtract: " << (unsigned int)this->get_subtract_flag() << std::endl;
+    }
 }
 
 void CPU::op_SBC(reg8 *src)
@@ -2459,11 +2486,6 @@ void CPU::op_SBC(reg8 *src)
     //this->flip_carry_flag();
     //this->flip_half_carry_flag();
 
-    std::cout << std::hex << "output value: " << (int)this->r_a.value << std::endl;
-    std::cout << std::hex << "carry: " << (int)this->get_carry_flag() << std::endl;
-    std::cout << std::hex << "hary-carry: " << (int)this->get_half_carry_flag() << std::endl;
-    std::cout << std::hex << "zero: " << (int)this->get_zero_flag() << std::endl;
-    std::cout << std::hex << "subbtract: " << (int)this->get_subtract_flag() << std::endl;
 }
 
 void CPU::op_SBC()
@@ -2472,13 +2494,6 @@ void CPU::op_SBC()
     this->op_Sub((uint16_t)(this->get_inc_pc_val8() + this->get_carry_flag()));
     //this->flip_carry_flag();
     //this->flip_half_carry_flag();
-
-
-    std::cout << std::hex << "output value: " << (int)this->r_a.value << std::endl;
-    std::cout << std::hex << "carry: " << (int)this->get_carry_flag() << std::endl;
-    std::cout << std::hex << "hary-carry: " << (int)this->get_half_carry_flag() << std::endl;
-    std::cout << std::hex << "zero: " << (int)this->get_zero_flag() << std::endl;
-    std::cout << std::hex << "subbtract: " << (int)this->get_subtract_flag() << std::endl;
 }
 
 void CPU::opm_SBC(uint16_t mem_addr)

@@ -75,7 +75,7 @@ protected:
     bool cb_state;
     bool stepped_in;
     unsigned int timer_itx;
-
+    unsigned int op_val;
 
     union {
         uint8_t bit8[2];
@@ -158,10 +158,11 @@ protected:
 
     void set_zero_flag(const uint8_t val);
     uint8_t get_zero_flag();
-    void set_half_carry(uint8_t original_val, uint8_t input);
+    void set_half_carry(uint16_t original_val, uint16_t input);
     void set_half_carry16(uint16_t original_val, uint16_t input);
     void set_half_carry_sub(uint8_t original_val, uint8_t input);
     void set_half_carry_sub16(uint16_t original_val, uint16_t input);
+    void set_half_carry_sub2(uint16_t original_val, uint16_t input);
     uint8_t get_carry_flag();
     uint8_t get_half_carry_flag();
     uint8_t get_subtract_flag();

@@ -54,13 +54,12 @@ CMakeFiles/GameboyEmulator.dir/src/Main.cpp.o: /usr/include/SDL2/SDL_video.h
 CMakeFiles/GameboyEmulator.dir/src/Main.cpp.o: /usr/include/SDL2/begin_code.h
 CMakeFiles/GameboyEmulator.dir/src/Main.cpp.o: /usr/include/SDL2/close_code.h
 
-CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: src/./ram.h
-CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: src/./vpu.h
 CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: src/cpu.cpp
 CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: src/cpu.h
 CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: src/helper.h
 CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: src/ram.h
 CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: src/ram_subset.h
+CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: src/vpu.h
 CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: /usr/include/SDL2/SDL.h
 CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: /usr/include/SDL2/SDL_assert.h
 CMakeFiles/GameboyEmulator.dir/src/cpu.cpp.o: /usr/include/SDL2/SDL_atomic.h
