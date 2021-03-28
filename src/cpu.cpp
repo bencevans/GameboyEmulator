@@ -948,14 +948,14 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_CP(&this->r_a);
             break;
         case 0xc0:
-            if (this->get_zero_flag() == (uint8_t)0x00)
+            if (this->get_zero_flag() == 0x00)
                 this->op_Return();
             break;
         case 0xc1:
             this->op_Pop(&this->r_bc);
             break;
         case 0xc2:
-            if (this->get_zero_flag() == (uint8_t)0x00)
+            if (this->get_zero_flag() == 0x00)
                 this->op_JP();
             else
                 // If we don't perform the OP, pull
@@ -966,7 +966,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_JP();
             break;
         case 0xc4:
-            if (this->get_zero_flag() == (uint8_t)0x00)
+            if (this->get_zero_flag() == 0x00)
                 this->op_Call();
             else
                 // If we don't perform the OP, pull
@@ -983,14 +983,14 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_RST(0x0000);
             break;
         case 0xc8:
-            if (this->get_zero_flag() == (uint8_t)0x01)
+            if (this->get_zero_flag() == 0x01)
                 this->op_Return();
             break;
         case 0xc9:
             this->op_Return();
             break;
         case 0xca:
-            if (this->get_zero_flag() == (uint8_t)0x01)
+            if (this->get_zero_flag() == 0x01)
                 this->op_JP();
             else
                 // If we don't perform the OP, pull
@@ -1002,7 +1002,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->cb_state = true;
             break;
         case 0xcc:
-            if (this->get_zero_flag() == (uint8_t)0x01)
+            if (this->get_zero_flag() == 0x01)
                 this->op_Call();
             else
                 // If we don't perform the OP, pull
@@ -1019,14 +1019,14 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_RST(0x0008);
             break;
         case 0xd0:
-            if (this->get_carry_flag() == (uint8_t)0x00)
+            if (this->get_carry_flag() == 0x00)
                 this->op_Return();
             break;
         case 0xd1:
             this->op_Pop(&this->r_de);
             break;
         case 0xd2:
-            if (this->get_carry_flag() == (uint8_t)0x00)
+            if (this->get_carry_flag() == 0x00)
                 this->op_JP();
             else
                 // If we don't perform the OP, pull
@@ -1034,7 +1034,7 @@ void CPU::execute_op_code(unsigned int op_val) {
                 this->get_inc_pc_val16();
             break;
         case 0xd4:
-            if (this->get_carry_flag() == (uint8_t)0x00)
+            if (this->get_carry_flag() == 0x00)
                 this->op_Call();
             else
                 this->get_inc_pc_val16();
@@ -1049,7 +1049,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_RST(0x0010);
             break;
         case 0xd8:
-            if (this->get_carry_flag() == (uint8_t)0x01)
+            if (this->get_carry_flag() == 0x01)
                 this->op_Return();
             break;
         case 0xd9:
@@ -1058,7 +1058,7 @@ void CPU::execute_op_code(unsigned int op_val) {
             this->op_EI();
             break;
         case 0xda:
-            if (this->get_carry_flag() == (uint8_t)0x01)
+            if (this->get_carry_flag() == 0x01)
                 this->op_JP();
             else
                 // If we don't perform the OP, pull
@@ -1066,7 +1066,7 @@ void CPU::execute_op_code(unsigned int op_val) {
                 this->get_inc_pc_val16();
             break;
         case 0xdc:
-            if (this->get_carry_flag() != (uint8_t)0x00)
+            if (this->get_carry_flag() != 0x00)
                 this->op_Call();
             else
                 this->get_inc_pc_val16();
