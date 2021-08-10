@@ -25,7 +25,9 @@
 #define INTERUPT_DEBUG 1
 //#define STEPIN 0x0101
 //#define STEPIN 0x07f2
-#define STEPIN 0x00//x0217//x075b
+//#define STEPIN 0x00//x0217//x075b
+#define STEPIN 0x100
+
 //#define STEPIN 0 //0x06ef //0x0271 //0x029d
 #define DEBUG_POINT 0//xc4a0//x02b7//x086f//x086f//x0870
 //0x086e //0x086f//0x02bd//0x0291 //0x26c
@@ -104,7 +106,7 @@ void CPU::reset_state()
     this->halt_state = false;
 
     this->r_sp.value = 0xfffe;
-    this->r_pc.value = 0;
+    this->r_pc.value = 0x00;
 
     this->checked_op_codes_itx = 0;
     this->checked_cb_codes_itx = 0;
@@ -2462,7 +2464,13 @@ void CPU::op_Sub(uint16_t src) {
         &this->r_f, this->CARRY_FLAG_BIT,
         ((original_val < src) ? 1U : 0U));
 
-    if (this->op_val == 0x90) {
+//    // If 0x0100 is removed, set half carry flag
+//    if (src == 0x0100) {
+//        this->set_register_bit(&this->r_f, this->HALF_CARRY_FLAG_BIT, 0U);
+//        this->set_register_bit(&this->r_f, this->CARRY_FLAG_BIT, 0U);
+//    }
+
+    if (this->op_val == 0x98) {
     std::cout << std::endl;
     std::cout << std::hex << "original value: " << (unsigned int)original_val << std::endl;
 
